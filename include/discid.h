@@ -13,41 +13,10 @@
 #define MUSICBRAINZ_DISC_ID_H
 
 
-/* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */
-#define MB_DISC_ID_LENGTH	32
-
-/* The maximum permitted length for an error message (without the '\0'-byte). */
-#define MB_ERROR_MSG_LENGTH	255
-
-/* URL prefix + 100 tracks, 5 bytes each + 32 bytes discid */
-#define MB_MAX_URL_LENGTH	1023
-
-/* TODO: "mm" necessary? Maybe even use a nicer URL? */
-#define MB_SUBMISSION_URL	"http://mm.musicbrainz.org/bare/cdlookup.html"
-
-
-
 /*
- * Transparent handle.
+ * A transparent handle.
  */
-/* typedef void *mb_disc; */
-
-
-/*
- * This data structure represents an audio disc.
- *
- * We use fixed length strings here because that way the user doesn't have to
- * check for memory exhaustion conditions. As soon as the mb_disc object has
- * been created, all calls returning strings will be successful.
- */
-typedef struct {
-	int first_track_num;
-	int last_track_num;
-	int track_offsets[100];
-	char id[MB_DISC_ID_LENGTH+1];
-	char submission_url[MB_MAX_URL_LENGTH+1];
-	char error_msg[MB_ERROR_MSG_LENGTH+1];
-} mb_disc;
+typedef void *mb_disc;
 
 
 /*
@@ -63,10 +32,7 @@ void mb_disc_free(mb_disc *disc);
 
 
 /*
- * Read the TOC from the given device and initialize the disc object.
- *
- * This function is unportable and has to be implemented once per operating
- * system.
+ * Read the TOC from the given device and initialize the mb_disc object.
  *
  * Returns 0 on error.
  *
@@ -94,6 +60,12 @@ char *mb_disc_get_id(mb_disc *disc);
  * The returned string is only valid as long as the mb_disc exists.
  */
 char *mb_disc_get_submission_url(mb_disc *disc);
+
+
+/*
+ * Returns the name of the default disc device for this operating system.
+ */
+char *mb_disc_get_default_device(void);
 
 
 /*

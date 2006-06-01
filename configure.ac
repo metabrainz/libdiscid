@@ -14,21 +14,21 @@ dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
 
 case "${host_cpu}-${host_os}" in
-  *-beos*)    os=beos; LIBS='-lbe -lroot' ;;
-  *-cygwin*)  os=cygwin; LIBS='-lwinmm' ;;
-  *-freebsd*) os=freebsd ;;
-  *-darwin*)  os=darwin ;;
-  *-irix*)    os=irix; CXXFLAGS="$CFLAGS -fsquangle"; 
-                       LIBS='-lcdaudio -lmediad -lds' ;; 
+  #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;
+  #*-cygwin*)  os=cygwin; LIBS='-lwinmm' ;;
+  #*-freebsd*) os=freebsd ;;
+  #*-darwin*)  os=darwin ;;
+  #*-irix*)    os=irix; CXXFLAGS="$CFLAGS -fsquangle"; 
+  #                     LIBS='-lcdaudio -lmediad -lds' ;; 
   *-linux*)   os=linux ;;
-  *-netbsd*)  os=netbsd ;;
-  *-openbsd*) os=openbsd ;;
-  *-os2_emx*) os=os2 ;;
-  *-solaris*) os=solaris; LIBS='-lsocket -lnsl' ;;
-  *-qnx*)     os=qnx; LIBS='-lsocket' ;;
-  *)          AC_MSG_RESULT([WARNING: unknown system]) ;;
+  #*-netbsd*)  os=netbsd ;;
+  #*-openbsd*) os=openbsd ;;
+  #*-os2_emx*) os=os2 ;;
+  #*-solaris*) os=solaris; LIBS='-lsocket -lnsl' ;;
+  #*-qnx*)     os=qnx; LIBS='-lsocket' ;;
+  *)          AC_MSG_ERROR([unsupported operating system]) ;;
 esac
-AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
+dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
 dnl TODO: print OS, only create ${os} variables if we have an implementation
 

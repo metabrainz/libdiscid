@@ -5,10 +5,11 @@
 #include "base64.h"
 
 #include "discid.h"
+#include "discid_private.h"
 
 
-static void mb_create_disc_id(mb_disc *disc, char buf[]);
-static void mb_create_submission_url(mb_disc *disc, char buf[]);
+static void mb_create_disc_id(mb_disc_private *disc, char buf[]);
+static void mb_create_submission_url(mb_disc_private *disc, char buf[]);
 
 
 
@@ -20,7 +21,8 @@ static void mb_create_submission_url(mb_disc *disc, char buf[]);
 
 
 mb_disc *mb_disc_new() {
-	return calloc(1, sizeof(mb_disc)); /* initializes everything to zero */
+	/* initializes everything to zero */
+	return calloc(1, sizeof(mb_disc_private));
 }
 
 
@@ -29,14 +31,16 @@ void mb_disc_free(mb_disc *disc) {
 }
 
 
-char *mb_disc_get_error_msg(mb_disc *disc) {
+char *mb_disc_get_error_msg(mb_disc *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 
 	return disc->error_msg; /* TODO */
 }
 
 
-char *mb_disc_get_id(mb_disc *disc) {
+char *mb_disc_get_id(mb_disc *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 
 	if ( strlen(disc->id) == 0 )
@@ -46,13 +50,36 @@ char *mb_disc_get_id(mb_disc *disc) {
 }
 
 
-char *mb_disc_get_submission_url(mb_disc *disc) {
+char *mb_disc_get_submission_url(mb_disc *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 
 	if ( strlen(disc->submission_url) == 0 )
 		mb_create_submission_url(disc, disc->submission_url);
 
 	return disc->submission_url;
+}
+
+
+int mb_disc_read(mb_disc *d, char *device) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	if ( device == NULL )
+		device = mb_disc_get_default_device();
+
+	assert( device != NULL );
+
+	/* Necessary, because the disc handle could have been used before. */
+	memset(disc, 0, sizeof(mb_disc_private));
+
+	return mb_disc_read_unportable(disc, device);
+}
+
+
+char *mb_disc_get_default_device(void) {
+	return mb_disc_get_default_device_unportable();
 }
 
 
@@ -66,7 +93,7 @@ char *mb_disc_get_submission_url(mb_disc *disc) {
  * Create a DiscID based on the TOC data found in the mb_disc object.
  * The DiscID is placed in the provided string buffer.
  */
-static void mb_create_disc_id(mb_disc *disc, char buf[]) {
+static void mb_create_disc_id(mb_disc_private *disc, char buf[]) {
 	SHA_INFO	sha;
 	unsigned char	digest[20], *base64;
 	unsigned long	size;
@@ -103,7 +130,7 @@ static void mb_create_disc_id(mb_disc *disc, char buf[]) {
  * Create a submission URL based on the TOC data found in the mb_disc object.
  * The URL is placed in the provided string buffer.
  */
-static void mb_create_submission_url(mb_disc *disc, char buf[]) {
+static void mb_create_submission_url(mb_disc_private *disc, char buf[]) {
 	char tmp[1024];
 	int i;
 
@@ -112,7 +139,7 @@ static void mb_create_submission_url(mb_disc *disc, char buf[]) {
 	strcpy(buf, MB_SUBMISSION_URL);
 
 	strcat(buf, "?id=");
-	strcat(buf, mb_disc_get_id(disc));
+	strcat(buf, mb_disc_get_id((mb_disc *) disc));
 
 	sprintf(tmp, "&tracks=%d", disc->last_track_num);
 	strcat(buf, tmp);

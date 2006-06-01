@@ -9,8 +9,12 @@
 #include <assert.h>
 
 #include "discid.h"
+#include "discid_private.h"
 
-#define XA_INTERVAL ((60 + 90 + 2) * CD_FRAMES)
+
+#define MB_DEFAULT_DEVICE	"/dev/cdrom"
+
+#define XA_INTERVAL		((60 + 90 + 2) * CD_FRAMES)
 
 
 /* TODO: make sure it's available */
@@ -78,16 +82,16 @@ static int read_leadout(int fd, unsigned long *lba) {
 }
 
 
-int mb_disc_read(mb_disc *disc, char *device) {
+char *mb_disc_get_default_device_unportable(void) {
+	return MB_DEFAULT_DEVICE;
+}
+
+
+int mb_disc_read_unportable(mb_disc_private *disc, char *device) {
 	int fd;
 	unsigned long lba;
 	int first, last;
 	int i;
-
-	assert( disc != NULL );
-
-	if ( device == NULL )
-		device = "/dev/cdrom"; /* TODO */
 
 	if ( (fd = open(device, O_RDONLY | O_NONBLOCK)) < 0 ) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,

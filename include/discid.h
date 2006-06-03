@@ -69,7 +69,26 @@ char *mb_disc_get_default_device(void);
 
 
 /*
- * TODO: access to first+last track, and offsets
+ * Returns the number of the first track on this disc.
+ */
+int mb_disc_get_first_track_num(mb_disc *disc);
+
+
+/*
+ * Returns the number of the last track on this disc.
+ */
+int mb_disc_get_last_track_num(mb_disc *disc);
+
+
+/*
+ * Returns the length of the disc in sectors.
+ */
+int mb_disc_get_sectors(mb_disc *disc);
+
+
+/*
+ * TODO: how should the interface for mb_disc_get_tracks() look like?
+ * int *mb_disc_get_tracks(mb_disc *disc), returning the track offsets?
  */
 
 #endif /* MUSICBRAINZ_DISC_ID_H */

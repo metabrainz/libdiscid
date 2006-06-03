@@ -83,6 +83,32 @@ char *mb_disc_get_default_device(void) {
 }
 
 
+int mb_disc_get_first_track_num(mb_disc *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	return disc->last_track_num;
+}
+
+
+int mb_disc_get_last_track_num(mb_disc *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	return disc->last_track_num;
+}
+
+
+int mb_disc_get_sectors(mb_disc *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	return disc->track_offsets[0];
+}
+
 /****************************************************************************
  *
  * Private utilities, not exported.

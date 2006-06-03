@@ -41,8 +41,11 @@ typedef struct {
  * The caller guarantees that both the disc and device parameters are
  * not NULL.
  *
- * On error, 0 is returned and mb_disc_private's error_msg attribute has
- * to be set to a human-readable error message.
+ * Implementors have to set mb_disc_private's first_track_num, last_track_num,
+ * and track_offsets attributes. If there is an error, the error_msg attribute
+ * has to be set to a human-readable error message.
+ *
+ * On error, 0 is returned. On success, 1 is returned.
  */
 int mb_disc_read_unportable(mb_disc_private *disc, char *device);
 

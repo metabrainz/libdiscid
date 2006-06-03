@@ -8,7 +8,7 @@
 #include <linux/cdrom.h>
 #include <assert.h>
 
-#include "discid.h"
+
 #include "discid_private.h"
 
 

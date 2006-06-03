@@ -30,11 +30,13 @@ case "${host_cpu}-${host_os}" in
 esac
 dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
-dnl TODO: print OS, only create ${os} variables if we have an implementation
 
 dnl The file containing the operating system dependent disc access code.
 DISC_OS_OBJ=disc_${os}.lo
 AC_SUBST(DISC_OS_OBJ)
+
+AC_MSG_NOTICE([using discid implementation disc_${os}.c])
+
 
 dnl Checks for programs.
 AC_PROG_CC

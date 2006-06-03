@@ -15,7 +15,8 @@ AC_CANONICAL_HOST
 
 case "${host_cpu}-${host_os}" in
   #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;
-  #*-cygwin*)  os=cygwin; LIBS='-lwinmm' ;;
+  *-mingw*)   os=win32; LIBS='-lwinmm' ;;
+  *-cygwin*)  os=win32; LIBS='-lwinmm' ;;
   #*-freebsd*) os=freebsd ;;
   #*-darwin*)  os=darwin ;;
   #*-irix*)    os=irix; CXXFLAGS="$CFLAGS -fsquangle"; 

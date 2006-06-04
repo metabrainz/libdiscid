@@ -5,6 +5,7 @@ includedir=@includedir@
 
 Name: libdiscid
 Description: The Musicbrainz DiscID Library.
+URL: http://musicbrainz.org/products/libdiscid/
 Version: @VERSION@
 Requires: 
 Libs: -L${libdir} -ldiscid

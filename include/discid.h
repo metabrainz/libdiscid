@@ -1,14 +1,26 @@
-/*
- * discid.h - Proposed interface for libdiscid
- *
- * libdiscid will become a C library for generating MusicBrainz DiscIDs
- * on as many different operating systems as possible. It can be shipped
- * with libmb3 or separately.
- *
- * The idea is to provide a library which is easy to use from script languages
- * via python's ctypes etc. but is more lightweight than libmb3 and has no
- * further dependencies.
- */
+/* --------------------------------------------------------------------------
+
+   MusicBrainz -- The Internet music metadatabase
+
+   Copyright (C) 2006 Matthias Friedrich
+   
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+   
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+   
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+
+     $Id$
+
+--------------------------------------------------------------------------- */
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
@@ -35,8 +47,6 @@ void mb_disc_free(mb_disc *disc);
  * Read the TOC from the given device and initialize the mb_disc object.
  *
  * Returns 0 on error.
- *
- * TODO: Is a char pointer OK? libmb2 uses a custom type.
  */
 int mb_disc_read(mb_disc *disc, char *device);
 

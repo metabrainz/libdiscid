@@ -1,0 +1,15 @@
+This library is a C port of the DiscID-related code from libmusicbrainz-2
+written by Robert Kaye et al.
+
+The following people have contributed to libdiscid:
+
+   Matthias Friedrich <matt at mafr dot de>
+    - Created the interface and the build system.
+    - Ported the DiscID code.
+    - Ported the linux code.
+
+   Lukáš Lalinský <lalinsky at gmail dot com>
+    - Ported the win32 code.
+
+-- 
+$Id$

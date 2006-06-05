@@ -57,5 +57,6 @@ fi
 
 
 AC_OUTPUT([
-  Makefile src/Makefile include/Makefile examples/Makefile libdiscid.pc
+  Makefile src/Makefile include/Makefile include/discid/Makefile
+  examples/Makefile libdiscid.pc
 ])

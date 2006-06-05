@@ -29,8 +29,8 @@
 #include "sha1.h"
 #include "base64.h"
 
-#include "discid.h"
-#include "discid_private.h"
+#include "discid/discid.h"
+#include "discid/discid_private.h"
 
 
 #define TRACK_NUM_IS_VALID(disc, i) \

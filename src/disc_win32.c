@@ -31,7 +31,7 @@
 #define snprintf _snprintf
 #endif
 
-#include "discid_private.h"
+#include "discid/discid_private.h"
 
 #define MB_DEFAULT_DEVICE	"cdaudio"
 

@@ -25,6 +25,11 @@
 #define MUSICBRAINZ_DISC_ID_H
 
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
+
 /**
  * A transparent handle for an Audio CD.
  *
@@ -171,5 +176,9 @@ int mb_disc_get_track_offset(mb_disc *d, int track_num);
  */
 int mb_disc_get_track_length(mb_disc *d, int track_num);
 
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif /* MUSICBRAINZ_DISC_ID_H */

@@ -34,7 +34,7 @@
 #include <assert.h>
 
 
-#include "discid_private.h"
+#include "discid/discid_private.h"
 
 
 #define MB_DEFAULT_DEVICE	"/dev/cdrom"

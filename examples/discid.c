@@ -22,7 +22,8 @@
 
 --------------------------------------------------------------------------- */
 #include <stdio.h>
-#include <discid.h>
+#include <discid/discid.h>
+
 
 int main(void) {
 	mb_disc *disc = mb_disc_new();

@@ -55,6 +55,7 @@ typedef struct {
 	char id[MB_DISC_ID_LENGTH+1];
 	char submission_url[MB_MAX_URL_LENGTH+1];
 	char error_msg[MB_ERROR_MSG_LENGTH+1];
+	int success;
 } mb_disc_private;
 
 

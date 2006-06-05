@@ -25,80 +25,151 @@
 #define MUSICBRAINZ_DISC_ID_H
 
 
-/*
- * A transparent handle.
+/**
+ * A transparent handle for an Audio CD.
+ *
+ * This is returned by mb_disc_new() and has to be passed as the first
+ * parameter to all mb_disc_*() functions.
  */
 typedef void *mb_disc;
 
 
-/*
- * Returns a pointer to a new mb_disc object.
+/**
+ * Return a handle for a new mb_disc object.
+ *
+ * If no memory could be allocated, NULL is returned. Don't use the created
+ * mb_disc object before calling mb_disc_read().
+ *
+ * @return an mb_disc object, or NULL.
  */
 mb_disc *mb_disc_new();
 
 
-/*
+/**
  * Release the memory allocated for the mb_disc object.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
  */
 void mb_disc_free(mb_disc *disc);
 
 
-/*
- * Read the TOC from the given device and initialize the mb_disc object.
+/**
+ * Read the disc in the given CD-ROM/DVD-ROM drive.
  *
- * Returns 0 on error.
+ * This function reads the disc in the drive specified by the given device
+ * identifier. If the device is NULL, the default drive, as returned by
+ * mb_disc_get_default_device() is used.
+ *
+ * On error, this function returns false and sets the error message which you
+ * can access using mb_disc_get_error_msg(). In this case, the other functions
+ * won't return meaningful values and should not be used.
+ *
+ * This function may be used multiple times with the same mb_disc object.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @param device an operating system dependent device identifier, or NULL
+ * @return true if successful, and false on error.
  */
 int mb_disc_read(mb_disc *disc, char *device);
 
 
-/*
- * Returns an error message. Only valid if mb_disc_read() returned false.
- * The returned string is only valid as long as the mb_disc exists.
+/**
+ * Return a human-readable error message.
+ *
+ * This function may only be used if mb_disc_read() failed. The returned
+ * error message is only valid as long as the mb_disc object exists.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @return a string describing the error that occurred
  */
 char *mb_disc_get_error_msg(mb_disc *disc);
 
 
-/*
- * Returns a MusicBrainz DiscID.
+/**
+ * Return a MusicBrainz DiscID.
  *
- * The returned string is only valid as long as the mb_disc exists.
+ * The returned string is only valid as long as the mb_disc object exists.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @return a string containing a MusicBrainz DiscID
  */
 char *mb_disc_get_id(mb_disc *disc);
 
 
-/*
- * The returned string is only valid as long as the mb_disc exists.
+/**
+ * Return an URL for submitting the DiscID to MusicBrainz.
+ *
+ * The URL leads to an interactive disc submission wizard that guides the
+ * user through the process of associating this disc's DiscID with a
+ * release in the MusicBrainz database.
+ *
+ * The returned string is only valid as long as the mb_disc object exists.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @return a string containing an URL
  */
 char *mb_disc_get_submission_url(mb_disc *disc);
 
 
-/*
- * Returns the name of the default disc device for this operating system.
+/**
+ * Return the name of the default disc drive for this operating system.
+ *
+ * @param a string containing an operating system dependent device identifier
  */
 char *mb_disc_get_default_device(void);
 
 
-/*
- * Returns the number of the first track on this disc.
+/**
+ * Return the number of the first track on this disc.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @return the number of the first track
  */
 int mb_disc_get_first_track_num(mb_disc *disc);
 
 
-/*
- * Returns the number of the last track on this disc.
+/**
+ * Return the number of the last track on this disc.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @return the number of the last track
  */
 int mb_disc_get_last_track_num(mb_disc *disc);
 
 
-/*
- * Returns the length of the disc in sectors.
+/**
+ * Return the length of the disc in sectors.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @return the length of the disc in sectors
  */
 int mb_disc_get_sectors(mb_disc *disc);
 
 
-/*
- * TODO: how should the interface for mb_disc_get_tracks() look like?
- * int *mb_disc_get_tracks(mb_disc *disc), returning the track offsets?
+/**
+ * Return the sector offset of a track.
+ *
+ * Only track numbers between (and including) mb_disc_get_first_track_num()
+ * and mb_disc_get_last_track_num() may be used.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @param track_num the number of a track
+ * @return a pointer to an array of track offsets
  */
+int mb_disc_get_track_offset(mb_disc *d, int track_num);
+
+
+/**
+ * Return the length of a track in sectors.
+ *
+ * Only track numbers between (and including) mb_disc_get_first_track_num()
+ * and mb_disc_get_last_track_num() may be used.
+ *
+ * @param disc an mb_disc object created by mb_disc_new()
+ * @param track_num the number of a track
+ * @return a pointer to an array of track offsets
+ */
+int mb_disc_get_track_length(mb_disc *d, int track_num);
+
 
 #endif /* MUSICBRAINZ_DISC_ID_H */

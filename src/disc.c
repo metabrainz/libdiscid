@@ -33,6 +33,10 @@
 #include "discid_private.h"
 
 
+#define TRACK_NUM_IS_VALID(disc, i) \
+	( i >= disc->first_track_num && i <= disc->last_track_num )
+
+
 static void mb_create_disc_id(mb_disc_private *disc, char buf[]);
 static void mb_create_submission_url(mb_disc_private *disc, char buf[]);
 
@@ -43,7 +47,6 @@ static void mb_create_submission_url(mb_disc_private *disc, char buf[]);
  * Implementation of the public interface.
  *
  ****************************************************************************/
-
 
 mb_disc *mb_disc_new() {
 	/* initializes everything to zero */
@@ -60,13 +63,17 @@ char *mb_disc_get_error_msg(mb_disc *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 
-	return disc->error_msg; /* TODO */
+	return disc->error_msg;
 }
 
 
 char *mb_disc_get_id(mb_disc *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
+	assert( disc->success );
+
+	if ( ! disc->success )
+		return NULL;
 
 	if ( strlen(disc->id) == 0 )
 		mb_create_disc_id(disc, disc->id);
@@ -78,6 +85,10 @@ char *mb_disc_get_id(mb_disc *d) {
 char *mb_disc_get_submission_url(mb_disc *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
+	assert( disc->success );
+
+	if ( ! disc->success )
+		return NULL;
 
 	if ( strlen(disc->submission_url) == 0 )
 		mb_create_submission_url(disc, disc->submission_url);
@@ -99,7 +110,7 @@ int mb_disc_read(mb_disc *d, char *device) {
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
-	return mb_disc_read_unportable(disc, device);
+	return disc->success = mb_disc_read_unportable(disc, device);
 }
 
 
@@ -113,7 +124,7 @@ int mb_disc_get_first_track_num(mb_disc *d) {
 
 	assert( disc != NULL );
 
-	return disc->last_track_num;
+	return disc->first_track_num;
 }
 
 
@@ -133,6 +144,36 @@ int mb_disc_get_sectors(mb_disc *d) {
 
 	return disc->track_offsets[0];
 }
+
+
+int mb_disc_get_track_offset(mb_disc *d, int i) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+	assert( TRACK_NUM_IS_VALID(disc, i) );
+
+	if ( ! TRACK_NUM_IS_VALID(disc, i) )
+		return 0;
+
+	return disc->track_offsets[i];
+}
+
+
+int mb_disc_get_track_length(mb_disc *d, int i) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+	assert( TRACK_NUM_IS_VALID(disc, i) );
+
+	if ( ! TRACK_NUM_IS_VALID(disc, i) )
+		return 0;
+
+	if ( i < disc->last_track_num )
+		return disc->track_offsets[i+1] - disc->track_offsets[i];
+	else
+		return disc->track_offsets[0] - disc->track_offsets[i];
+}
+
 
 /****************************************************************************
  *

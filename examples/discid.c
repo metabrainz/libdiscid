@@ -26,6 +26,7 @@
 
 int main(void) {
 	mb_disc *disc = mb_disc_new();
+	int i;
 
 	/* read the disc in the default disc drive */
 	if ( mb_disc_read(disc, NULL) == 0 ) {
@@ -33,16 +34,26 @@ int main(void) {
 		return 1;
 	}
 
-	printf("      DiscID: %s\n", mb_disc_get_id(disc));
+	printf("DiscID      : %s\n", mb_disc_get_id(disc));
 
-	printf(" First track: %d\n", mb_disc_get_first_track_num(disc));
-	printf("  Last track: %d\n", mb_disc_get_last_track_num(disc));
+	printf("First track : %d\n", mb_disc_get_first_track_num(disc));
+	printf("Last track  : %d\n", mb_disc_get_last_track_num(disc));
 
-	printf(" Disc Length: %d sectors\n", mb_disc_get_sectors(disc));
+	printf("Length      : %d sectors\n", mb_disc_get_sectors(disc));
 
-	printf("  Submit via: %s\n", mb_disc_get_submission_url(disc));
+	for ( i = mb_disc_get_first_track_num(disc);
+			i <= mb_disc_get_last_track_num(disc); i++ ) {
+
+		printf("Track %-2d    : %8d %8d\n", i,
+			mb_disc_get_track_offset(disc, i),
+			mb_disc_get_track_length(disc, i));
+	}
+
+	printf("Submit via  : %s\n", mb_disc_get_submission_url(disc));
 
 	mb_disc_free(disc);
 
 	return 0;
 }
+
+/* EOF */

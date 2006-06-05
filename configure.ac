@@ -18,7 +18,7 @@ case "${host_cpu}-${host_os}" in
   *-mingw*)   os=win32; LIBS='-lwinmm' ;;
   *-cygwin*)  os=win32; LIBS='-lwinmm' ;;
   #*-freebsd*) os=freebsd ;;
-  #*-darwin*)  os=darwin ;;
+  *-darwin*)  os=darwin ;;
   #*-irix*)    os=irix; CXXFLAGS="$CFLAGS -fsquangle"; 
   #                     LIBS='-lcdaudio -lmediad -lds' ;; 
   *-linux*)   os=linux ;;

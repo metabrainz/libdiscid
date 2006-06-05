@@ -25,12 +25,17 @@
 #include <discid/discid.h>
 
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	mb_disc *disc = mb_disc_new();
 	int i;
+        char *device = NULL;
+
+        /* If we have an argument, use it as the device name */
+        if (argc > 1)
+            device = argv[1];
 
 	/* read the disc in the default disc drive */
-	if ( mb_disc_read(disc, NULL) == 0 ) {
+	if ( mb_disc_read(disc, device) == 0 ) {
 		fprintf(stderr, "Error: %s\n", mb_disc_get_error_msg(disc));
 		return 1;
 	}

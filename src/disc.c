@@ -37,8 +37,8 @@
 	( i >= disc->first_track_num && i <= disc->last_track_num )
 
 
-static void mb_create_disc_id(mb_disc_private *disc, char buf[]);
-static void mb_create_submission_url(mb_disc_private *disc, char buf[]);
+static void create_disc_id(mb_disc_private *d, char buf[]);
+static void create_submission_url(mb_disc_private *d, char buf[]);
 
 
 
@@ -48,18 +48,18 @@ static void mb_create_submission_url(mb_disc_private *disc, char buf[]);
  *
  ****************************************************************************/
 
-mb_disc *mb_disc_new() {
+DiscId *discid_new() {
 	/* initializes everything to zero */
 	return calloc(1, sizeof(mb_disc_private));
 }
 
 
-void mb_disc_free(mb_disc *disc) {
-	free(disc);
+void discid_free(DiscId *d) {
+	free(d);
 }
 
 
-char *mb_disc_get_error_msg(mb_disc *d) {
+char *discid_get_error_msg(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 
@@ -67,7 +67,7 @@ char *mb_disc_get_error_msg(mb_disc *d) {
 }
 
 
-char *mb_disc_get_id(mb_disc *d) {
+char *discid_get_id(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 	assert( disc->success );
@@ -76,13 +76,13 @@ char *mb_disc_get_id(mb_disc *d) {
 		return NULL;
 
 	if ( strlen(disc->id) == 0 )
-		mb_create_disc_id(disc, disc->id);
+		create_disc_id(disc, disc->id);
 
 	return disc->id;
 }
 
 
-char *mb_disc_get_submission_url(mb_disc *d) {
+char *discid_get_submission_url(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert( disc != NULL );
 	assert( disc->success );
@@ -91,19 +91,19 @@ char *mb_disc_get_submission_url(mb_disc *d) {
 		return NULL;
 
 	if ( strlen(disc->submission_url) == 0 )
-		mb_create_submission_url(disc, disc->submission_url);
+		create_submission_url(disc, disc->submission_url);
 
 	return disc->submission_url;
 }
 
 
-int mb_disc_read(mb_disc *d, char *device) {
+int discid_read(DiscId *d, char *device) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
 
 	if ( device == NULL )
-		device = mb_disc_get_default_device();
+		device = discid_get_default_device();
 
 	assert( device != NULL );
 
@@ -114,12 +114,12 @@ int mb_disc_read(mb_disc *d, char *device) {
 }
 
 
-char *mb_disc_get_default_device(void) {
+char *discid_get_default_device(void) {
 	return mb_disc_get_default_device_unportable();
 }
 
 
-int mb_disc_get_first_track_num(mb_disc *d) {
+int discid_get_first_track_num(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -128,7 +128,7 @@ int mb_disc_get_first_track_num(mb_disc *d) {
 }
 
 
-int mb_disc_get_last_track_num(mb_disc *d) {
+int discid_get_last_track_num(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -137,7 +137,7 @@ int mb_disc_get_last_track_num(mb_disc *d) {
 }
 
 
-int mb_disc_get_sectors(mb_disc *d) {
+int discid_get_sectors(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -146,7 +146,7 @@ int mb_disc_get_sectors(mb_disc *d) {
 }
 
 
-int mb_disc_get_track_offset(mb_disc *d, int i) {
+int discid_get_track_offset(DiscId *d, int i) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -159,7 +159,7 @@ int mb_disc_get_track_offset(mb_disc *d, int i) {
 }
 
 
-int mb_disc_get_track_length(mb_disc *d, int i) {
+int discid_get_track_length(DiscId *d, int i) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -182,28 +182,28 @@ int mb_disc_get_track_length(mb_disc *d, int i) {
  ****************************************************************************/
 
 /*
- * Create a DiscID based on the TOC data found in the mb_disc object.
+ * Create a DiscID based on the TOC data found in the DiscId object.
  * The DiscID is placed in the provided string buffer.
  */
-static void mb_create_disc_id(mb_disc_private *disc, char buf[]) {
+static void create_disc_id(mb_disc_private *d, char buf[]) {
 	SHA_INFO	sha;
 	unsigned char	digest[20], *base64;
 	unsigned long	size;
 	char		tmp[17]; /* for 8 hex digits (16 to avoid trouble) */
 	int		i;
 
-	assert( disc != NULL );
+	assert( d != NULL );
 
 	sha_init(&sha);
 
-	sprintf(tmp, "%02X", disc->first_track_num);
+	sprintf(tmp, "%02X", d->first_track_num);
 	sha_update(&sha, (unsigned char *) tmp, strlen(tmp));
 
-	sprintf(tmp, "%02X", disc->last_track_num);
+	sprintf(tmp, "%02X", d->last_track_num);
 	sha_update(&sha, (unsigned char *) tmp, strlen(tmp));
 
 	for (i = 0; i < 100; i++) {
-		sprintf(tmp, "%08X", disc->track_offsets[i]);
+		sprintf(tmp, "%08X", d->track_offsets[i]);
 		sha_update(&sha, (unsigned char *) tmp, strlen(tmp));
 	}
 
@@ -219,31 +219,31 @@ static void mb_create_disc_id(mb_disc_private *disc, char buf[]) {
 
 
 /*
- * Create a submission URL based on the TOC data found in the mb_disc object.
- * The URL is placed in the provided string buffer.
+ * Create a submission URL based on the TOC data found in the mb_disc_private
+ * object. The URL is placed in the provided string buffer.
  */
-static void mb_create_submission_url(mb_disc_private *disc, char buf[]) {
+static void create_submission_url(mb_disc_private *d, char buf[]) {
 	char tmp[1024];
 	int i;
 
-	assert( disc != NULL );
+	assert( d != NULL );
 
 	strcpy(buf, MB_SUBMISSION_URL);
 
 	strcat(buf, "?id=");
-	strcat(buf, mb_disc_get_id((mb_disc *) disc));
+	strcat(buf, discid_get_id((DiscId *) d));
 
-	sprintf(tmp, "&tracks=%d", disc->last_track_num);
+	sprintf(tmp, "&tracks=%d", d->last_track_num);
 	strcat(buf, tmp);
 
 	sprintf(tmp, "&toc=%d+%d+%d",
-			disc->first_track_num,
-			disc->last_track_num,
-			disc->track_offsets[0]);
+			d->first_track_num,
+			d->last_track_num,
+			d->track_offsets[0]);
 	strcat(buf, tmp);
 
-	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
-		sprintf(tmp, "+%d", disc->track_offsets[i]);
+	for (i = d->first_track_num; i <= d->last_track_num; i++) {
+		sprintf(tmp, "+%d", d->track_offsets[i]);
 		strcat(buf, tmp);
 	}
 }

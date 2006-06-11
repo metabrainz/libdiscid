@@ -33,29 +33,29 @@
 /**
  * A transparent handle for an Audio CD.
  *
- * This is returned by mb_disc_new() and has to be passed as the first
- * parameter to all mb_disc_*() functions.
+ * This is returned by discid_new() and has to be passed as the first
+ * parameter to all discid_*() functions.
  */
-typedef void *mb_disc;
+typedef void *DiscId;
 
 
 /**
- * Return a handle for a new mb_disc object.
+ * Return a handle for a new DiscId object.
  *
  * If no memory could be allocated, NULL is returned. Don't use the created
- * mb_disc object before calling mb_disc_read().
+ * DiscId object before calling discid_read().
  *
- * @return an mb_disc object, or NULL.
+ * @return a DiscId object, or NULL.
  */
-mb_disc *mb_disc_new();
+DiscId *discid_new();
 
 
 /**
- * Release the memory allocated for the mb_disc object.
+ * Release the memory allocated for the DiscId object.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  */
-void mb_disc_free(mb_disc *disc);
+void discid_free(DiscId *d);
 
 
 /**
@@ -63,42 +63,42 @@ void mb_disc_free(mb_disc *disc);
  *
  * This function reads the disc in the drive specified by the given device
  * identifier. If the device is NULL, the default drive, as returned by
- * mb_disc_get_default_device() is used.
+ * discid_get_default_device() is used.
  *
  * On error, this function returns false and sets the error message which you
- * can access using mb_disc_get_error_msg(). In this case, the other functions
+ * can access using discid_get_error_msg(). In this case, the other functions
  * won't return meaningful values and should not be used.
  *
- * This function may be used multiple times with the same mb_disc object.
+ * This function may be used multiple times with the same DiscId object.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @param device an operating system dependent device identifier, or NULL
  * @return true if successful, and false on error.
  */
-int mb_disc_read(mb_disc *disc, char *device);
+int discid_read(DiscId *d, char *device);
 
 
 /**
  * Return a human-readable error message.
  *
- * This function may only be used if mb_disc_read() failed. The returned
- * error message is only valid as long as the mb_disc object exists.
+ * This function may only be used if discid_read() failed. The returned
+ * error message is only valid as long as the DiscId object exists.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @return a string describing the error that occurred
  */
-char *mb_disc_get_error_msg(mb_disc *disc);
+char *discid_get_error_msg(DiscId *d);
 
 
 /**
  * Return a MusicBrainz DiscID.
  *
- * The returned string is only valid as long as the mb_disc object exists.
+ * The returned string is only valid as long as the DiscId object exists.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @return a string containing a MusicBrainz DiscID
  */
-char *mb_disc_get_id(mb_disc *disc);
+char *discid_get_id(DiscId *d);
 
 
 /**
@@ -108,12 +108,12 @@ char *mb_disc_get_id(mb_disc *disc);
  * user through the process of associating this disc's DiscID with a
  * release in the MusicBrainz database.
  *
- * The returned string is only valid as long as the mb_disc object exists.
+ * The returned string is only valid as long as the DiscId object exists.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @return a string containing an URL
  */
-char *mb_disc_get_submission_url(mb_disc *disc);
+char *discid_get_submission_url(DiscId *d);
 
 
 /**
@@ -121,60 +121,60 @@ char *mb_disc_get_submission_url(mb_disc *disc);
  *
  * @param a string containing an operating system dependent device identifier
  */
-char *mb_disc_get_default_device(void);
+char *discid_get_default_device(void);
 
 
 /**
  * Return the number of the first track on this disc.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @return the number of the first track
  */
-int mb_disc_get_first_track_num(mb_disc *disc);
+int discid_get_first_track_num(DiscId *d);
 
 
 /**
  * Return the number of the last track on this disc.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @return the number of the last track
  */
-int mb_disc_get_last_track_num(mb_disc *disc);
+int discid_get_last_track_num(DiscId *d);
 
 
 /**
  * Return the length of the disc in sectors.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @return the length of the disc in sectors
  */
-int mb_disc_get_sectors(mb_disc *disc);
+int discid_get_sectors(DiscId *d);
 
 
 /**
  * Return the sector offset of a track.
  *
- * Only track numbers between (and including) mb_disc_get_first_track_num()
- * and mb_disc_get_last_track_num() may be used.
+ * Only track numbers between (and including) discid_get_first_track_num()
+ * and discid_get_last_track_num() may be used.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @param track_num the number of a track
  * @return a pointer to an array of track offsets
  */
-int mb_disc_get_track_offset(mb_disc *d, int track_num);
+int discid_get_track_offset(DiscId *d, int track_num);
 
 
 /**
  * Return the length of a track in sectors.
  *
- * Only track numbers between (and including) mb_disc_get_first_track_num()
- * and mb_disc_get_last_track_num() may be used.
+ * Only track numbers between (and including) discid_get_first_track_num()
+ * and discid_get_last_track_num() may be used.
  *
- * @param disc an mb_disc object created by mb_disc_new()
+ * @param d a DiscId object created by discid_new()
  * @param track_num the number of a track
  * @return a pointer to an array of track offsets
  */
-int mb_disc_get_track_length(mb_disc *d, int track_num);
+int discid_get_track_length(DiscId *d, int track_num);
 
 
 #ifdef __cplusplus

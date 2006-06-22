@@ -112,7 +112,7 @@ char *mb_disc_get_default_device_unportable(void) {
 }
 
 
-int mb_disc_read_unportable(mb_disc_private *disc, char *device) {
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	int fd;
 	unsigned long lba;
 	int first, last;

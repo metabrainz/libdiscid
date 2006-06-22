@@ -97,7 +97,7 @@ char *discid_get_submission_url(DiscId *d) {
 }
 
 
-int discid_read(DiscId *d, char *device) {
+int discid_read(DiscId *d, const char *device) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );

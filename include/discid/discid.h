@@ -73,9 +73,9 @@ void discid_free(DiscId *d);
  *
  * @param d a DiscId object created by discid_new()
  * @param device an operating system dependent device identifier, or NULL
- * @return true if successful, and false on error.
+ * @return 1 if successful, or 0 on error.
  */
-int discid_read(DiscId *d, char *device);
+int discid_read(DiscId *d, const char *device);
 
 
 /**
@@ -159,7 +159,7 @@ int discid_get_sectors(DiscId *d);
  *
  * @param d a DiscId object created by discid_new()
  * @param track_num the number of a track
- * @return a pointer to an array of track offsets
+ * @return sector offset of the specified track
  */
 int discid_get_track_offset(DiscId *d, int track_num);
 
@@ -172,7 +172,7 @@ int discid_get_track_offset(DiscId *d, int track_num);
  *
  * @param d a DiscId object created by discid_new()
  * @param track_num the number of a track
- * @return a pointer to an array of track offsets
+ * @return length of the specified track
  */
 int discid_get_track_length(DiscId *d, int track_num);
 

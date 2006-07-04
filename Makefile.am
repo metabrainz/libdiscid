@@ -21,7 +21,7 @@
 #
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src include examples
+SUBDIRS = src include examples test
 
 pcdir = $(libdir)/pkgconfig
 pc_DATA = libdiscid.pc

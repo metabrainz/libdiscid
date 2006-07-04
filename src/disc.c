@@ -38,6 +38,7 @@
 
 
 static void create_disc_id(mb_disc_private *d, char buf[]);
+static void create_freedb_disc_id(mb_disc_private *d, char buf[]);
 static void create_submission_url(mb_disc_private *d, char buf[]);
 
 
@@ -79,6 +80,21 @@ char *discid_get_id(DiscId *d) {
 		create_disc_id(disc, disc->id);
 
 	return disc->id;
+}
+
+
+char *discid_get_freedb_id(DiscId *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+	assert( disc != NULL );
+	assert( disc->success );
+
+	if ( ! disc->success )
+		return NULL;
+
+	if ( strlen(disc->freedb_id) == 0 )
+		create_freedb_disc_id(disc, disc->freedb_id);
+
+	return disc->freedb_id;
 }
 
 
@@ -215,6 +231,28 @@ static void create_disc_id(mb_disc_private *d, char buf[]) {
 	buf[size] = '\0';
 
 	free(base64);
+}
+
+
+/*
+ * Create a FreeDB DiscID based on the TOC data found in the DiscId object.
+ * The DiscID is placed in the provided string buffer.
+ */
+static void create_freedb_disc_id(mb_disc_private *d, char buf[]) {
+	int i, n, m, t;
+
+	assert( d != NULL );
+
+	n = 0;
+	for (i = 0; i < d->last_track_num; i++) {
+		m = d->track_offsets[i + 1] / 75;
+		while (m > 0) {
+			n += m % 10;
+			m /= 10;
+		}
+	}
+	t = d->track_offsets[0] / 75 - d->track_offsets[1] / 75;
+	sprintf(buf, "%08x", ((n % 0xff) << 24 | t << 8 | d->last_track_num));
 }
 
 

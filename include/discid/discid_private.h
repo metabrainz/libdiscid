@@ -29,16 +29,19 @@
 
 
 /* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */
-#define MB_DISC_ID_LENGTH	32
+#define MB_DISC_ID_LENGTH		32
+
+/* Length of a FreeDB DiscID in bytes (without a trailing '\0'-byte). */
+#define FREEDB_DISC_ID_LENGTH	8
 
 /* The maximum permitted length for an error message (without the '\0'-byte). */
-#define MB_ERROR_MSG_LENGTH	255
+#define MB_ERROR_MSG_LENGTH		255
 
 /* URL prefix + 100 tracks, 5 bytes each + 32 bytes discid */
-#define MB_MAX_URL_LENGTH	1023
+#define MB_MAX_URL_LENGTH		1023
 
 /* The URL that can be used for submitting DiscIDs (no parameters yet) */
-#define MB_SUBMISSION_URL	"http://mm.musicbrainz.org/bare/cdlookup.html"
+#define MB_SUBMISSION_URL		"http://mm.musicbrainz.org/bare/cdlookup.html"
 
 
 /*
@@ -53,6 +56,7 @@ typedef struct {
 	int last_track_num;
 	int track_offsets[100];
 	char id[MB_DISC_ID_LENGTH+1];
+	char freedb_id[FREEDB_DISC_ID_LENGTH+1];
 	char submission_url[MB_MAX_URL_LENGTH+1];
 	char error_msg[MB_ERROR_MSG_LENGTH+1];
 	int success;

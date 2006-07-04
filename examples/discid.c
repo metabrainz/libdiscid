@@ -40,22 +40,23 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	printf("DiscID      : %s\n", discid_get_id(disc));
+	printf("DiscID        : %s\n", discid_get_id(disc));
+	printf("FreeDB DiscID : %s\n", discid_get_freedb_id(disc));
 
-	printf("First track : %d\n", discid_get_first_track_num(disc));
-	printf("Last track  : %d\n", discid_get_last_track_num(disc));
+	printf("First track   : %d\n", discid_get_first_track_num(disc));
+	printf("Last track    : %d\n", discid_get_last_track_num(disc));
 
-	printf("Length      : %d sectors\n", discid_get_sectors(disc));
+	printf("Length        : %d sectors\n", discid_get_sectors(disc));
 
 	for ( i = discid_get_first_track_num(disc);
 			i <= discid_get_last_track_num(disc); i++ ) {
 
-		printf("Track %-2d    : %8d %8d\n", i,
+		printf("Track %-2d      : %8d %8d\n", i,
 			discid_get_track_offset(disc, i),
 			discid_get_track_length(disc, i));
 	}
 
-	printf("Submit via  : %s\n", discid_get_submission_url(disc));
+	printf("Submit via    : %s\n", discid_get_submission_url(disc));
 
 	discid_free(disc);
 

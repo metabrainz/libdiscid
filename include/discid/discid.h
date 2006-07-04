@@ -102,6 +102,17 @@ char *discid_get_id(DiscId *d);
 
 
 /**
+ * Return a FreeDB DiscID.
+ *
+ * The returned string is only valid as long as the DiscId object exists.
+ *
+ * @param d a DiscId object created by discid_new()
+ * @return a string containing a FreeDB DiscID
+ */
+char *discid_get_freedb_id(DiscId *d);
+
+
+/**
  * Return an URL for submitting the DiscID to MusicBrainz.
  *
  * The URL leads to an interactive disc submission wizard that guides the

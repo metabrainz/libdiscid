@@ -37,7 +37,7 @@
  * port of the DiscID-related code from libmusicbrainz2 (which is written in
  * C++). The idea is to have an easy to use library without any dependencies
  * that can be used from scripting languages.
- 
+ *
  * \section examples Examples
  *
  * This is an example of the most basic usage:
@@ -46,8 +46,7 @@
  *
  * DiscId *disc = discid_new();
  *
- * /* read the disc in the default disc drive */
- * if ( discid_read(disc, NULL) == 0 ) {
+ * if ( discid_read(disc, "/dev/cdrom") == 0 ) {
  *     fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
  *     return 1;
  * }
@@ -117,9 +116,33 @@ void discid_free(DiscId *d);
  *
  * @param d a DiscId object created by discid_new()
  * @param device an operating system dependent device identifier, or NULL
- * @return 1 if successful, or 0 on error.
+ * @return true if successful, or false on error.
  */
 int discid_read(DiscId *d, const char *device);
+
+
+/**
+ * Provides the TOC of a known CD.
+ *
+ * This function may be used if the TOC has been read earlier and you
+ * want to calculate the disc ID afterwards, without accessing the disc
+ * drive. It replaces the discid_read function in this case.
+ *
+ * On error, this function returns false and sets the error message which you
+ * can access using discid_get_error_msg(). In this case, the other functions
+ * won't return meaningful values and should not be used.
+ *
+ * The offsets parameter points to an array which contains the track offsets
+ * for each track. The first element, offsets[0], is the leadout track. It
+ * must contain the total numbers of sectors on the disc.
+ *
+ * @param d a DiscID object created by discid_new()
+ * @param first the number of the first audio track on disc (usually one)
+ * @param last the number of the last audio track on the disc
+ * @param offsets a pointer to an array of 100 track offsets
+ * @return true if the given data was valid, and false on error
+ */
+int discid_put(DiscId *d, int first, int last, int *offsets);
 
 
 /**

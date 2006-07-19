@@ -3,6 +3,7 @@ EXPORTS
     discid_new
     discid_free
     discid_read
+    discid_put
     discid_get_error_msg
     discid_get_id
     discid_get_freedb_id

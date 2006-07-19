@@ -130,6 +130,31 @@ int discid_read(DiscId *d, const char *device) {
 }
 
 
+int discid_put(DiscId *d, int first, int last, int *offsets) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	memset(disc, 0, sizeof(mb_disc_private));
+
+	if ( first > last || first < 1 || first > 99 || last < 1
+			|| last > 99 || offsets==NULL ) {
+
+		sprintf(disc->error_msg, "Illegal parameters");
+		return 0;
+	}
+
+	disc->first_track_num = first;
+	disc->last_track_num = last;
+
+	memcpy(disc->track_offsets, offsets, sizeof(int) * (last+1));
+
+	disc->success = 1;
+
+	return 1;
+}
+
+
 char *discid_get_default_device(void) {
 	return mb_disc_get_default_device_unportable();
 }

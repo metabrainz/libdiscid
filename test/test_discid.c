@@ -28,38 +28,30 @@
 
 
 int main(int argc, char *argv[]) {
-	DiscId *d = discid_new();
-	mb_disc_private *disc = (mb_disc_private *) d;
+	DiscId *d;
 	char *tmp, *expected;
+	int ret;
 	int ntests = 0, nok = 0;
+	int offsets[] = {
+		303602,
+		150, 9700, 25887, 39297, 53795, 63735, 77517, 94877, 107270,
+		123552, 135522, 148422, 161197, 174790, 192022, 205545,
+		218010, 228700, 239590, 255470, 266932, 288750,
+	};
 
-	disc->first_track_num = 1;
-	disc->last_track_num = 22;
-	disc->track_offsets[0] = 303602;
-	disc->track_offsets[1] = 150;
-	disc->track_offsets[2] = 9700;
-	disc->track_offsets[3] = 25887;
-	disc->track_offsets[4] = 39297;
-	disc->track_offsets[5] = 53795;
-	disc->track_offsets[6] = 63735;
-	disc->track_offsets[7] = 77517;
-	disc->track_offsets[8] = 94877;
-	disc->track_offsets[9] = 107270;
-	disc->track_offsets[10] = 123552;
-	disc->track_offsets[11] = 135522;
-	disc->track_offsets[12] = 148422;
-	disc->track_offsets[13] = 161197;
-	disc->track_offsets[14] = 174790;
-	disc->track_offsets[15] = 192022;
-	disc->track_offsets[16] = 205545;
-	disc->track_offsets[17] = 218010;
-	disc->track_offsets[18] = 228700;
-	disc->track_offsets[19] = 239590;
-	disc->track_offsets[20] = 255470;
-	disc->track_offsets[21] = 266932;
-	disc->track_offsets[22] = 288750;
-	disc->success = 1;
-	
+	d = discid_new();
+
+	/* Setting TOC */
+	printf("Testing discid_put ... ");
+	ret = discid_put(d, 1, 22, offsets);
+	if ( ret ) {
+		printf("OK\n");
+		nok++;
+	}
+	else
+		printf("Failed\n");
+	ntests++;
+
 	/* MusicBrainz DiscID */
 	printf("Testing discid_get_id ... ");
 	tmp = discid_get_id(d);

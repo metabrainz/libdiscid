@@ -29,6 +29,50 @@
   extern "C" {
 #endif
 
+/*!
+ * \mainpage libdiscid
+ * \section intro Introduction
+ *
+ * libdiscid is a C library for calculating DiscIDs for Audio CDs. It is a C
+ * port of the DiscID-related code from libmusicbrainz2 (which is written in
+ * C++). The idea is to have an easy to use library without any dependencies
+ * that can be used from scripting languages.
+ 
+ * \section examples Examples
+ *
+ * This is an example of the most basic usage:
+ *
+ * \code
+ *
+ * DiscId *disc = discid_new();
+ *
+ * /* read the disc in the default disc drive */
+ * if ( discid_read(disc, NULL) == 0 ) {
+ *     fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
+ *     return 1;
+ * }
+ * 
+ * printf("DiscID        : %s\n", discid_get_id(disc));
+ * printf("Submit via    : %s\n", discid_get_submission_url(disc));
+ *
+ * discid_free(disc); 
+ *
+ * \endcode
+ *
+ * \section Building
+ *
+ * libdiscid provides a pkg-config script that returns the necessary compiler and linker flags, as well as the
+ * version number.  To build a small sample program one would use:
+ *
+ * <tt>gcc libdiscid-test.c `pkg-config --cflags --libs` -o libdiscid-test</tt>
+ *
+ * \section Contact
+ *
+ *  - <a href="http://lists.musicbrainz.org/mailman/listinfo/musicbrainz-devel">MusicBrainz Development Mailing List</a>
+ *  - <a href="http://bugs.musicbrainz.org/query?component=libdiscid">MusicBrainz Bug Tracker</a>
+ *
+ */ 
+
 
 /**
  * A transparent handle for an Audio CD.
@@ -130,7 +174,7 @@ char *discid_get_submission_url(DiscId *d);
 /**
  * Return the name of the default disc drive for this operating system.
  *
- * @param a string containing an operating system dependent device identifier
+ * @return a string containing an operating system dependent device identifier
  */
 char *discid_get_default_device(void);
 

@@ -86,7 +86,7 @@ typedef void *DiscId;
  * Return a handle for a new DiscId object.
  *
  * If no memory could be allocated, NULL is returned. Don't use the created
- * DiscId object before calling discid_read().
+ * DiscId object before calling discid_read() or discid_put().
  *
  * @return a DiscId object, or NULL.
  */
@@ -134,7 +134,7 @@ int discid_read(DiscId *d, const char *device);
  *
  * The offsets parameter points to an array which contains the track offsets
  * for each track. The first element, offsets[0], is the leadout track. It
- * must contain the total numbers of sectors on the disc.
+ * must contain the total number of sectors on the disc.
  *
  * @param d a DiscID object created by discid_new()
  * @param first the number of the first audio track on disc (usually one)

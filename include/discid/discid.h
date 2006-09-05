@@ -63,7 +63,7 @@
  * libdiscid provides a pkg-config script that returns the necessary compiler and linker flags, as well as the
  * version number.  To build a small sample program one would use:
  *
- * <tt>gcc libdiscid-test.c `pkg-config --cflags --libs` -o libdiscid-test</tt>
+ * <tt>gcc libdiscid-test.c `pkg-config libdiscid --cflags --libs` -o libdiscid-test</tt>
  *
  * \section Contact
  *

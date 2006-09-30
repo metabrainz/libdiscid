@@ -61,7 +61,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	/*
 	 * Check number of CD audio devices
 	 */
-	snprintf(mci_command, 128, "sysinfo %s quantity wait", device_str);
+	snprintf(mci_command, 128, "sysinfo cdaudio quantity wait");
 	mciSendString(mci_command, mci_return, sizeof(mci_return), NULL);
 	if ( atoi(mci_return) <= 0 ) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,

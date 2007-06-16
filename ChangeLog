@@ -2,9 +2,16 @@ libdiscid ChangeLog:
 --------------------
 
 
+libdiscid-0.1.2:
+
+  - Replace custom MSVC makefile with CMake build system. (Lukas)
+  - Use accurate TOC reading method for multi-session CDs on
+    Windows NT/2000/XP. (Lukas)
+   
+
 libdiscid-0.1.1:
 
-  - Use generic 'cdaudio' device name on windows (Luks).
+  - Use generic 'cdaudio' device name on windows. (Lukas)
    
 
 libdiscid-0.1.0:

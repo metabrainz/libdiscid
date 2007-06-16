@@ -35,6 +35,8 @@
 
 #define MB_DEFAULT_DEVICE	"cdaudio"
 
+int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device);
+
 char *mb_disc_get_default_device_unportable(void) {
 	return MB_DEFAULT_DEVICE;
 } 
@@ -44,6 +46,15 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	char mci_command[128];
 	char mci_return[128];
 	char alias[128], device_str[128], error_msg[256];
+
+	if ( GetVersion() < 0x80000000 ) {
+    		if ( strlen(device) == 0 || strcmp(device, "cdaudio") == 0 ) {
+			sprintf(device_str, "D:"); /* FIXME */
+			device = device_str;
+		}
+		return mb_disc_read_unportable_nt(disc, device);
+	}
+
 	
 	if ( strlen(device) == 0 || strcmp(device, "cdaudio") == 0 ) {
 		sprintf(device_str, "cdaudio");

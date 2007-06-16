@@ -59,18 +59,12 @@ typedef struct _CDROM_TOC_SESSION_DATA {
   TRACK_DATA  TrackData[1];
 } CDROM_TOC_SESSION_DATA;
 
-#define MB_DEFAULT_DEVICE	"D:"
-
 int AddressToSectors(UCHAR address[4])
 {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
 
-char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
-} 
-
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
+int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 {
 	HANDLE hDevice;
 	DWORD dwReturned;
@@ -79,7 +73,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	CDROM_TOC_SESSION_DATA session;
 	char filename[128];
 	int i;
-	
+
 	snprintf(filename, 128, "\\\\.\\%s", device);
 
 	hDevice = CreateFile(filename, GENERIC_READ,

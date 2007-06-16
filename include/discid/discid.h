@@ -24,6 +24,17 @@
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
+#ifdef WIN32
+#	ifdef libdiscid_EXPORTS
+#		define LIBDISCID_API __declspec(dllexport)
+#	else
+#		define LIBDISCID_API __declspec(dllimport)
+#	endif
+#else
+#	define LIBDISCID_API
+#endif
+
+
 
 #ifdef __cplusplus
   extern "C" {
@@ -90,7 +101,7 @@ typedef void *DiscId;
  *
  * @return a DiscId object, or NULL.
  */
-DiscId *discid_new();
+LIBDISCID_API DiscId *discid_new();
 
 
 /**
@@ -98,7 +109,7 @@ DiscId *discid_new();
  *
  * @param d a DiscId object created by discid_new()
  */
-void discid_free(DiscId *d);
+LIBDISCID_API void discid_free(DiscId *d);
 
 
 /**
@@ -118,7 +129,7 @@ void discid_free(DiscId *d);
  * @param device an operating system dependent device identifier, or NULL
  * @return true if successful, or false on error.
  */
-int discid_read(DiscId *d, const char *device);
+LIBDISCID_API int discid_read(DiscId *d, const char *device);
 
 
 /**
@@ -142,7 +153,7 @@ int discid_read(DiscId *d, const char *device);
  * @param offsets a pointer to an array of 100 track offsets
  * @return true if the given data was valid, and false on error
  */
-int discid_put(DiscId *d, int first, int last, int *offsets);
+LIBDISCID_API int discid_put(DiscId *d, int first, int last, int *offsets);
 
 
 /**
@@ -154,7 +165,7 @@ int discid_put(DiscId *d, int first, int last, int *offsets);
  * @param d a DiscId object created by discid_new()
  * @return a string describing the error that occurred
  */
-char *discid_get_error_msg(DiscId *d);
+LIBDISCID_API char *discid_get_error_msg(DiscId *d);
 
 
 /**
@@ -165,7 +176,7 @@ char *discid_get_error_msg(DiscId *d);
  * @param d a DiscId object created by discid_new()
  * @return a string containing a MusicBrainz DiscID
  */
-char *discid_get_id(DiscId *d);
+LIBDISCID_API char *discid_get_id(DiscId *d);
 
 
 /**
@@ -176,7 +187,7 @@ char *discid_get_id(DiscId *d);
  * @param d a DiscId object created by discid_new()
  * @return a string containing a FreeDB DiscID
  */
-char *discid_get_freedb_id(DiscId *d);
+LIBDISCID_API char *discid_get_freedb_id(DiscId *d);
 
 
 /**
@@ -191,7 +202,7 @@ char *discid_get_freedb_id(DiscId *d);
  * @param d a DiscId object created by discid_new()
  * @return a string containing an URL
  */
-char *discid_get_submission_url(DiscId *d);
+LIBDISCID_API char *discid_get_submission_url(DiscId *d);
 
 
 /**
@@ -199,7 +210,7 @@ char *discid_get_submission_url(DiscId *d);
  *
  * @return a string containing an operating system dependent device identifier
  */
-char *discid_get_default_device(void);
+LIBDISCID_API char *discid_get_default_device(void);
 
 
 /**
@@ -208,7 +219,7 @@ char *discid_get_default_device(void);
  * @param d a DiscId object created by discid_new()
  * @return the number of the first track
  */
-int discid_get_first_track_num(DiscId *d);
+LIBDISCID_API int discid_get_first_track_num(DiscId *d);
 
 
 /**
@@ -217,7 +228,7 @@ int discid_get_first_track_num(DiscId *d);
  * @param d a DiscId object created by discid_new()
  * @return the number of the last track
  */
-int discid_get_last_track_num(DiscId *d);
+LIBDISCID_API int discid_get_last_track_num(DiscId *d);
 
 
 /**
@@ -226,7 +237,7 @@ int discid_get_last_track_num(DiscId *d);
  * @param d a DiscId object created by discid_new()
  * @return the length of the disc in sectors
  */
-int discid_get_sectors(DiscId *d);
+LIBDISCID_API int discid_get_sectors(DiscId *d);
 
 
 /**
@@ -239,7 +250,7 @@ int discid_get_sectors(DiscId *d);
  * @param track_num the number of a track
  * @return sector offset of the specified track
  */
-int discid_get_track_offset(DiscId *d, int track_num);
+LIBDISCID_API int discid_get_track_offset(DiscId *d, int track_num);
 
 
 /**
@@ -252,7 +263,7 @@ int discid_get_track_offset(DiscId *d, int track_num);
  * @param track_num the number of a track
  * @return length of the specified track
  */
-int discid_get_track_length(DiscId *d, int track_num);
+LIBDISCID_API int discid_get_track_length(DiscId *d, int track_num);
 
 
 #ifdef __cplusplus

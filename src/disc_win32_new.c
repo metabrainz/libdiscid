@@ -71,10 +71,17 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 	BOOL bResult;
 	CDROM_TOC toc;
 	CDROM_TOC_SESSION_DATA session;
-	char filename[128];
-	int i;
+	char filename[128], *colon;
+	int i, len;
 
-	snprintf(filename, 128, "\\\\.\\%s", device);
+	strcpy(filename, "\\\\.\\");
+	len = strlen(device);
+	if (colon = strchr(device, ':')) {
+		len = colon - device + 1;
+	}
+	strncat(filename, device, len > 120 ? 120 : len);
+	printf("%s\n", device);
+	printf("%s\n", filename);
 
 	hDevice = CreateFile(filename, GENERIC_READ,
 	                     FILE_SHARE_READ | FILE_SHARE_WRITE, 

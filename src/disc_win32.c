@@ -48,7 +48,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	char alias[128], device_str[128], error_msg[256];
 
 	if ( GetVersion() < 0x80000000 ) {
-    		if ( strlen(device) == 0 || strcmp(device, "cdaudio") == 0 ) {
+		if ( strlen(device) == 0 || strcmp(device, "cdaudio") == 0 ) {
 			sprintf(device_str, "D:"); /* FIXME */
 			device = device_str;
 		}

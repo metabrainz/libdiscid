@@ -40,7 +40,7 @@
 static void create_disc_id(mb_disc_private *d, char buf[]);
 static void create_freedb_disc_id(mb_disc_private *d, char buf[]);
 static void create_submission_url(mb_disc_private *d, char buf[]);
-
+static void create_webservice_url(mb_disc_private *d, char buf[]);
 
 
 /****************************************************************************
@@ -112,6 +112,19 @@ char *discid_get_submission_url(DiscId *d) {
 	return disc->submission_url;
 }
 
+char *discid_get_webservice_url(DiscId *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+	assert( disc != NULL );
+	assert( disc->success );
+
+	if ( ! disc->success )
+		return NULL;
+
+	if ( strlen(disc->webservice_url) == 0 )
+		create_webservice_url(disc, disc->webservice_url);
+
+	return disc->webservice_url;
+}
 
 int discid_read(DiscId *d, const char *device) {
 	mb_disc_private *disc = (mb_disc_private *) d;
@@ -298,6 +311,33 @@ static void create_submission_url(mb_disc_private *d, char buf[]) {
 
 	sprintf(tmp, "&tracks=%d", d->last_track_num);
 	strcat(buf, tmp);
+
+	sprintf(tmp, "&toc=%d+%d+%d",
+			d->first_track_num,
+			d->last_track_num,
+			d->track_offsets[0]);
+	strcat(buf, tmp);
+
+	for (i = d->first_track_num; i <= d->last_track_num; i++) {
+		sprintf(tmp, "+%d", d->track_offsets[i]);
+		strcat(buf, tmp);
+	}
+}
+
+/*
+ * Create a web service URL based on the TOC data found in the mb_disc_private
+ * object. The URL is placed in the provided string buffer.
+ */
+static void create_webservice_url(mb_disc_private *d, char buf[]) {
+	char tmp[1024];
+	int i;
+
+	assert( d != NULL );
+
+	strcpy(buf, MB_WEBSERVICE_URL);
+
+	strcat(buf, "?type=xml&discid=");
+	strcat(buf, discid_get_id((DiscId *) d));
 
 	sprintf(tmp, "&toc=%d+%d+%d",
 			d->first_track_num,

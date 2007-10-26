@@ -204,6 +204,18 @@ LIBDISCID_API char *discid_get_freedb_id(DiscId *d);
  */
 LIBDISCID_API char *discid_get_submission_url(DiscId *d);
 
+/**
+ * Return an URL for retrieving CD information from MusicBrainz' web service
+ *
+ * The URL provides the CD information in XML. 
+ * See http://musicbrainz.org/development/mmd for details.
+ *
+ * The returned string is only valid as long as the DiscId object exists.
+ *
+ * @param d a DiscId object created by discid_new()
+ * @return a string containing an URL
+ */
+LIBDISCID_API char *discid_get_webservice_url(DiscId *d);
 
 /**
  * Return the name of the default disc drive for this operating system.

@@ -43,6 +43,8 @@
 /* The URL that can be used for submitting DiscIDs (no parameters yet) */
 #define MB_SUBMISSION_URL		"http://mm.musicbrainz.org/bare/cdlookup.html"
 
+/* The URL that can be used for retrieving XML for a CD */
+#define MB_WEBSERVICE_URL		"http://mm.musicbrainz.org/ws/1/release"
 
 /*
  * This data structure represents an audio disc.
@@ -58,6 +60,7 @@ typedef struct {
 	char id[MB_DISC_ID_LENGTH+1];
 	char freedb_id[FREEDB_DISC_ID_LENGTH+1];
 	char submission_url[MB_MAX_URL_LENGTH+1];
+	char webservice_url[MB_MAX_URL_LENGTH+1];
 	char error_msg[MB_ERROR_MSG_LENGTH+1];
 	int success;
 } mb_disc_private;

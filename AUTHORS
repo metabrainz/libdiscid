@@ -17,5 +17,8 @@ The following people have contributed to libdiscid:
     - Invented and originally implemented the DiscID algorithm.
     - Ported the darwin code.
 
+   Patrick Hurrelmann
+    - Implemented and tested FreeBSD support.
+
 -- 
 $Id$

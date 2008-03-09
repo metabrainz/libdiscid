@@ -4,16 +4,16 @@ libdiscid ChangeLog:
 
 libdiscid-0.2.0:
 
-  - Replace custom MSVC makefile with CMake build system. (Lukas)
   - Use accurate TOC reading method for multi-session CDs on
-    Windows NT/2000/XP. (Lukas)
-  - Addded the discid_get_webservice_url() function (Rob)
-  - Added support for FreeBSD (Patrick Hurrelmann)
+    Windows NT/2000/XP (Lukas).
+  - Replace custom MSVC makefile with CMake build system (Lukas).
+  - Added support for FreeBSD (Patrick Hurrelmann).
+  - Addded the discid_get_webservice_url() function (Rob).
    
 
 libdiscid-0.1.1:
 
-  - Use generic 'cdaudio' device name on windows. (Lukas)
+  - Use generic 'cdaudio' device name on windows (Lukas).
    
 
 libdiscid-0.1.0:

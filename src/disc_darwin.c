@@ -63,9 +63,7 @@ static kern_return_t find_ejectable_cd_media( io_iterator_t *mediaIterator )
 
     // CD media are instances of class kIOCDMediaClass.
     classesToMatch = IOServiceMatching( kIOCDMediaClass );
-    if ( classesToMatch == NULL )
-        printf( "IOServiceMatching returned a NULL dictionary.\n" );
-    else
+    if ( classesToMatch != NULL )
     {
         // Each IOMedia object has a property with key kIOMediaEjectableKey
         // which is true if the media is indeed ejectable. So add this
@@ -120,8 +118,7 @@ char *mb_disc_get_default_device_unportable(void)
     kern_return_t kernResult;
     io_iterator_t mediaIterator;
 
-    if (*defaultDevice)
-        return defaultDevice;
+    *defaultDevice = 0;
 
     kernResult = find_ejectable_cd_media( &mediaIterator );
     if ( kernResult != KERN_SUCCESS )
@@ -140,9 +137,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	int i;
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
-  
-	if (device == NULL)
-	    device = defaultDevice;
+
+	if (device == NULL || *device == 0)
+        device = mb_disc_get_default_device_unportable();
 
     if (!*device)
     {

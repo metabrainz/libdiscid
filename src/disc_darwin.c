@@ -33,26 +33,122 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
+#include <paths.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/IOBSD.h>
+#include <IOKit/storage/IOCDMedia.h>
+#include <IOKit/storage/IOMedia.h>
 #include <IOKit/storage/IOCDTypes.h>
 #include <IOKit/storage/IOCDMediaBSDClient.h>
+#include <IOKit/storage/IOMediaBSDClient.h>
+
+#include <CoreFoundation/CoreFoundation.h>
 
 #include "discid/discid_private.h"
 
-#define MB_DEFAULT_DEVICE "/dev/rdisk1";
 #define TOC_BUFFER_LEN 1024
+#define MAXPATHLEN     1024
 
-char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+static char defaultDevice[MAXPATHLEN] = "\0";
+
+static kern_return_t find_ejectable_cd_media( io_iterator_t *mediaIterator )
+{
+    mach_port_t         masterPort;
+    kern_return_t       kernResult;
+    CFMutableDictionaryRef   classesToMatch;
+
+    kernResult = IOMasterPort( MACH_PORT_NULL, &masterPort );
+    if ( kernResult != KERN_SUCCESS )
+        return kernResult;
+
+    // CD media are instances of class kIOCDMediaClass.
+    classesToMatch = IOServiceMatching( kIOCDMediaClass );
+    if ( classesToMatch == NULL )
+        printf( "IOServiceMatching returned a NULL dictionary.\n" );
+    else
+    {
+        // Each IOMedia object has a property with key kIOMediaEjectableKey
+        // which is true if the media is indeed ejectable. So add this
+        // property to the CFDictionary for matching.
+        CFDictionarySetValue( classesToMatch, CFSTR( kIOMediaEjectableKey ), kCFBooleanTrue );
+    }
+
+    return IOServiceGetMatchingServices( masterPort, classesToMatch, mediaIterator );
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+static kern_return_t get_device_file_path( io_iterator_t mediaIterator, char *deviceFilePath, CFIndex maxPathSize )
+{
+    io_object_t nextMedia;
+    kern_return_t kernResult = KERN_FAILURE;
+ 
+    *deviceFilePath = '\0';
+    nextMedia = IOIteratorNext( mediaIterator );
+    if ( nextMedia )
+    {
+        CFTypeRef   deviceFilePathAsCFString;
+        deviceFilePathAsCFString = IORegistryEntryCreateCFProperty(
+                                nextMedia, CFSTR( kIOBSDNameKey ),
+                                kCFAllocatorDefault, 0 );
+
+       *deviceFilePath = '\0';
+        if ( deviceFilePathAsCFString )
+        {
+            size_t devPathLength;
+            strcpy( deviceFilePath, _PATH_DEV );
+            // Add "r" before the BSD node name from the I/O Registry
+            // to specify the raw disk node. The raw disk node receives
+            // I/O requests directly and does not go through the
+            // buffer cache.
+            strcat( deviceFilePath, "r");
+            devPathLength = strlen( deviceFilePath );
+            if ( CFStringGetCString( deviceFilePathAsCFString,
+                                     deviceFilePath + devPathLength,
+                                     maxPathSize - devPathLength,
+                                     kCFStringEncodingASCII ) )
+                kernResult = KERN_SUCCESS;
+
+            CFRelease( deviceFilePathAsCFString );
+        }
+    }
+    IOObjectRelease( nextMedia );
+
+    return kernResult;
+}
+
+char *mb_disc_get_default_device_unportable(void) 
+{
+    kern_return_t kernResult;
+    io_iterator_t mediaIterator;
+
+    if (*defaultDevice)
+        return defaultDevice;
+
+    kernResult = find_ejectable_cd_media( &mediaIterator );
+    if ( kernResult != KERN_SUCCESS )
+        return "";
+
+    kernResult = get_device_file_path( mediaIterator, defaultDevice, MAXPATHLEN - 1);
+    if ( kernResult != KERN_SUCCESS )
+        return "";
+
+    return defaultDevice;
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device) 
+{
 	int fd;
 	int i;
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
   
 	if (device == NULL)
-	    device = MB_DEFAULT_DEVICE;
+	    device = defaultDevice;
+
+    if (!*device)
+    {
+	    snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,  "No CD-ROMs found. Please insert a disc and try again.");
+	    return 0;
+	}
   
 	fd = open(device, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {

@@ -5,7 +5,7 @@ dnl       libtool version number in src/Makefile.am have to be incremented.
 dnl       The libtool version number has to be changed ALWAYS, no matter how
 dnl       small the change to the source code was!
 dnl
-AC_INIT(libdiscid, 0.2.1)
+AC_INIT(libdiscid, 0.2.2)
 AC_CONFIG_SRCDIR(src/disc.c)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)

@@ -113,6 +113,33 @@ static kern_return_t get_device_file_path( io_iterator_t mediaIterator, char *de
     return kernResult;
 }
 
+static void read_disc_mcn(int fd, mb_disc_private *disc)
+{
+    dk_cd_read_mcn_t cd_read_mcn;
+    bzero(&cd_read_mcn, sizeof(cd_read_mcn));
+	
+    if(ioctl(fd, DKIOCCDREADMCN, &cd_read_mcn) == -1) {
+        fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
+    } else {
+        strncpy( disc->mcn, cd_read_mcn.mcn, MCN_STR_LENGTH );
+    }
+}
+
+static void read_disc_isrc(int fd, mb_disc_private *disc, int track)
+{
+    dk_cd_read_isrc_t	cd_read_isrc;
+    bzero(&cd_read_isrc, sizeof(cd_read_isrc));
+    cd_read_isrc.track = track;
+	
+    if(ioctl(fd, DKIOCCDREADISRC, &cd_read_isrc) == -1) {
+        fprintf(stderr, "Warning: Unable to read the international standard recording code (ISRC) for track %i\n", track);
+        return;
+    } else {
+        strncpy( disc->isrc[track], cd_read_isrc.isrc, ISRC_STR_LENGTH );
+    }
+}
+
+
 char *mb_disc_get_default_device_unportable(void) 
 {
     kern_return_t kernResult;
@@ -168,6 +195,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	    free(toc.buffer);
 	    return 0;
 	}
+
+	// Read in the media catalogue number
+	read_disc_mcn( fd, disc );
   
 	cdToc = (CDTOC *)toc.buffer;
 	int numDesc = CDTOCGetDescriptorCount(cdToc);
@@ -183,11 +213,18 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	    if (desc->point == 0xA2 && desc->adr == 1)
 		 disc->track_offsets[0] = CDConvertMSFToLBA(desc->p) + 150; 
   
-	    if (desc->point <= 99 && desc->adr == 1)
-		 disc->track_offsets[1 + numTracks++] = CDConvertMSFToLBA(desc->p) + 150; 
+	    if (desc->point <= 99 && desc->adr == 1) {
+		disc->track_offsets[1 + numTracks] = CDConvertMSFToLBA(desc->p) + 150; 
+		 
+		// Read in the IRSC codes for tracks
+		read_disc_isrc( fd, disc, 1 + numTracks );
+		 
+		numTracks++;
+	    }
 	}
 	disc->first_track_num = 1;
 	disc->last_track_num = numTracks;
+	
   
 	close(fd);
 	free(toc.buffer);

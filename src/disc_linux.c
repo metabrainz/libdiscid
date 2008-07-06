@@ -23,6 +23,7 @@
      $Id$
 
 --------------------------------------------------------------------------- */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -111,6 +112,16 @@ char *mb_disc_get_default_device_unportable(void) {
 	return MB_DEFAULT_DEVICE;
 }
 
+static void read_disc_mcn(int fd, mb_disc_private *disc)
+{
+	struct cdrom_mcn mcn;
+
+	if(ioctl(fd, CDROM_GET_MCN, &mcn) == -1) {
+		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
+	} else {
+		strncpy( disc->mcn, mcn.medium_catalog_number, MCN_STR_LENGTH );
+	}
+}
 
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	int fd;
@@ -141,6 +152,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 		close(fd);
 		return 0;
 	}
+
+	/* Read in the media catalog number */
+	read_disc_mcn( fd, disc );
 
 	disc->first_track_num = first;
 	disc->last_track_num = last;

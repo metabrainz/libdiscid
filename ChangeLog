@@ -3,7 +3,7 @@ libdiscid ChangeLog:
 
 libdiscid-0.2.2:
 
-  - Set libtool version number to 2:1:0 because it is backwards compatible
+  - Set libtool version number to 2:1:2 because it is backwards compatible
     with versions 0.1.x. Thanks to Luks for spotting this.
 
 

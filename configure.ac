@@ -23,7 +23,7 @@ case "${host_cpu}-${host_os}" in
   #*-netbsd*)  os=netbsd ;;
   #*-openbsd*) os=openbsd ;;
   #*-os2_emx*) os=os2 ;;
-  #*-solaris*) os=solaris; LIBS='-lsocket -lnsl' ;;
+  *-solaris*) os=solaris; LIBS='-lsocket -lnsl' ;;
   #*-qnx*)     os=qnx; LIBS='-lsocket' ;;
   *)          AC_MSG_ERROR([unsupported operating system]) ;;
 esac

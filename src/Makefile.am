@@ -24,7 +24,7 @@ lib_LTLIBRARIES = libdiscid.la
 libdiscid_la_SOURCES = base64.c sha1.c disc.c
 EXTRA_libdiscid_la_SOURCES = \
 	disc_linux.c disc_win32.c disc_win32_new.c \
-	discdisc_darwin.c disc_freebsd.c disc_solaris
+	disc_darwin.c disc_freebsd.c disc_solaris.c
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 libdiscid_la_LIBADD = @DISC_OS_OBJ@

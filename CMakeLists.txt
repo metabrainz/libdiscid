@@ -30,7 +30,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINAR
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    SET(libdiscid_OSDEP_SRCS src/disc_linux.c)
+    ADD_DEFINITIONS(-DWITH_CDRDAO)
+    SET(libdiscid_OSDEP_SRCS src/disc_linux.c src/disc_cdrdao.c)
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     SET(libdiscid_OSDEP_SRCS src/disc_darwin.c)
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")

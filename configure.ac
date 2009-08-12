@@ -32,6 +32,10 @@ dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
 dnl The file containing the operating system dependent disc access code.
 DISC_OS_OBJ=disc_${os}.lo
+if test "${os}" = linux; then
+  CFLAGS="-DWITH_CDRDAO"
+  DISC_OS_OBJ="${DISC_OS_OBJ} disc_cdrdao.lo" 
+fi
 AC_SUBST(DISC_OS_OBJ)
 
 AC_MSG_NOTICE([using discid implementation disc_${os}.c])

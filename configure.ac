@@ -20,8 +20,8 @@ case "${host_cpu}-${host_os}" in
   *-freebsd*) os=freebsd ;;
   *-darwin*)  os=darwin; LIBS='-framework CoreFoundation -framework IOKit';;
   *-linux*)   os=linux ;;
-  #*-netbsd*)  os=netbsd ;;
-  #*-openbsd*) os=openbsd ;;
+  *-netbsd*)  os=openbsd ;;
+  *-openbsd*) os=openbsd ;;
   #*-os2_emx*) os=os2 ;;
   *-solaris*) os=solaris; LIBS='-lsocket -lnsl' ;;
   #*-qnx*)     os=qnx; LIBS='-lsocket' ;;

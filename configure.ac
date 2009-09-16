@@ -18,6 +18,7 @@ case "${host_cpu}-${host_os}" in
   *-mingw*)   os=win32; LIBS='-lwinmm' ;;
   *-cygwin*)  os=win32; LIBS='-lwinmm' ;;
   *-freebsd*) os=freebsd ;;
+  *-kfreebsd*) os=freebsd ;;
   *-darwin*)  os=darwin; LIBS='-framework CoreFoundation -framework IOKit';;
   *-linux*)   os=linux ;;
   *-netbsd*)  os=openbsd ;;

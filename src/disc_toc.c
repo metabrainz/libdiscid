@@ -55,7 +55,6 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	data_tracks = 0;
 	for ( i = toc->first_track_num; i <= toc->last_track_num; i++ ) {
 		track = &toc->tracks[i];
-		printf("checking track %d %d %d\n", i, track->control, track->address);
 		if ( track->control & DATA_TRACK ) {
 			data_tracks += 1;
 		}
@@ -89,7 +88,6 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	   of the next data track as the "lead-out" offset */
 	if ( last_audio_track < toc->last_track_num ) {
 		track = &toc->tracks[last_audio_track + 1];
-		printf("leadout %d\n", track->address);
 		disc->track_offsets[0] = track->address - XA_INTERVAL + 150;
 	}
 	/* use the regular lead-out track */

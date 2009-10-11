@@ -30,11 +30,9 @@
 #endif
 #include "discid/discid_private.h"
 
-#define CD_FRAMES     75
-#define XA_INTERVAL		((60 + 90 + 2) * CD_FRAMES)
+#define MB_DEFAULT_DEVICE	"D:" /* FIXME */
 
 #define IOCTL_CDROM_READ_TOC         0x24000
-#define IOCTL_CDROM_GET_LAST_SESSION 0x24038
 
 typedef struct {
   UCHAR  Reserved;
@@ -52,25 +50,24 @@ typedef struct {
   TRACK_DATA  TrackData[100];
 } CDROM_TOC;
 
-typedef struct _CDROM_TOC_SESSION_DATA {
-  UCHAR  Length[2];
-  UCHAR  FirstCompleteSession;
-  UCHAR  LastCompleteSession;
-  TRACK_DATA  TrackData[1];
-} CDROM_TOC_SESSION_DATA;
 
 int AddressToSectors(UCHAR address[4])
 {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
 
-int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
+
+char *mb_disc_get_default_device_unportable(void) {
+	return MB_DEFAULT_DEVICE;
+} 
+
+
+int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *device)
 {
 	HANDLE hDevice;
 	DWORD dwReturned;
 	BOOL bResult;
-	CDROM_TOC toc;
-	CDROM_TOC_SESSION_DATA session;
+	CDROM_TOC cd;
 	char filename[128], *colon;
 	int i, len;
 
@@ -80,8 +77,6 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 		len = colon - device + 1;
 	}
 	strncat(filename, device, len > 120 ? 120 : len);
-	printf("%s\n", device);
-	printf("%s\n", filename);
 
 	hDevice = CreateFile(filename, GENERIC_READ,
 	                     FILE_SHARE_READ | FILE_SHARE_WRITE, 
@@ -92,20 +87,9 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 		return 0;
 	}	
 
-	bResult = DeviceIoControl(hDevice, IOCTL_CDROM_GET_LAST_SESSION,
-	                          NULL, 0,
-	                          &session, sizeof(session),
-	                          &dwReturned, NULL);
-	if (bResult == FALSE) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-		         "error while reading the CD TOC");
-		CloseHandle(hDevice);
-		return 0;
-	}
-
 	bResult = DeviceIoControl(hDevice, IOCTL_CDROM_READ_TOC,
 	                          NULL, 0,
-	                          &toc, sizeof(toc),
+	                          &cd, sizeof(cd),
 	                          &dwReturned, NULL);
 	if (bResult == FALSE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
@@ -116,25 +100,31 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 
 	CloseHandle(hDevice);
 
-	disc->first_track_num = toc.FirstTrack;
-	disc->last_track_num = toc.LastTrack;
+	toc->first_track_num = cd.FirstTrack;
+	toc->last_track_num = cd.LastTrack;
 
-	/* multi-session disc */
-	if (session.FirstCompleteSession != session.LastCompleteSession) {
-		disc->last_track_num = session.TrackData[0].TrackNumber - 1;
-		disc->track_offsets[0] =
-			AddressToSectors(toc.TrackData[disc->last_track_num].Address) -
-			XA_INTERVAL;
-	}
-	else {
-		disc->track_offsets[0] =
-			AddressToSectors(toc.TrackData[disc->last_track_num].Address);
+	/* Get info about all tracks */
+	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
+		toc->tracks[i].address = AddressToSectors(cd.TrackData[i - 1].Address) - 150;
+		toc->tracks[i].control = cd.TrackData[i - 1].Control;
 	}
 
-	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
-		disc->track_offsets[i] = AddressToSectors(toc.TrackData[i - 1].Address);
-	}
+	/* Lead-out is stored after the last track */
+	toc->tracks[0].address = AddressToSectors(cd.TrackData[toc->last_track_num].Address) - 150;
+	toc->tracks[0].control = cd.TrackData[toc->last_track_num].Control;
 
+	return 1;
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+	mb_disc_toc toc;
+
+	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )
+		return 0;
+
+	if ( !mb_disc_load_toc(disc, &toc) )
+		return 0;
+		
 	return 1;
 }
 

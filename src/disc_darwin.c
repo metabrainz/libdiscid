@@ -46,7 +46,7 @@
 
 #include "discid/discid_private.h"
 
-#define TOC_BUFFER_LEN 1024
+#define TOC_BUFFER_LEN 2048
 #define MAXPATHLEN     1024
 
 static char defaultDevice[MAXPATHLEN] = "\0";

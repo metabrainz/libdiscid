@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
 
 #include "discid/discid_private.h"
 

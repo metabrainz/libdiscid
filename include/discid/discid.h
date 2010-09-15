@@ -24,7 +24,7 @@
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
-#ifdef WIN32
+#if (defined(_WIN32) || defined(_WIN64))
 #	ifdef libdiscid_EXPORTS
 #		define LIBDISCID_API __declspec(dllexport)
 #	else

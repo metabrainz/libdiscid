@@ -19,16 +19,16 @@ NOTE: This library is also bundled with libmusicbrainz version 3 or later.
 
 Please report all bugs you find via the MusicBrainz bug tracker:
 
-	http://bugs.musicbrainz.org/
+    http://tickets.musicbrainz.org/
 
 Questions about this package may be posted to the MusicBrainz
 development mailing list (mb-devel):
 
-	http://musicbrainz.org/list.html
+    http://musicbrainz.org/doc/Communication/Mailing_Lists
 
 More information can be found at the package's official homepage:
 
-	http://musicbrainz.org/products/libdiscid/
+    http://musicbrainz.org/doc/libdiscid
 
 -- 
 $Id$

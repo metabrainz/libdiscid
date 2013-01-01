@@ -1,18 +1,22 @@
 cmake_minimum_required(VERSION 2.6)
 
 PROJECT(libdiscid)
-SET(PROJECT_VERSION 0.1.1)
+SET(PROJECT_VERSION 0.3.0)
 
 # 1. If the library source code has changed at all since the last update, then increment revision.
 # 2. If any interfaces have been added, removed, or changed since the last update, increment current, and set revision to 0.
 # 3. If any interfaces have been added since the last public release, then increment age.
 # 4. If any interfaces have been removed since the last public release, then set age to 0. 
-SET(libdiscid_SOVERSION_CURRENT  0)
-SET(libdiscid_SOVERSION_REVISION 1)
-SET(libdiscid_SOVERSION_AGE      0)
+SET(libdiscid_SOVERSION_CURRENT  3)
+SET(libdiscid_SOVERSION_REVISION 0)
+SET(libdiscid_SOVERSION_AGE      3)
 
-SET(libdiscid_VERSION ${libdiscid_SOVERSION_CURRENT}.${libdiscid_SOVERSION_AGE}.${libdiscid_SOVERSION_REVISION})
-SET(libdiscid_SOVERSION ${libdiscid_SOVERSION_CURRENT})
+math(EXPR libdiscid_SOVERSION_MAJOR "${libdiscid_SOVERSION_CURRENT} - ${libdiscid_SOVERSION_AGE}")
+math(EXPR libdiscid_SOVERSION_MINOR "${libdiscid_SOVERSION_AGE}")
+math(EXPR libdiscid_SOVERSION_PATCH "${libdiscid_SOVERSION_REVISION}")
+
+set(libdiscid_VERSION ${libdiscid_SOVERSION_MAJOR}.${libdiscid_SOVERSION_MINOR}.${libdiscid_SOVERSION_PATCH})
+set(libdiscid_SOVERSION ${libdiscid_SOVERSION_MAJOR})
 
 SET(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 SET(EXEC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation prefix for executables and object code libraries" FORCE)

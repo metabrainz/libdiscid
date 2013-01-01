@@ -96,15 +96,5 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device);
  */
 char *mb_disc_get_default_device_unportable(void);
 
-#ifdef WITH_CDRDAO
-
-/*
- * Implementation of CDRDAO-based ISRC/MCN reading.
- *
- * On error, 0 is returned. On success, 1 is returned.
- */
-int mb_disc_read_cdrdao(mb_disc_private *disc, const char *device);
-
-#endif
 
 #endif /* MUSICBRAINZ_DISC_ID_PRIVATE_H */

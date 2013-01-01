@@ -139,13 +139,7 @@ int discid_read(DiscId *d, const char *device) {
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
-	disc->success = mb_disc_read_unportable(disc, device);
-	
-#ifdef WITH_CDRDAO
-	mb_disc_read_cdrdao(disc, device);
-#endif
-
-	return disc->success;
+	return disc->success = mb_disc_read_unportable(disc, device);
 }
 
 

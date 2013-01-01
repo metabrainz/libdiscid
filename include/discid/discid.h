@@ -24,7 +24,7 @@
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
-#ifdef WIN32
+#if (defined(_WIN32) || defined(_WIN64))
 #	ifdef libdiscid_EXPORTS
 #		define LIBDISCID_API __declspec(dllexport)
 #	else
@@ -276,6 +276,26 @@ LIBDISCID_API int discid_get_track_offset(DiscId *d, int track_num);
  * @return length of the specified track
  */
 LIBDISCID_API int discid_get_track_length(DiscId *d, int track_num);
+
+/**
+ * Return the Media Catalogue Number for the disc.
+ *
+ * @param d a DiscId object created by discid_new()
+ * @return a string containing an Media Catalogue Number of the disk
+ */
+LIBDISCID_API char* discid_get_mcn(DiscId *d);
+
+/**
+ * Return the ISRC for a track.
+ *
+ * Only track numbers between (and including) discid_get_first_track_num()
+ * and discid_get_last_track_num() may be used.
+ *
+ * @param d a DiscId object created by discid_new()
+ * @param track_num the number of a track
+ * @return a string containing an ISRC for the specified track
+ */
+LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
 
 
 #ifdef __cplusplus

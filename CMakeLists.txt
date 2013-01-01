@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.6)
+
 PROJECT(libdiscid)
 SET(PROJECT_VERSION 0.1.1)
 
@@ -51,6 +53,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 ADD_EXECUTABLE(discid examples/discid.c)
 TARGET_LINK_LIBRARIES(discid libdiscid)
+
+ADD_EXECUTABLE(discisrc examples/discisrc.c)
+TARGET_LINK_LIBRARIES(discisrc libdiscid)
 
 ADD_EXECUTABLE(test_discid test/test_discid.c)
 TARGET_LINK_LIBRARIES(test_discid libdiscid)

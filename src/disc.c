@@ -172,7 +172,6 @@ char *discid_get_default_device(void) {
 	return mb_disc_get_default_device_unportable();
 }
 
-
 int discid_get_first_track_num(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
@@ -227,6 +226,27 @@ int discid_get_track_length(DiscId *d, int i) {
 	else
 		return disc->track_offsets[0] - disc->track_offsets[i];
 }
+
+char *discid_get_mcn(DiscId *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	return disc->mcn;
+}
+
+char* discid_get_track_isrc(DiscId *d, int i) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+	assert( TRACK_NUM_IS_VALID(disc, i) );
+
+	if ( ! TRACK_NUM_IS_VALID(disc, i) || i == 0)
+		return NULL;
+
+  return disc->isrc[i];
+}
+
 
 
 /****************************************************************************

@@ -46,6 +46,12 @@
 /* The URL that can be used for retrieving XML for a CD */
 #define MB_WEBSERVICE_URL		"http://mm.musicbrainz.org/ws/1/release"
 
+/* Maximum length of a Media Catalogue Number string */
+#define MCN_STR_LENGTH		13
+
+/* Maximum length of a ISRC code string */
+#define ISRC_STR_LENGTH		12
+
 /*
  * This data structure represents an audio disc.
  *
@@ -62,6 +68,8 @@ typedef struct {
 	char submission_url[MB_MAX_URL_LENGTH+1];
 	char webservice_url[MB_MAX_URL_LENGTH+1];
 	char error_msg[MB_ERROR_MSG_LENGTH+1];
+	char isrc[100][ISRC_STR_LENGTH+1];
+	char mcn[MCN_STR_LENGTH+1];
 	int success;
 } mb_disc_private;
 

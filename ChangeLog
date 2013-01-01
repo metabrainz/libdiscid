@@ -1,6 +1,12 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.3.0:
+
+  - Fixed reading of 99 track CDs on Mac OS X.
+  - Added API for reading ISRCs and MCNs (implemented on Windows and Mac OS X).
+  - Added Solaris, OpenBSD and kFreeBSD support.
+
 libdiscid-0.2.2:
 
   - Set libtool version number to 2:1:2 because it is backwards compatible

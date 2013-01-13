@@ -79,7 +79,9 @@
  * \section Contact
  *
  *  - <a href="http://lists.musicbrainz.org/mailman/listinfo/musicbrainz-devel">MusicBrainz Development Mailing List</a>
- *  - <a href="http://bugs.musicbrainz.org/query?component=libdiscid">MusicBrainz Bug Tracker</a>
+ *  - <a href="http://tickets.musicbrainz.org/browse/LIB/component/10061">MusicBrainz Bug Tracker</a>
+ *  - <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
+ *  - <a href="https://github.com/metabrainz/libdiscid">Github Repository</a>
  *
  */ 
 

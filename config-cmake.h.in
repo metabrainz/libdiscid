@@ -1,0 +1,8 @@
+/* Values needed by our sha1.h */
+
+/* defined to 1 if words are stored with the most significant byte first
+ * SPARC (mostly Solaris/SunOS) is an example */
+#cmakedefine WORDS_BIGENDIAN
+
+/* the size of "long", computed/tested by cmake */
+#define SIZEOF_LONG @SIZEOF_LONG@

@@ -41,6 +41,8 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(libdiscid_OSDEP_SRCS src/disc_darwin.c)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
+    SET(libdiscid_OSDEP_SRCS src/disc_solaris.c)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
     SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
     SET(libdiscid_OSDEP_LIBS winmm)
@@ -81,3 +83,13 @@ ADD_CUSTOM_TARGET(dist
     COMMAND svn export http://svn.musicbrainz.org/${PROJECT_NAME}/trunk "${PROJECT_NAME}-${PROJECT_VERSION}"
     COMMAND tar -zcvf "${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" "${PROJECT_NAME}-${PROJECT_VERSION}"
 )
+
+# Tests needed for sha1.h
+INCLUDE(TestBigEndian)
+TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+INCLUDE(CheckTypeSize)
+CHECK_TYPE_SIZE(long SIZEOF_LONG)
+
+CONFIGURE_FILE(config-cmake.h.in ${CMAKE_BINARY_DIR}/config.h)
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+ADD_DEFINITIONS(-DHAVE_CONFIG_H)

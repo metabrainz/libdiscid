@@ -1,6 +1,13 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.3.1:
+
+  - ISRC and MCN support on Linux
+  - Autotools: fix Windows, remove unneeded libs on SunOS
+  - CMake: add Cygwin, add SunOS, fix Mac OS X
+  - updated docs, created INSTALL file
+
 libdiscid-0.3.0:
 
   - Fixed reading of 99 track CDs on Mac OS X.

@@ -26,5 +26,12 @@ The following people have contributed to libdiscid:
    Shunsuke Kuroda
     - Implemented and tested Solaris/OpenSolaris support.
 
+   Nicholas Humphrey
+    - Implemented ISRC reading on Darwin
+
+   Johannes Dewender <brainz at JonnyJD dot net>
+    - Implemented ISRC reading on Linux
+    - Build fixes for Cmake/Autotools on Solaris, Darwin, Windows, Cygwin
+
 -- 
 $Id$

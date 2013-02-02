@@ -135,12 +135,12 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 
 /* Send a scsi command and receive data. */
 static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
-	     const char *data, int data_len) {
+		    const char *data, int data_len) {
 	int device_fd;
 	char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
 
-	memset(&io_hdr, 0, sizeof(io_hdr));
+	memset(&io_hdr, 0, sizeof io_hdr);
 
 	assert(cmd_len <= 16);
 
@@ -149,7 +149,7 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	io_hdr.cmdp = cmd;
 	io_hdr.timeout = DEFAULT_TIMEOUT; /* timeout in ms */
 	io_hdr.sbp = sense_buffer;/* only used when status is CHECK_CONDITION */
-	io_hdr.mx_sb_len = SG_MAX_SENSE;
+	io_hdr.mx_sb_len = sizeof sense_buffer;
 	io_hdr.flags = SG_FLAG_DIRECT_IO;
 
 	io_hdr.dxferp = (void*)data;
@@ -157,24 +157,21 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
 
 	if (ioctl(fd, SG_IO, &io_hdr) != 0) {
-		int errnosave = errno;
-		return errnosave;
+		return errno;
 	} else {
 		return io_hdr.status;	/* 0 = success */
 	}
 }
 
 static int read_track_isrc(int fd, int track_num, char *buffer) {
-	const int CMD_LEN = 10;
-	const int DATA_LEN = 24;
-	unsigned char cmd[CMD_LEN];
-	unsigned char data[DATA_LEN];
 	int i;
+	unsigned char cmd[10];
+	unsigned char data[24];
 
 	buffer[0] = 0;
 
-	memset(cmd, 0, CMD_LEN);
-	memset(data, 0, DATA_LEN);
+	memset(cmd, 0, sizeof cmd);
+	memset(data, 0, sizeof data);
 
 	/* data read from the last appropriate sector encountered
 	 * by a current or previous media access operation.
@@ -188,9 +185,10 @@ static int read_track_isrc(int fd, int track_num, char *buffer) {
 	/* 4+5 reserved */
 	cmd[6] = track_num;
 	/* cmd[7] = upper byte of the transfer length */
-	cmd[8] = DATA_LEN;  /* transfer length in bytes (4 header, 20 data)*/
+	cmd[8] = sizeof data;  /* transfer length in bytes (4 header, 20 data)*/
+	/* cmd[9] = control byte */
 
-	if (scsi_cmd(fd, cmd, 10, data, 24) != 0) {
+	if (scsi_cmd(fd, cmd, sizeof cmd, data, sizeof data) != 0) {
 		fprintf(stderr, "Warning: Cannot get ISRC code for track %d",
 			track_num);
 		return 1;
@@ -198,10 +196,10 @@ static int read_track_isrc(int fd, int track_num, char *buffer) {
 
 	/* data[1:4] = sub-q channel data header (audio status, data length) */
 	if (data[8] & (1 << 7)) { /* TCVAL is set -> ISRCs valid */
-		for (i = 0; i < 12; i++) {
+		for (i = 0; i < ISRC_STR_LENGTH; i++) {
 			buffer[i] = data[9 + i];
 		}
-		buffer[12] = 0;
+		buffer[ISRC_STR_LENGTH] = 0;
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 
@@ -214,7 +212,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	unsigned long lba;
 	int first, last;
 	int i;
-	char buffer[13];
+	char buffer[ISRC_STR_LENGTH+1];
 
 	if ( (fd = open(device, O_RDONLY | O_NONBLOCK)) < 0 ) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
@@ -260,8 +258,10 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 		read_toc_entry(fd, i, &lba);
 		disc->track_offsets[i] = lba + 150;
 
+		/* Read the ISRC for the track */
+		memset(&buffer, 0, sizeof buffer);
 		read_track_isrc(fd, i, buffer);
-		strncpy(disc->isrc[i], buffer, 13);
+		strncpy(disc->isrc[i], buffer, sizeof buffer);
 	}
 
 	close(fd);

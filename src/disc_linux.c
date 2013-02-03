@@ -163,15 +163,15 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	}
 }
 
-static int read_track_isrc(int fd, int track_num, char *buffer) {
+static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	int i;
 	unsigned char cmd[10];
 	unsigned char data[24];
-
-	buffer[0] = 0;
+	char buffer[ISRC_STR_LENGTH+1];
 
 	memset(cmd, 0, sizeof cmd);
 	memset(data, 0, sizeof data);
+	memset(buffer, 0, sizeof buffer);
 
 	/* data read from the last appropriate sector encountered
 	 * by a current or previous media access operation.
@@ -189,9 +189,9 @@ static int read_track_isrc(int fd, int track_num, char *buffer) {
 	/* cmd[9] = control byte */
 
 	if (scsi_cmd(fd, cmd, sizeof cmd, data, sizeof data) != 0) {
-		fprintf(stderr, "Warning: Cannot get ISRC code for track %d",
+		fprintf(stderr, "Warning: Cannot get ISRC code for track %d\n",
 			track_num);
-		return 1;
+		return;
 	}
 
 	/* data[1:4] = sub-q channel data header (audio status, data length) */
@@ -200,10 +200,10 @@ static int read_track_isrc(int fd, int track_num, char *buffer) {
 			buffer[i] = data[9 + i];
 		}
 		buffer[ISRC_STR_LENGTH] = 0;
+		strncpy(disc->isrc[track_num], buffer, sizeof buffer);
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 
-	return 0;
 }
 
 
@@ -212,7 +212,6 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	unsigned long lba;
 	int first, last;
 	int i;
-	char buffer[ISRC_STR_LENGTH+1];
 
 	if ( (fd = open(device, O_RDONLY | O_NONBLOCK)) < 0 ) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
@@ -241,7 +240,6 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	/* Read in the media catalog number */
 	read_disc_mcn( fd, disc );
 
-
 	disc->first_track_num = first;
 	disc->last_track_num = last;
 
@@ -259,15 +257,12 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 		disc->track_offsets[i] = lba + 150;
 
 		/* Read the ISRC for the track */
-		memset(&buffer, 0, sizeof buffer);
-		read_track_isrc(fd, i, buffer);
-		strncpy(disc->isrc[i], buffer, sizeof buffer);
+		read_track_isrc(fd, disc, i);
 	}
 
 	close(fd);
 
 	return 1;
 }
-
 
 /* EOF */

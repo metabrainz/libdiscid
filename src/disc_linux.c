@@ -55,6 +55,7 @@
 
 /* TODO: make sure it's available */
 int snprintf(char *str, size_t size, const char *format, ...);
+void read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num);
 
 
 static int read_toc_header(int fd, int *first, int *last) {
@@ -134,7 +135,7 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 }
 
 /* Send a scsi command and receive data. */
-static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
+int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 		    const char *data, int data_len) {
 	int device_fd;
 	char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
@@ -257,7 +258,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 		disc->track_offsets[i] = lba + 150;
 
 		/* Read the ISRC for the track */
-		read_track_isrc(fd, disc, i);
+		// TODO: test if raw actually is available
+		//read_track_isrc(fd, disc, i);
+		read_track_isrc_raw(fd, disc, i);
 	}
 
 	close(fd);

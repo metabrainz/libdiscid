@@ -174,11 +174,6 @@ static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	memset(data, 0, sizeof data);
 	memset(buffer, 0, sizeof buffer);
 
-	/* data read from the last appropriate sector encountered
-	 * by a current or previous media access operation.
-	 * The Logical Unit accesses the media when there is/was no access.
-	 * TODO: force access at a specific block? -> no duplicate ISRCs?
-	 */
 	cmd[0] = 0x42;		/* READ SUB-CHANNEL */
 	/* cmd[1] reserved / MSF bit (unused) */
 	cmd[2] = 1 << 6;	/* 6th bit set (SUBQ) -> get sub-channel data */

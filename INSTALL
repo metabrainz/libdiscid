@@ -1,0 +1,44 @@
+Build and Installation of Libdiscid
+===================================
+
+You can either use the autotools to build libdiscid or,
+on Linux, Mac OS X, Windows, SunOS and Cygwin,
+you can also use Cmake.
+
+
+Cmake
+-----
+
+    cmake .
+    make
+    make install
+
+test with:
+
+    ./test_discid
+
+
+
+Autotools
+---------
+
+    ./configure
+    make
+    make install
+
+test with:
+
+    make check
+
+
+Tips for Windows
+----------------
+
+For most systems cmake and autotools work (nearly) "out of the box".
+On Windows the build was tested using MinGW and running in the MinGW shell:
+
+    cmake -G "MSYS Makefiles"
+    make
+
+You can also create Visual Studio project files.
+Just type "cmake" to see a list of options.

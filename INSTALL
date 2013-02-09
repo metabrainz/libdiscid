@@ -10,23 +10,23 @@ Cmake
 -----
 
     cmake .
-    make
-    make install
-
-test with:
-
-    ./test_discid
-
 
 
 Autotools
 ---------
 
     ./configure
+
+
+Both
+----
+
+After you created the Makefiles you normally issue
+
     make
     make install
 
-test with:
+and test with:
 
     make check
 

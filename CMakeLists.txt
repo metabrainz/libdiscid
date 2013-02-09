@@ -78,6 +78,8 @@ INSTALL(FILES include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
 
 ADD_CUSTOM_TARGET(docs doxygen)
 
+ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
+
 ADD_CUSTOM_TARGET(dist
     rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
     COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"

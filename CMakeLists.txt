@@ -80,7 +80,10 @@ ADD_CUSTOM_TARGET(docs doxygen)
 
 ADD_CUSTOM_TARGET(dist
     rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
-    COMMAND svn export http://svn.musicbrainz.org/${PROJECT_NAME}/trunk "${PROJECT_NAME}-${PROJECT_VERSION}"
+    COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"
+    COMMAND rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}/.git/"
+    COMMAND rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}/autom4te.cache/"
+    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./autogen.sh
     COMMAND tar -zcvf "${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" "${PROJECT_NAME}-${PROJECT_VERSION}"
 )
 

@@ -12,9 +12,10 @@ operating system dependent CD-ROM/DVD-ROM access code have been ported
 from libmusicbrainz version 2. 
 
 
-Please report all bugs you find via the MusicBrainz bug tracker:
+Please report all bugs you find via the MusicBrainz bug tracker.
+Don't forget to state which OS and what version you are using:
 
-    http://tickets.musicbrainz.org/browse/LIB/component/10061
+    http://tickets.musicbrainz.org/browse/LIB
 
 Questions about this package may be posted to the MusicBrainz
 development mailing list (mb-devel):

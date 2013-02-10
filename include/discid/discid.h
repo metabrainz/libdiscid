@@ -18,8 +18,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
@@ -79,7 +77,7 @@
  * \section Contact
  *
  *  - <a href="http://lists.musicbrainz.org/mailman/listinfo/musicbrainz-devel">MusicBrainz Development Mailing List</a>
- *  - <a href="http://tickets.musicbrainz.org/browse/LIB/component/10061">MusicBrainz Bug Tracker</a>
+ *  - <a href="http://tickets.musicbrainz.org/browse/LIB">MusicBrainz Bug Tracker</a>
  *  - <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
  *  - <a href="https://github.com/metabrainz/libdiscid">Github Repository</a>
  *

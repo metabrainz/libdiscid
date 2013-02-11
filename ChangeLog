@@ -1,6 +1,10 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.3.2:
+
+  - fix distribution so it works for autotools AND cmake
+
 libdiscid-0.3.1:
 
   - ISRC and MCN support on Linux

@@ -44,6 +44,6 @@ libdiscid_la_DEPENDENCIES = @DISC_OS_OBJ@
 #     increment age.
 #  6. If any interfaces have been removed since the last public release, then 
 #     set age to 0. 
-libdiscid_la_LDFLAGS = -version-info 3:1:3 -no-undefined
+libdiscid_la_LDFLAGS = -version-info 3:2:3 -no-undefined
 
 EXTRA_DIST = base64.h sha1.h

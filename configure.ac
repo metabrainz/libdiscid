@@ -5,13 +5,15 @@ dnl       libtool version number in src/Makefile.am have to be incremented.
 dnl       The libtool version number has to be changed ALWAYS, no matter how
 dnl       small the change to the source code was!
 dnl
-AC_INIT(libdiscid, 0.3.1)
+AC_INIT(libdiscid, 0.3.2)
 AC_CONFIG_SRCDIR(src/disc.c)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
 
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
+
+EXTRA_DIST=config-cmake.h.in
 
 case "${host_cpu}-${host_os}" in
   #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;

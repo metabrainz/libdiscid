@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.6)
 
 PROJECT(libdiscid)
-SET(PROJECT_VERSION 0.3.1)
+SET(PROJECT_VERSION 0.3.2)
 
 # 1. If the library source code has changed at all since the last update, then increment revision.
 # 2. If any interfaces have been added, removed, or changed since the last update, increment current, and set revision to 0.
 # 3. If any interfaces have been added since the last public release, then increment age.
 # 4. If any interfaces have been removed since the last public release, then set age to 0. 
 SET(libdiscid_SOVERSION_CURRENT  3)
-SET(libdiscid_SOVERSION_REVISION 1)
+SET(libdiscid_SOVERSION_REVISION 2)
 SET(libdiscid_SOVERSION_AGE      3)
 
 math(EXPR libdiscid_SOVERSION_MAJOR "${libdiscid_SOVERSION_CURRENT} - ${libdiscid_SOVERSION_AGE}")
@@ -83,10 +83,9 @@ ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
 ADD_CUSTOM_TARGET(dist
     rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
     COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"
-    COMMAND rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}/.git/"
     COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./autogen.sh
-    COMMAND rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}/autom4te.cache/"
-    COMMAND tar -zcvf "${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" "${PROJECT_NAME}-${PROJECT_VERSION}"
+    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make dist
+    COMMAND cp "${PROJECT_NAME}-${PROJECT_VERSION}/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" .
 )
 
 # Tests needed for sha1.h

@@ -298,6 +298,42 @@ LIBDISCID_API char* discid_get_mcn(DiscId *d);
 LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
 
 
+/**
+ * PLATFORM-DEPENDENT FEATURES
+ *
+ * The platform dependent features are currently:
+ *   - "read"	read TOC from disc
+ *   - "MCN"	read MCN from disc
+ *   - "ISRC"	read ISRC from disc
+ *
+ * You can use get_feature_list() or has_feature() below.
+ */
+
+enum discid_feature {
+	DISCID_FEATURE_READ,
+	DISCID_FEATURE_MCN,
+	DISCID_FEATURE_ISRC,
+};
+/**
+ * Check if a certain feature is implemented on the current platform
+ *
+ * @return 1 if the feature is implemented and 0 if not.
+ */
+LIBDISCID_API int discid_has_feature(enum discid_feature feature);
+
+#define DISCID_FEATURE_STR_READ		"read"
+#define DISCID_FEATURE_STR_MCN		"MCN"
+#define DISCID_FEATURE_STR_ISRC		"ISRC"
+#define DISCID_FEATURE_LENGTH		16
+/**
+ * Return a list of features supported by the current platform
+ *
+ * @return an array of supported features (as strings)
+ */
+LIBDISCID_API void discid_get_feature_list(
+		char *features[DISCID_FEATURE_LENGTH]);
+
+
 #ifdef __cplusplus
   }
 #endif

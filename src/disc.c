@@ -247,6 +247,27 @@ char* discid_get_track_isrc(DiscId *d, int i) {
   return disc->isrc[i];
 }
 
+int discid_has_feature(enum discid_feature feature) {
+	return mb_disc_has_feature_unportable(feature);
+}
+
+void discid_get_features(char *features[DISCID_FEATURE_LENGTH]) {
+	/* for the code, the parameter is actually only a pointer */
+	memset(features, 0, sizeof(char *) * DISCID_FEATURE_LENGTH);
+
+	if (discid_has_feature(DISCID_FEATURE_READ)) {
+		features[DISCID_FEATURE_READ] = DISCID_FEATURE_STR_READ;
+	}
+	if (discid_has_feature(DISCID_FEATURE_MCN)) {
+		features[DISCID_FEATURE_MCN] = DISCID_FEATURE_STR_MCN;
+	}
+	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
+		features[DISCID_FEATURE_ISRC] = DISCID_FEATURE_STR_ISRC;
+	}
+
+	return;
+}
+
 
 
 /****************************************************************************

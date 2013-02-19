@@ -298,6 +298,26 @@ LIBDISCID_API char* discid_get_mcn(DiscId *d);
 LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
 
 
+#define DISCID_FEATURE_READ	0x01
+#define DISCID_FEATURE_MCN	0x02
+#define DISCID_FEATURE_ISRC	0x04
+/**
+ * Return a bit mask of features supported by the current platform
+ *
+ * The platform dependent features are currently:
+ *   - READ	read TOC from disc
+ *   - MCN	read MCN from disc
+ *   - ISRC	read ISRC from disc
+ *
+ * The bit masks are defined as DISCID_FEATURE_*
+ *
+ * Please note, that only platform dependent features are listed here.
+ *
+ * @return a byte containing feature bits
+ */
+LIBDISCID_API unsigned char discid_get_features(void);
+
+
 #ifdef __cplusplus
   }
 #endif

@@ -35,6 +35,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define MB_DEFAULT_DEVICE   "/dev/rcd0c"
@@ -144,4 +145,10 @@ char *
 mb_disc_get_default_device_unportable (void)
 {
     return MB_DEFAULT_DEVICE;
+}
+
+unsigned char
+mb_disc_get_features_unportable(void)
+{
+	return DISCID_FEATURE_READ;
 }

@@ -35,6 +35,7 @@
 #include <assert.h>
 
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define		CD_FRAMES		75 /* per second */
@@ -116,6 +117,10 @@ static int read_leadout(int fd, unsigned long *lba) {
 
 char *mb_disc_get_default_device_unportable(void) {
 	return MB_DEFAULT_DEVICE;
+}
+
+unsigned char mb_disc_get_features_unportable(void) {
+	return DISCID_FEATURE_READ;
 }
 
 

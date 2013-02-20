@@ -44,6 +44,7 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define TOC_BUFFER_LEN 2048
@@ -137,6 +138,17 @@ static void read_disc_isrc(int fd, mb_disc_private *disc, int track)
     } else {
         strncpy( disc->isrc[track], cd_read_isrc.isrc, ISRC_STR_LENGTH );
     }
+}
+
+int mb_disc_has_feature_unportable(enum discid_feature feature) {
+	switch(feature) {
+		case DISCID_FEATURE_READ:
+		case DISCID_FEATURE_MCN:
+		case DISCID_FEATURE_ISRC:
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 

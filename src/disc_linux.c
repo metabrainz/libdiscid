@@ -24,17 +24,17 @@
      $Id$
 
 --------------------------------------------------------------------------- */
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <linux/cdrom.h>
-#include <assert.h>
-#include <errno.h>
 #include <scsi/sg.h>
 
 
@@ -51,10 +51,6 @@
 #ifndef SG_MAX_SENSE
 #define SG_MAX_SENSE 16
 #endif
-
-
-/* TODO: make sure it's available */
-int snprintf(char *str, size_t size, const char *format, ...);
 
 
 static int read_toc_header(int fd, int *first, int *last) {
@@ -129,15 +125,16 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 	if(ioctl(fd, CDROM_GET_MCN, &mcn) == -1) {
 		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
 	} else {
-		strncpy( disc->mcn, mcn.medium_catalog_number, MCN_STR_LENGTH );
+		strncpy( disc->mcn,
+				(const char *)mcn.medium_catalog_number,
+				MCN_STR_LENGTH );
 	}
 }
 
 /* Send a scsi command and receive data. */
 static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
-		    const char *data, int data_len) {
-	int device_fd;
-	char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
+		    unsigned char *data, int data_len) {
+	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
 
 	memset(&io_hdr, 0, sizeof io_hdr);

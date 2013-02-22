@@ -35,32 +35,42 @@ SET(libdir ${LIB_INSTALL_DIR})
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
 
+
+# normalizing operating systems
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    SET(libdiscid_OSDEP_SRCS src/disc_linux.c)
+    SET(libdiscid_OS "linux")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    SET(libdiscid_OS "darwin")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+    SET(libdiscid_OS "freebsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
+    SET(libdiscid_OS "openbsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+    SET(libdiscid_OS "openbsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
+    SET(libdiscid_OS "solaris")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    SET(libdiscid_OS "win32")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+    SET(libdiscid_OS "win32")
+ELSE()
+    MESSAGE(FATAL_ERROR	"unsupported operating system")
+ENDIF()
+
+# choose platform dependent source files
+IF(libdiscid_OS MATCHES "win32")
+    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
+    SET(libdiscid_OSDEP_LIBS winmm)
+ELSEIF(libdiscid_OS MATCHES "darwin")
     SET(libdiscid_OSDEP_SRCS src/disc_darwin.c)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-    SET(libdiscid_OSDEP_SRCS src/disc_freebsd.c)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
-    SET(libdiscid_OSDEP_SRCS src/disc_openbsd.c)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
-    SET(libdiscid_OSDEP_SRCS src/disc_openbsd.c)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
-    SET(libdiscid_OSDEP_SRCS src/disc_solaris.c)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
-    SET(libdiscid_OSDEP_LIBS winmm)
-# ${CMAKE_SYSTEM_NAME} leads to CYGWIN, is taken as ${CYGWIN} -> no braces
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
-    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
-    SET(libdiscid_OSDEP_LIBS winmm)
-ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    MESSAGE(FATAL_ERROR	"unsupported operating system")
-ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+ELSE()
+    SET(libdiscid_OSDEP_SRCS src/disc_${libdiscid_OS}.c)
+ENDIF()
 
 MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_SRCS}")
+
 
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
@@ -84,6 +94,7 @@ INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 INSTALL(FILES include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
 
+
 ADD_CUSTOM_TARGET(docs doxygen)
 
 ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
@@ -95,6 +106,7 @@ ADD_CUSTOM_TARGET(dist
     COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make dist
     COMMAND cp "${PROJECT_NAME}-${PROJECT_VERSION}/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" .
 )
+
 
 # Tests needed for sha1.h
 INCLUDE(TestBigEndian)
@@ -108,4 +120,4 @@ ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
 IF(CMAKE_COMPILER_IS_GNUCC)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O2")
-ENDIF(CMAKE_COMPILER_IS_GNUCC)
+ENDIF()

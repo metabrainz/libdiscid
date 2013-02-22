@@ -56,6 +56,8 @@ ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
     MESSAGE(FATAL_ERROR	"unsupported operating system")
 ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
+MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_SRCS}")
+
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES

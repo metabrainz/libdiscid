@@ -40,12 +40,28 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-  printf("MCN      : %s\n", discid_get_mcn(disc));
+	/* off-topic: like 4 different indenting styles in 1 file */
+	if (discid_get_features() & DISCID_FEATURE_MCN) {
+		printf("MCN      : %s\n", discid_get_mcn(disc));
+	} else {
+		printf("MCN      : (not implemented)\n");
+	}
 
-	for ( i = discid_get_first_track_num(disc);
-			i <= discid_get_last_track_num(disc); i++ ) {
+	if (discid_get_features() & DISCID_FEATURE_ISRC) {
+		for ( i = discid_get_first_track_num(disc);
+				i <= discid_get_last_track_num(disc); i++ ) {
 
-		printf("Track %-2d : %s\n", i, discid_get_track_isrc(disc, i));
+			printf("Track %-2d : %s\n", i,
+					discid_get_track_isrc(disc, i));
+		}
+	} else {
+		printf("ISRCS    : (not implemented)\n");
+	}
+
+	if (discid_get_features() & 0x08) {
+		printf("foo      : BAR\n");
+	} else {
+		printf("foo      : (not implemented)\n");
 	}
 
 	discid_free(disc);

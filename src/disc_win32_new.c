@@ -161,7 +161,8 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 
 	strcpy(filename, "\\\\.\\");
 	len = strlen(device);
-	if (colon = strchr(device, ':')) {
+	colon = strchr(device, ':');
+	if (colon) {
 		len = colon - device + 1;
 	}
 	strncat(filename, device, len > 120 ? 120 : len);

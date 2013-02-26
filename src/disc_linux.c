@@ -38,6 +38,7 @@
 #include <scsi/sg.h>
 
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 
@@ -201,6 +202,10 @@ static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 
+}
+
+unsigned char mb_disc_get_features_unportable(void) {
+	return DISCID_FEATURE_READ | DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC;
 }
 
 

@@ -197,7 +197,7 @@ static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 			buffer[i] = data[9 + i];
 		}
 		buffer[ISRC_STR_LENGTH] = 0;
-		strncpy(disc->isrc[track_num], buffer, sizeof buffer);
+		strncpy(disc->isrc[track_num], buffer, ISRC_STR_LENGTH);
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 

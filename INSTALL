@@ -1,9 +1,7 @@
 Build and Installation of Libdiscid
 ===================================
 
-You can either use the autotools to build libdiscid or,
-on Linux, Mac OS X, Windows, SunOS and Cygwin,
-you can also use Cmake.
+You can either use the autotools or Cmake to build libdiscid.
 
 
 Cmake

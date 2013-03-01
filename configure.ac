@@ -13,6 +13,7 @@ AC_CONFIG_HEADERS(config.h)
 # TODO: better version number handling + set all versions here
 libdiscid_VERSION_RC=0,3,2,0
 AC_SUBST(libdiscid_VERSION_RC)
+AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
 
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST

@@ -18,6 +18,7 @@ math(EXPR libdiscid_SOVERSION_PATCH "${libdiscid_SOVERSION_REVISION}")
 set(libdiscid_VERSION ${libdiscid_SOVERSION_MAJOR}.${libdiscid_SOVERSION_MINOR}.${libdiscid_SOVERSION_PATCH})
 set(libdiscid_SOVERSION ${libdiscid_SOVERSION_MAJOR})
 set(libdiscid_VERSION_RC ${libdiscid_SOVERSION_MAJOR},${libdiscid_SOVERSION_MINOR},${libdiscid_SOVERSION_PATCH},0)
+SET(libdiscid_EXPORT 1)
 
 SET(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 SET(EXEC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation prefix for executables and object code libraries" FORCE)

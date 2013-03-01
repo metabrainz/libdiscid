@@ -17,6 +17,7 @@ math(EXPR libdiscid_SOVERSION_PATCH "${libdiscid_SOVERSION_REVISION}")
 
 set(libdiscid_VERSION ${libdiscid_SOVERSION_MAJOR}.${libdiscid_SOVERSION_MINOR}.${libdiscid_SOVERSION_PATCH})
 set(libdiscid_SOVERSION ${libdiscid_SOVERSION_MAJOR})
+set(libdiscid_VERSION_RC ${libdiscid_SOVERSION_MAJOR},${libdiscid_SOVERSION_MINOR},${libdiscid_SOVERSION_PATCH},0)
 
 SET(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 SET(EXEC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation prefix for executables and object code libraries" FORCE)
@@ -33,6 +34,7 @@ SET(includedir ${INCLUDE_INSTALL_DIR})
 SET(libdir ${LIB_INSTALL_DIR})
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.rc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.rc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -51,6 +53,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
     SET(libdiscid_OSDEP_SRCS src/disc_solaris.c)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
     SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
+    SET(libdiscid_RCS versioninfo.rc)
     SET(libdiscid_OSDEP_LIBS winmm)
 # ${CMAKE_SYSTEM_NAME} leads to CYGWIN, is taken as ${CYGWIN} -> no braces
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
@@ -63,7 +66,7 @@ ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")
 MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
 
-ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} src/base64.c src/disc.c src/sha1.c)
+ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES
     OUTPUT_NAME discid

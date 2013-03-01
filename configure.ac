@@ -10,6 +10,10 @@ AC_CONFIG_SRCDIR(src/disc.c)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
 
+# TODO: better version number handling + set all versions here
+libdiscid_VERSION_RC=0,3,2,0
+AC_SUBST(libdiscid_VERSION_RC)
+
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
 
@@ -37,12 +41,14 @@ dnl The file containing the operating system dependent disc access code.
 if test "${os}" = "win32"; then
   DISC_OS_OBJ="disc_${os}.lo disc_${os}_new.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_${os}_new.c])
+  DISC_OS_OBJ="${DISC_OS_OBJ} ../versioninfo.lo"
+  LT_INIT([win32-dll])
+  LT_LANG([Windows Resource])
 else
   DISC_OS_OBJ="disc_${os}.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c])
 fi
 AC_SUBST(DISC_OS_OBJ)
-
 
 
 dnl Checks for programs.
@@ -64,5 +70,5 @@ fi
 
 AC_OUTPUT([
   Makefile src/Makefile include/Makefile include/discid/Makefile
-  examples/Makefile test/Makefile libdiscid.pc Doxyfile
+  examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
 ])

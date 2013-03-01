@@ -53,7 +53,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
     SET(libdiscid_OSDEP_SRCS src/disc_solaris.c)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
     SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
-    SET(libdiscid_RCS libdiscid.rc)
+    SET(libdiscid_RCS versioninfo.rc)
     SET(libdiscid_OSDEP_LIBS winmm)
 # ${CMAKE_SYSTEM_NAME} leads to CYGWIN, is taken as ${CYGWIN} -> no braces
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")

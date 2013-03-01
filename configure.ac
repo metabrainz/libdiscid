@@ -41,7 +41,7 @@ dnl The file containing the operating system dependent disc access code.
 if test "${os}" = "win32"; then
   DISC_OS_OBJ="disc_${os}.lo disc_${os}_new.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_${os}_new.c])
-  DISC_OS_OBJ="${DISC_OS_OBJ} ../libdiscid.lo"	# add versioninfo
+  DISC_OS_OBJ="${DISC_OS_OBJ} ../versioninfo.lo"
   LT_INIT([win32-dll])
   LT_LANG([Windows Resource])
 else
@@ -70,5 +70,5 @@ fi
 
 AC_OUTPUT([
   Makefile src/Makefile include/Makefile include/discid/Makefile
-  examples/Makefile test/Makefile libdiscid.pc libdiscid.rc Doxyfile
+  examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
 ])

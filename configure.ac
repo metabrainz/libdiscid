@@ -42,14 +42,14 @@ if test "${os}" = "win32"; then
   DISC_OS_OBJ="disc_${os}.lo disc_${os}_new.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_${os}_new.c])
   DISC_OS_OBJ="${DISC_OS_OBJ} ../versioninfo.lo"
-  LT_INIT([win32-dll])
-  LT_LANG([Windows Resource])
 else
   DISC_OS_OBJ="disc_${os}.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c])
 fi
 AC_SUBST(DISC_OS_OBJ)
 
+LT_INIT([win32-dll])
+LT_LANG([Windows Resource])
 
 dnl Checks for programs.
 AC_PROG_CC

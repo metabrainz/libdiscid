@@ -47,3 +47,13 @@ libdiscid_la_DEPENDENCIES = @DISC_OS_OBJ@
 libdiscid_la_LDFLAGS = -version-info 3:2:3 -no-undefined
 
 EXTRA_DIST = base64.h sha1.h
+
+# for Windows Resource Files
+RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS)
+LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)
+
+.rc.o:
+	$(RCCOMPILE) -i "$<" -o "$@"
+
+.rc.lo:
+	$(LTRCCOMPILE) -i "$<" -o "$@"

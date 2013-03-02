@@ -251,7 +251,7 @@ int discid_has_feature(enum discid_feature feature) {
 	return mb_disc_has_feature_unportable(feature);
 }
 
-void discid_get_features(char *features[DISCID_FEATURE_LENGTH]) {
+void discid_get_feature_list(char *features[DISCID_FEATURE_LENGTH]) {
 	int i;
 
 	/* for the code, the parameter is actually only a pointer */

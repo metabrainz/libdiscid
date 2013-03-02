@@ -63,6 +63,20 @@ int main(int argc, char *argv[]) {
 		printf("ISRCs    : (not implemented)\n");
 	}
 
+	/* another way to access the features */
+	char *features[DISCID_FEATURE_LENGTH];
+	discid_get_feature_list(features);
+	printf("All features: ");
+	for (i = 0; i < DISCID_FEATURE_LENGTH; i++) {
+		if (features[i]) {
+			if (i > 0) {
+				printf(", ");
+			}
+			printf("%s", features[i]);
+		}
+	}
+	printf("\n");
+
 	discid_free(disc);
 
 	return 0;

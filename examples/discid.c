@@ -28,14 +28,15 @@
 int main(int argc, char *argv[]) {
 	DiscId *disc = discid_new();
 	int i;
-        char *device = NULL;
+	char *device = NULL;
 
-        /* If we have an argument, use it as the device name */
-        if (argc > 1)
-            device = argv[1];
+	/* If we have an argument, use it as the device name */
+	if (argc > 1) {
+		device = argv[1];
+	}
 
 	/* read the disc in the default disc drive */
-	if ( discid_read(disc, device) == 0 ) {
+	if (discid_read(disc, device) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		return 1;
 	}

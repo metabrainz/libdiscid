@@ -310,9 +310,9 @@ LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
  */
 
 enum discid_feature {
-	DISCID_FEATURE_READ,
-	DISCID_FEATURE_MCN,
-	DISCID_FEATURE_ISRC,
+	DISCID_FEATURE_READ = 1 << 0,
+	DISCID_FEATURE_MCN  = 1 << 1,
+	DISCID_FEATURE_ISRC = 1 << 2,
 };
 /**
  * Check if a certain feature is implemented on the current platform

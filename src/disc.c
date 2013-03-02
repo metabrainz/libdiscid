@@ -252,17 +252,20 @@ int discid_has_feature(enum discid_feature feature) {
 }
 
 void discid_get_features(char *features[DISCID_FEATURE_LENGTH]) {
+	int i;
+
 	/* for the code, the parameter is actually only a pointer */
 	memset(features, 0, sizeof(char *) * DISCID_FEATURE_LENGTH);
+	i = 0;
 
 	if (discid_has_feature(DISCID_FEATURE_READ)) {
-		features[DISCID_FEATURE_READ] = DISCID_FEATURE_STR_READ;
+		features[i++] = DISCID_FEATURE_STR_READ;
 	}
 	if (discid_has_feature(DISCID_FEATURE_MCN)) {
-		features[DISCID_FEATURE_MCN] = DISCID_FEATURE_STR_MCN;
+		features[i++] = DISCID_FEATURE_STR_MCN;
 	}
 	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
-		features[DISCID_FEATURE_ISRC] = DISCID_FEATURE_STR_ISRC;
+		features[i++] = DISCID_FEATURE_STR_ISRC;
 	}
 
 	return;

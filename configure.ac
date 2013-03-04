@@ -1,17 +1,35 @@
-dnl Process this file with autoconf to produce a configure script.
-dnl
+dnl Process this file with autoconf to produce a configure script.  dnl
 dnl NOTE: Each time a release is made, the version number below and the
 dnl       libtool version number in src/Makefile.am have to be incremented.
 dnl       The libtool version number has to be changed ALWAYS, no matter how
 dnl       small the change to the source code was!
 dnl
+
+# AC_INIT would complain with "not a literal" when using MAJOR/MINOR/PATCH vars
+# currently the sole purpose of the project is the library,
+# so we use the library version also as project version
+# don't forget to update MAJOR/MINOR/PATCH below!
 AC_INIT(libdiscid, 0.3.2)
 AC_CONFIG_SRCDIR(src/disc.c)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
 
-# TODO: better version number handling + set all versions here
-libdiscid_VERSION_RC=0,3,2,0
+# VERSION NUMBERING:
+# see http://semver.org, we use that schema starting with 0.x.x
+# in short:
+# MAJOR is increased when backwards incompatible changes are made to the API
+# MINOR is increased when features are added to the API
+# PATCH is increase for all other releases
+libdiscid_MAJOR=0
+libdiscid_MINOR=3
+libdiscid_PATCH=2
+# don't forget to update AC_INIT above!
+
+libdiscid_VERSION=${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH}
+libdiscid_VERSION_LT=${libdiscid_MAJOR}:${libdiscid_MINOR}:${libdiscid_PATCH}
+libdiscid_VERSION_RC=${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0
+AC_SUBST(libdiscid_VERSION)
+AC_SUBST(libdiscid_VERSION_LT)
 AC_SUBST(libdiscid_VERSION_RC)
 
 dnl Set the host_cpu, host_vendor, and host_os variables.

@@ -57,7 +57,8 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
     SET(libdiscid_OS "win32")
 ELSE()
-    MESSAGE(FATAL_ERROR	"unsupported operating system")
+    SET(libdiscid_OS "generic")
+    MESSAGE(STATUS "WARNING: unknown operating system, no disc reading available!")
 ENDIF()
 
 # choose platform dependent source files

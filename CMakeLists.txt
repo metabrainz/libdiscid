@@ -37,7 +37,6 @@ SET(libdir ${LIB_INSTALL_DIR})
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/versioninfo.rc.in ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
-SET(make_clean_files libdiscid.pc versioninfo.rc Doxyfile)
 
 
 # normalizing operating systems
@@ -122,10 +121,7 @@ CHECK_TYPE_SIZE(long SIZEOF_LONG)
 CONFIGURE_FILE(config-cmake.h.in ${CMAKE_BINARY_DIR}/config.h)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
-LIST(APPEND make_clean_files config.h)
 
 IF(CMAKE_COMPILER_IS_GNUCC)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O2")
 ENDIF()
-
-SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${make_clean_files}")

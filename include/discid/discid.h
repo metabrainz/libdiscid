@@ -2,6 +2,8 @@
 
    MusicBrainz -- The Internet music metadatabase
 
+   Copyright (C) 2013 Johannes Dewender
+   Copyright (C) 2006-2010 Lukas Lalinsky
    Copyright (C) 2006 Matthias Friedrich
    
    This library is free software; you can redistribute it and/or

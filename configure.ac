@@ -35,7 +35,8 @@ case "${host_cpu}-${host_os}" in
   #*-os2_emx*) os=os2 ;;
   *-solaris*) os=solaris ;;
   #*-qnx*)     os=qnx; LIBS='-lsocket' ;;
-  *)          AC_MSG_ERROR([unsupported operating system]) ;;
+  *)          os=generic;
+	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac
 dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 

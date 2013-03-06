@@ -1,8 +1,25 @@
+# Cmake files
 CMakeCache.txt
 CMakeFiles/
 Makefile
+
+# other created files/folders
 Doxyfile
 config.h
 versioninfo.rc
 libdiscid.pc
-docs
+docs/
+
+# Autotools files
+configure
+config.guess
+config.sub
+config.h.in
+Makefile.in
+aclocal.m4
+autom4te.cache/
+depcomp
+install-sh
+ltmain.sh
+missing
+test-driver

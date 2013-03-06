@@ -1,0 +1,8 @@
+CMakeCache.txt
+CMakeFiles/
+Makefile
+Doxyfile
+config.h
+versioninfo.rc
+libdiscid.pc
+docs

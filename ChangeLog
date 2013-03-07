@@ -4,6 +4,7 @@ libdiscid ChangeLog:
 libdiscid-0.4.0:
 
  - LIB-23: add has_feature() and get_feature_list() to API (platform check)
+ - add get_version_string() to API
  - CMake : add FreeBSD, NetBSD, OpenBSD -> all platforms supported
  - LIB-24: support generic platform (discid_put() only)
  - Win32 : Added versioninfo resource to DLL

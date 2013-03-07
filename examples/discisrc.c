@@ -30,6 +30,8 @@ int main(int argc, char *argv[]) {
 	char *device = NULL;
 	DiscId *disc = discid_new();
 
+	printf("%s\n", discid_get_version_string());
+
 	/* If we have an argument, use it as the device name */
 	if (argc > 1) {
 		device = argv[1];

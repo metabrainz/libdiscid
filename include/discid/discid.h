@@ -343,6 +343,15 @@ LIBDISCID_API int discid_has_feature(enum discid_feature feature);
 LIBDISCID_API void discid_get_feature_list(
 		char *features[DISCID_FEATURE_LENGTH]);
 
+/**
+ * Return the full version string of this library, including the name.
+ * This can be used for debug output.
+ * Don't use this to test for features, see discid_has_feature().
+ *
+ * @return a string containing the version of libdiscid.
+ */
+LIBDISCID_API char *discid_get_version_string(void);
+
 
 #ifdef __cplusplus
   }

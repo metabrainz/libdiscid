@@ -271,6 +271,15 @@ void discid_get_feature_list(char *features[DISCID_FEATURE_LENGTH]) {
 	return;
 }
 
+char *discid_get_version_string(void) {
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+	return PACKAGE_STRING;
+#else
+	return "";
+#endif
+}
+
 
 
 /****************************************************************************

@@ -44,10 +44,17 @@
  * \mainpage libdiscid
  * \section intro Introduction
  *
- * libdiscid is a C library for calculating DiscIDs for Audio CDs. It is a C
- * port of the DiscID-related code from libmusicbrainz2 (which is written in
- * C++). The idea is to have an easy to use library without any dependencies
+ * Libdiscid is a C library for calculating DiscIDs
+ * (<a href="http://musicbrainz.org/doc/Disc ID">MusicBrainz</a>
+ * and <a href="http://freedb.org">freedb</a>)
+ * for Audio CDs.
+ * Additionally the library can extract the MCN/UPC/EAN and the
+ * <a href="http://musicbrainz.org/doc/ISRC">ISRCs</a> from disc.
+ *
+ * The idea is to have an easy to use library without any dependencies
  * that can be used from scripting languages.
+ *
+ * The API is documented in discid.h.
  *
  * \section examples Examples
  *
@@ -74,7 +81,8 @@
  * libdiscid provides a pkg-config script that returns the necessary compiler and linker flags, as well as the
  * version number.  To build a small sample program one would use:
  *
- * <tt>gcc libdiscid-test.c `pkg-config libdiscid --cflags --libs` -o libdiscid-test</tt>
+ * @par
+ * <tt>gcc libdiscid-test.c \`pkg-config libdiscid --cflags --libs\` -o libdiscid-test</tt>
  *
  * \section Contact
  *
@@ -317,7 +325,7 @@ enum discid_feature {
 	DISCID_FEATURE_ISRC = 1 << 2,
 };
 /**
- * Check if a certain feature is implemented on the current platform
+ * Check if a certain feature is implemented on the current platform.
  *
  * @return 1 if the feature is implemented and 0 if not.
  */
@@ -328,7 +336,7 @@ LIBDISCID_API int discid_has_feature(enum discid_feature feature);
 #define DISCID_FEATURE_STR_ISRC		"isrc"
 #define DISCID_FEATURE_LENGTH		32
 /**
- * Return a list of features supported by the current platform
+ * Return a list of features supported by the current platform.
  *
  * @return an array of supported features (as strings)
  */

@@ -10,8 +10,8 @@ PROJECT(libdiscid)
 # MINOR is increased when features are added to the API
 # PATCH is increase for all other releases
 SET(libdiscid_MAJOR 0)
-SET(libdiscid_MINOR 3)
-SET(libdiscid_PATCH 2)
+SET(libdiscid_MINOR 4)
+SET(libdiscid_PATCH 0)
 
 
 SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})

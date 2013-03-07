@@ -337,6 +337,9 @@ LIBDISCID_API int discid_has_feature(enum discid_feature feature);
 #define DISCID_FEATURE_LENGTH		32
 /**
  * Return a list of features supported by the current platform.
+ * The array of length DISCID_FEATURES_LENGTH should be allocated by the user.
+ * After the call each element of the array is either NULL
+ * or a pointer to a static string.
  *
  * @return an array of supported features (as strings)
  */

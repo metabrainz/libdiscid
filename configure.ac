@@ -9,7 +9,7 @@ dnl
 # currently the sole purpose of the project is the library,
 # so we use the library version also as project version
 # don't forget to update MAJOR/MINOR/PATCH below!
-AC_INIT(libdiscid, 0.4.0)
+AC_INIT(libdiscid, 0.4.1)
 AC_CONFIG_SRCDIR(src/disc.c)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
@@ -22,7 +22,7 @@ AC_CONFIG_HEADERS(config.h)
 # PATCH is increase for all other releases
 libdiscid_MAJOR=0
 libdiscid_MINOR=4
-libdiscid_PATCH=0
+libdiscid_PATCH=1
 # don't forget to update AC_INIT above!
 
 libdiscid_VERSION=${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH}

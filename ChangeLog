@@ -1,6 +1,10 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.4.1:
+
+ - fix distribution: include disc_generic.c in Autotools dist
+
 libdiscid-0.4.0:
 
  - LIB-23: add has_feature() and get_feature_list() to API (platform check)

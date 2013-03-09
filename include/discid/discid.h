@@ -290,6 +290,8 @@ LIBDISCID_API int discid_get_track_length(DiscId *d, int track_num);
 /**
  * Return the Media Catalogue Number for the disc.
  *
+ * \since libdiscid 0.3.0
+ *
  * @param d a DiscId object created by discid_new()
  * @return a string containing an Media Catalogue Number of the disk
  */
@@ -300,6 +302,8 @@ LIBDISCID_API char* discid_get_mcn(DiscId *d);
  *
  * Only track numbers between (and including) discid_get_first_track_num()
  * and discid_get_last_track_num() may be used.
+ *
+ * \since libdiscid 0.3.0
  *
  * @param d a DiscId object created by discid_new()
  * @param track_num the number of a track
@@ -327,6 +331,8 @@ enum discid_feature {
 /**
  * Check if a certain feature is implemented on the current platform.
  *
+ * \since libdiscid 0.4.0
+ *
  * @return 1 if the feature is implemented and 0 if not.
  */
 LIBDISCID_API int discid_has_feature(enum discid_feature feature);
@@ -341,6 +347,8 @@ LIBDISCID_API int discid_has_feature(enum discid_feature feature);
  * After the call each element of the array is either NULL
  * or a pointer to a static string.
  *
+ * \since libdiscid 0.4.0
+ *
  * @return an array of supported features (as strings)
  */
 LIBDISCID_API void discid_get_feature_list(
@@ -350,6 +358,8 @@ LIBDISCID_API void discid_get_feature_list(
  * Return the full version string of this library, including the name.
  * This can be used for debug output.
  * Don't use this to test for features, see discid_has_feature().
+ *
+ * \since libdiscid 0.4.0
  *
  * @return a string containing the version of libdiscid.
  */

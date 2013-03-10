@@ -25,10 +25,13 @@
 #include <string.h>
 
 #include "discid/discid_private.h"
+#include "scsi.h"
 
 /* Send a scsi command and receive data. */
 int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
-	     unsigned char *data, int data_len);
+	     unsigned char *data, int data_len) {
+	return scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
+}
 
 static void decode_isrc(unsigned char *q_channel, char *isrc) {
 	int isrc_pos;

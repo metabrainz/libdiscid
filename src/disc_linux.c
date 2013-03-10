@@ -38,6 +38,7 @@
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "scsi.h"
 
 
 #define MB_DEFAULT_DEVICE	"/dev/cdrom"
@@ -50,11 +51,6 @@
 #ifndef SG_MAX_SENSE
 #define SG_MAX_SENSE 16
 #endif
-
-
-/* TODO: that should be in some include */
-void read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num);
-void read_track_isrc(int fd, mb_disc_private *disc, int track_num);
 
 
 static int read_toc_header(int fd, int *first, int *last) {
@@ -136,8 +132,8 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 }
 
 /* Send a scsi command and receive data. */
-int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
-	     unsigned char *data, int data_len) {
+int scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
+			unsigned char *data, int data_len) {
 	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
 

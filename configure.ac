@@ -65,8 +65,8 @@ if test "${os}" = "win32"; then
   AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_${os}_new.c])
   DISC_OS_OBJ="${DISC_OS_OBJ} ../versioninfo.lo"
 elif test "${os}" = "linux"; then
-  DISC_OS_OBJ="disc_${os}.lo disc_scsi.lo"
-  AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_scsi.c])
+  DISC_OS_OBJ="disc_${os}.lo scsi.lo"
+  AC_MSG_NOTICE([using discid implementation disc_${os}.c])
 else
   DISC_OS_OBJ="disc_${os}.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c])

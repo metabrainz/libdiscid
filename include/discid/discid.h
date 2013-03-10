@@ -333,6 +333,7 @@ enum discid_feature {
  *
  * \since libdiscid 0.4.0
  *
+ * @param feature as enum ::discid_feature
  * @return 1 if the feature is implemented and 0 if not.
  */
 LIBDISCID_API int discid_has_feature(enum discid_feature feature);
@@ -349,7 +350,7 @@ LIBDISCID_API int discid_has_feature(enum discid_feature feature);
  *
  * \since libdiscid 0.4.0
  *
- * @return an array of supported features (as strings)
+ * @param[out] features a static string array of length DISCID_FEATURES_LENGTH
  */
 LIBDISCID_API void discid_get_feature_list(
 		char *features[DISCID_FEATURE_LENGTH]);

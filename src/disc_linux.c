@@ -216,7 +216,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 }
 
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device, int features) {
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) {
 	int fd;
 	unsigned long lba;
 	int first, last;

@@ -130,7 +130,7 @@ int discid_read(DiscId *d, const char *device) {
 	return discid_read_sparse(d, device, DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC);
 }
 
-int discid_read_sparse(DiscId *d, const char *device, int features) {
+int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );

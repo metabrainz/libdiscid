@@ -160,10 +160,10 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  *
  * @param d a DiscId object created by discid_new()
  * @param device an operating system dependent device identifier, or NULL
- * @param features a list of bit flags from the discid_feature enum
+ * @param featurs a list of bit flags from the discid_feature enum
  * @return true if successful, or false on error.
  */
-LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, int features);
+LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);
 
 
 /**

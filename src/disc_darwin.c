@@ -170,7 +170,7 @@ char *mb_disc_get_default_device_unportable(void)
     return defaultDevice;
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) 
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, int features) 
 {
 	int fd;
 	int i;
@@ -209,7 +209,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	}
 
 	// Read in the media catalogue number
-	read_disc_mcn( fd, disc );
+	if (features & DISCID_FEATURE_MCN) {
+		read_disc_mcn( fd, disc );
+	}
   
 	cdToc = (CDTOC *)toc.buffer;
 	int numDesc = CDTOCGetDescriptorCount(cdToc);
@@ -220,7 +222,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	    CDTOCDescriptor *desc = &cdToc->descriptors[i];
   
 	    if (desc->session > 1)
-		continue;
+			continue;
   
 	    if (desc->point == 0xA2 && desc->adr == 1)
 		 disc->track_offsets[0] = CDConvertMSFToLBA(desc->p) + 150; 
@@ -229,7 +231,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 		disc->track_offsets[1 + numTracks] = CDConvertMSFToLBA(desc->p) + 150; 
 		 
 		// Read in the IRSC codes for tracks
-		read_disc_isrc( fd, disc, 1 + numTracks );
+		if (features & DISCID_FEATURE_ISRC) {
+			read_disc_isrc( fd, disc, 1 + numTracks );
+		}
 		 
 		numTracks++;
 	    }

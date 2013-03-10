@@ -127,6 +127,10 @@ char *discid_get_webservice_url(DiscId *d) {
 }
 
 int discid_read(DiscId *d, const char *device) {
+	return discid_read_sparse(d, device, DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC);
+}
+
+int discid_read_sparse(DiscId *d, const char *device, int features) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -139,9 +143,8 @@ int discid_read(DiscId *d, const char *device) {
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
-	return disc->success = mb_disc_read_unportable(disc, device);
+	return disc->success = mb_disc_read_unportable(disc, device, features);
 }
-
 
 int discid_put(DiscId *d, int first, int last, int *offsets) {
 	mb_disc_private *disc = (mb_disc_private *) d;

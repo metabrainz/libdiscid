@@ -88,7 +88,7 @@ typedef struct {
  *
  * On error, 0 is returned. On success, 1 is returned.
  */
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device);
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, int features);
 
 
 /*

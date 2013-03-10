@@ -2,6 +2,8 @@
 
    MusicBrainz -- The Internet music metadatabase
 
+   Copyright (C) 2013 Johannes Dewender
+   Copyright (C) 2006-2010 Lukas Lalinsky
    Copyright (C) 2006 Matthias Friedrich
    
    This library is free software; you can redistribute it and/or
@@ -17,8 +19,6 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-     $Id$
 
 --------------------------------------------------------------------------- */
 #ifndef MUSICBRAINZ_DISC_ID_H
@@ -44,10 +44,17 @@
  * \mainpage libdiscid
  * \section intro Introduction
  *
- * libdiscid is a C library for calculating DiscIDs for Audio CDs. It is a C
- * port of the DiscID-related code from libmusicbrainz2 (which is written in
- * C++). The idea is to have an easy to use library without any dependencies
+ * Libdiscid is a C library for calculating DiscIDs
+ * (<a href="http://musicbrainz.org/doc/Disc ID">MusicBrainz</a>
+ * and <a href="http://freedb.org">freedb</a>)
+ * for Audio CDs.
+ * Additionally the library can extract the MCN/UPC/EAN and the
+ * <a href="http://musicbrainz.org/doc/ISRC">ISRCs</a> from disc.
+ *
+ * The idea is to have an easy to use library without any dependencies
  * that can be used from scripting languages.
+ *
+ * The API is documented in discid.h.
  *
  * \section examples Examples
  *
@@ -74,12 +81,13 @@
  * libdiscid provides a pkg-config script that returns the necessary compiler and linker flags, as well as the
  * version number.  To build a small sample program one would use:
  *
- * <tt>gcc libdiscid-test.c `pkg-config libdiscid --cflags --libs` -o libdiscid-test</tt>
+ * @par
+ * <tt>gcc libdiscid-test.c \`pkg-config libdiscid --cflags --libs\` -o libdiscid-test</tt>
  *
  * \section Contact
  *
  *  - <a href="http://lists.musicbrainz.org/mailman/listinfo/musicbrainz-devel">MusicBrainz Development Mailing List</a>
- *  - <a href="http://tickets.musicbrainz.org/browse/LIB/component/10061">MusicBrainz Bug Tracker</a>
+ *  - <a href="http://tickets.musicbrainz.org/browse/LIB">MusicBrainz Bug Tracker</a>
  *  - <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
  *  - <a href="https://github.com/metabrainz/libdiscid">Github Repository</a>
  *
@@ -282,6 +290,8 @@ LIBDISCID_API int discid_get_track_length(DiscId *d, int track_num);
 /**
  * Return the Media Catalogue Number for the disc.
  *
+ * \since libdiscid 0.3.0
+ *
  * @param d a DiscId object created by discid_new()
  * @return a string containing an Media Catalogue Number of the disk
  */
@@ -293,11 +303,68 @@ LIBDISCID_API char* discid_get_mcn(DiscId *d);
  * Only track numbers between (and including) discid_get_first_track_num()
  * and discid_get_last_track_num() may be used.
  *
+ * \since libdiscid 0.3.0
+ *
  * @param d a DiscId object created by discid_new()
  * @param track_num the number of a track
  * @return a string containing an ISRC for the specified track
  */
 LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
+
+
+/**
+ * PLATFORM-DEPENDENT FEATURES
+ *
+ * The platform dependent features are currently:
+ *   - "read"	read TOC from disc
+ *   - "mcn"	read MCN from disc
+ *   - "isrc"	read ISRC from disc
+ *
+ * You can use get_feature_list() or has_feature() below.
+ */
+
+enum discid_feature {
+	DISCID_FEATURE_READ = 1 << 0,
+	DISCID_FEATURE_MCN  = 1 << 1,
+	DISCID_FEATURE_ISRC = 1 << 2,
+};
+/**
+ * Check if a certain feature is implemented on the current platform.
+ *
+ * \since libdiscid 0.4.0
+ *
+ * @param feature as enum ::discid_feature
+ * @return 1 if the feature is implemented and 0 if not.
+ */
+LIBDISCID_API int discid_has_feature(enum discid_feature feature);
+
+#define DISCID_FEATURE_STR_READ		"read"
+#define DISCID_FEATURE_STR_MCN		"mcn"
+#define DISCID_FEATURE_STR_ISRC		"isrc"
+#define DISCID_FEATURE_LENGTH		32
+/**
+ * Return a list of features supported by the current platform.
+ * The array of length ::DISCID_FEATURE_LENGTH should be allocated by the user.
+ * After the call each element of the array is either NULL
+ * or a pointer to a static string.
+ *
+ * \since libdiscid 0.4.0
+ *
+ * @param[out] features a static string array of length ::DISCID_FEATURE_LENGTH
+ */
+LIBDISCID_API void discid_get_feature_list(
+		char *features[DISCID_FEATURE_LENGTH]);
+
+/**
+ * Return the full version string of this library, including the name.
+ * This can be used for debug output.
+ * Don't use this to test for features, see discid_has_feature().
+ *
+ * \since libdiscid 0.4.0
+ *
+ * @return a string containing the version of libdiscid.
+ */
+LIBDISCID_API char *discid_get_version_string(void);
 
 
 #ifdef __cplusplus

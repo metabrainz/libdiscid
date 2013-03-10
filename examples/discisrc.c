@@ -26,27 +26,58 @@
 
 
 int main(int argc, char *argv[]) {
-	DiscId *disc = discid_new();
 	int i;
-  char *device = NULL;
+	char *device = NULL;
+	DiscId *disc = discid_new();
 
-  /* If we have an argument, use it as the device name */
-  if (argc > 1)
-      device = argv[1];
+	printf("%s\n", discid_get_version_string());
+
+	/* If we have an argument, use it as the device name */
+	if (argc > 1) {
+		device = argv[1];
+	}
+
+	if (!discid_has_feature(DISCID_FEATURE_READ)) {
+		fprintf(stderr, "Error: not implemented on platform\n");
+		return 1;
+	}
 
 	/* read the disc in the default disc drive */
-	if ( discid_read(disc, device) == 0 ) {
+	if (discid_read(disc, device) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		return 1;
 	}
 
-  printf("MCN      : %s\n", discid_get_mcn(disc));
-
-	for ( i = discid_get_first_track_num(disc);
-			i <= discid_get_last_track_num(disc); i++ ) {
-
-		printf("Track %-2d : %s\n", i, discid_get_track_isrc(disc, i));
+	if (discid_has_feature(DISCID_FEATURE_MCN)) {
+		printf("MCN      : %s\n", discid_get_mcn(disc));
+	} else {
+		printf("MCN      : (not implemented)\n");
 	}
+
+	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
+		for ( i = discid_get_first_track_num(disc);
+				i <= discid_get_last_track_num(disc); i++ ) {
+
+			printf("Track %-2d : %s\n", i,
+					discid_get_track_isrc(disc, i));
+		}
+	} else {
+		printf("ISRCs    : (not implemented)\n");
+	}
+
+	/* another way to access the features */
+	char *features[DISCID_FEATURE_LENGTH];
+	discid_get_feature_list(features);
+	printf("All features: ");
+	for (i = 0; i < DISCID_FEATURE_LENGTH; i++) {
+		if (features[i]) {
+			if (i > 0) {
+				printf(", ");
+			}
+			printf("%s", features[i]);
+		}
+	}
+	printf("\n");
 
 	discid_free(disc);
 

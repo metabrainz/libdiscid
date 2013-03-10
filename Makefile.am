@@ -26,4 +26,7 @@ SUBDIRS = src include examples test
 pcdir = $(libdir)/pkgconfig
 pc_DATA = libdiscid.pc
 
-EXTRA_DIST = libdiscid.pc.in Doxyfile.in CMakeLists.txt
+EXTRA_DIST = libdiscid.pc.in Doxyfile.in CMakeLists.txt config-cmake.h.in
+
+docs:
+	doxygen

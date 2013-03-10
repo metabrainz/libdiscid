@@ -1,6 +1,32 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.4.1:
+
+ - fix distribution: include disc_generic.c in Autotools dist
+
+libdiscid-0.4.0:
+
+ - LIB-23: add has_feature() and get_feature_list() to API (platform check)
+ - add get_version_string() to API
+ - CMake : add FreeBSD, NetBSD, OpenBSD -> all platforms supported
+ - LIB-24: support generic platform (discid_put() only)
+ - Win32 : Added versioninfo resource to DLL
+ - LIB-32: change libtool from -version-info to -version-name
+ - LIB-27: fix (k)FreeBSD includes
+ - fix lots of compiler warnings
+
+libdiscid-0.3.2:
+
+  - fix distribution so it works for autotools AND cmake
+
+libdiscid-0.3.1:
+
+  - ISRC and MCN support on Linux
+  - Autotools: fix Windows, remove unneeded libs on SunOS
+  - CMake: add Cygwin, add SunOS, fix Mac OS X
+  - updated docs, created INSTALL file
+
 libdiscid-0.3.0:
 
   - Fixed reading of 99 track CDs on Mac OS X.

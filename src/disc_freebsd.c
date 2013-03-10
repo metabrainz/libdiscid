@@ -25,16 +25,19 @@
 
 --------------------------------------------------------------------------- */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
 #include <sys/cdio.h>
-#include <unistd.h>
-#include <assert.h>
+#include <arpa/inet.h>
 
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define		CD_FRAMES		75 /* per second */
@@ -44,10 +47,6 @@
 #define MB_DEFAULT_DEVICE		"/dev/acd0"
 
 #define XA_INTERVAL			((60 + 90 + 2) * CD_FRAMES)
-
-
-/* TODO: make sure it's available */
-int snprintf(char *str, size_t size, const char *format, ...);
 
 
 static int read_toc_header(int fd, int *first, int *last) {
@@ -116,6 +115,15 @@ static int read_leadout(int fd, unsigned long *lba) {
 
 char *mb_disc_get_default_device_unportable(void) {
 	return MB_DEFAULT_DEVICE;
+}
+
+int mb_disc_has_feature_unportable(enum discid_feature feature) {
+	switch(feature) {
+		case DISCID_FEATURE_READ:
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 

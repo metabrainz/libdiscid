@@ -1,17 +1,44 @@
-dnl Process this file with autoconf to produce a configure script.
-dnl
+dnl Process this file with autoconf to produce a configure script.  dnl
 dnl NOTE: Each time a release is made, the version number below and the
 dnl       libtool version number in src/Makefile.am have to be incremented.
 dnl       The libtool version number has to be changed ALWAYS, no matter how
 dnl       small the change to the source code was!
 dnl
-AC_INIT(libdiscid, 0.3.0)
+
+# AC_INIT would complain with "not a literal" when using MAJOR/MINOR/PATCH vars
+# currently the sole purpose of the project is the library,
+# so we use the library version also as project version
+# don't forget to update MAJOR/MINOR/PATCH below!
+AC_INIT(libdiscid, 0.4.1)
 AC_CONFIG_SRCDIR(src/disc.c)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
 
+# VERSION NUMBERING:
+# see http://semver.org, we use that schema starting with 0.x.x
+# in short:
+# MAJOR is increased when backwards incompatible changes are made to the API
+# MINOR is increased when features are added to the API
+# PATCH is increase for all other releases
+libdiscid_MAJOR=0
+libdiscid_MINOR=4
+libdiscid_PATCH=1
+# don't forget to update AC_INIT above!
+
+libdiscid_VERSION=${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH}
+libdiscid_VERSION_LT=${libdiscid_MAJOR}:${libdiscid_MINOR}:${libdiscid_PATCH}
+libdiscid_VERSION_RC=${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0
+AC_SUBST(libdiscid_VERSION)
+AC_SUBST(libdiscid_VERSION_LT)
+AC_SUBST(libdiscid_VERSION_RC)
+
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
+
+# compatibility with cmake
+EXTRA_DIST=config-cmake.h.in
+AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
+
 
 case "${host_cpu}-${host_os}" in
   #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;
@@ -26,7 +53,8 @@ case "${host_cpu}-${host_os}" in
   #*-os2_emx*) os=os2 ;;
   *-solaris*) os=solaris ;;
   #*-qnx*)     os=qnx; LIBS='-lsocket' ;;
-  *)          AC_MSG_ERROR([unsupported operating system]) ;;
+  *)          os=generic;
+	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac
 dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
@@ -35,6 +63,7 @@ dnl The file containing the operating system dependent disc access code.
 if test "${os}" = "win32"; then
   DISC_OS_OBJ="disc_${os}.lo disc_${os}_new.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_${os}_new.c])
+  DISC_OS_OBJ="${DISC_OS_OBJ} ../versioninfo.lo"
 elif test "${os}" = "linux"; then
   DISC_OS_OBJ="disc_${os}.lo disc_scsi.lo"
   AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_scsi.c])
@@ -44,14 +73,14 @@ else
 fi
 AC_SUBST(DISC_OS_OBJ)
 
-
+LT_INIT([win32-dll])
+LT_LANG([Windows Resource])
 
 dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)  
 AC_PROG_INSTALL
-
 
 dnl Test endianness and size of a long; required for the SHA1 implementation.
 AC_C_BIGENDIAN
@@ -65,5 +94,5 @@ fi
 
 AC_OUTPUT([
   Makefile src/Makefile include/Makefile include/discid/Makefile
-  examples/Makefile test/Makefile libdiscid.pc Doxyfile
+  examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
 ])

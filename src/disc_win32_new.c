@@ -28,6 +28,7 @@
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define CD_FRAMES     75
@@ -124,7 +125,8 @@ static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc)
 		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
 	}
 	else {
-		strncpy(disc->mcn, data.MediaCatalog.MediaCatalog, MCN_STR_LENGTH);
+		strncpy(disc->mcn, (char *) data.MediaCatalog.MediaCatalog,
+			MCN_STR_LENGTH);
 	}
 }
 
@@ -145,9 +147,22 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 		fprintf(stderr, "Warning: Unable to read the international standard recording code (ISRC) for track %i\n", track);
 	}
 	else {
-		strncpy(disc->isrc[track], data.TrackIsrc.TrackIsrc, ISRC_STR_LENGTH);
+		strncpy(disc->isrc[track], (char *) data.TrackIsrc.TrackIsrc,
+			ISRC_STR_LENGTH);
 	}
 }
+
+int mb_disc_has_feature_unportable(enum discid_feature feature) {
+	switch(feature) {
+		case DISCID_FEATURE_READ:
+		case DISCID_FEATURE_MCN:
+		case DISCID_FEATURE_ISRC:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
 
 int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 {
@@ -161,7 +176,8 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 
 	strcpy(filename, "\\\\.\\");
 	len = strlen(device);
-	if (colon = strchr(device, ':')) {
+	colon = strchr(device, ':');
+	if (colon) {
 		len = colon - device + 1;
 	}
 	strncat(filename, device, len > 120 ? 120 : len);

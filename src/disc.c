@@ -247,6 +247,39 @@ char* discid_get_track_isrc(DiscId *d, int i) {
   return disc->isrc[i];
 }
 
+int discid_has_feature(enum discid_feature feature) {
+	return mb_disc_has_feature_unportable(feature);
+}
+
+void discid_get_feature_list(char *features[DISCID_FEATURE_LENGTH]) {
+	int i;
+
+	/* for the code, the parameter is actually only a pointer */
+	memset(features, 0, sizeof(char *) * DISCID_FEATURE_LENGTH);
+	i = 0;
+
+	if (discid_has_feature(DISCID_FEATURE_READ)) {
+		features[i++] = DISCID_FEATURE_STR_READ;
+	}
+	if (discid_has_feature(DISCID_FEATURE_MCN)) {
+		features[i++] = DISCID_FEATURE_STR_MCN;
+	}
+	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
+		features[i++] = DISCID_FEATURE_STR_ISRC;
+	}
+
+	return;
+}
+
+char *discid_get_version_string(void) {
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+	return PACKAGE_STRING;
+#else
+	return "";
+#endif
+}
+
 
 
 /****************************************************************************

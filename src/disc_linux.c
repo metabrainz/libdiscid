@@ -21,23 +21,22 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <linux/cdrom.h>
-#include <assert.h>
-#include <errno.h>
 #include <scsi/sg.h>
 
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 
@@ -53,8 +52,7 @@
 #endif
 
 
-/* TODO: make sure it's available */
-int snprintf(char *str, size_t size, const char *format, ...);
+/* TODO: that should be in some include */
 void read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num);
 
 
@@ -130,15 +128,16 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 	if(ioctl(fd, CDROM_GET_MCN, &mcn) == -1) {
 		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
 	} else {
-		strncpy( disc->mcn, mcn.medium_catalog_number, MCN_STR_LENGTH );
+		strncpy( disc->mcn,
+				(const char *)mcn.medium_catalog_number,
+				MCN_STR_LENGTH );
 	}
 }
 
 /* Send a scsi command and receive data. */
-int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
-		    const char *data, int data_len) {
-	int device_fd;
-	char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
+static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
+		    unsigned char *data, int data_len) {
+	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
 
 	memset(&io_hdr, 0, sizeof io_hdr);
@@ -196,10 +195,21 @@ static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 			buffer[i] = data[9 + i];
 		}
 		buffer[ISRC_STR_LENGTH] = 0;
-		strncpy(disc->isrc[track_num], buffer, sizeof buffer);
+		strncpy(disc->isrc[track_num], buffer, ISRC_STR_LENGTH);
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 
+}
+
+int mb_disc_has_feature_unportable(enum discid_feature feature) {
+	switch(feature) {
+		case DISCID_FEATURE_READ:
+		case DISCID_FEATURE_MCN:
+		case DISCID_FEATURE_ISRC:
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 

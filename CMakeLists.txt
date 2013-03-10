@@ -1,22 +1,28 @@
 cmake_minimum_required(VERSION 2.6)
+set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 PROJECT(libdiscid)
-SET(PROJECT_VERSION 0.3.0)
 
-# 1. If the library source code has changed at all since the last update, then increment revision.
-# 2. If any interfaces have been added, removed, or changed since the last update, increment current, and set revision to 0.
-# 3. If any interfaces have been added since the last public release, then increment age.
-# 4. If any interfaces have been removed since the last public release, then set age to 0. 
-SET(libdiscid_SOVERSION_CURRENT  3)
-SET(libdiscid_SOVERSION_REVISION 0)
-SET(libdiscid_SOVERSION_AGE      3)
+# VERSION NUMBERING:
+# see http://semver.org, we use that schmea starting with 0.x.x already thoug
+# short:
+# MAJOR is increased when backwards incompatible changes are made to the API
+# MINOR is increased when features are added to the API
+# PATCH is increase for all other releases
+SET(libdiscid_MAJOR 0)
+SET(libdiscid_MINOR 4)
+SET(libdiscid_PATCH 1)
 
-math(EXPR libdiscid_SOVERSION_MAJOR "${libdiscid_SOVERSION_CURRENT} - ${libdiscid_SOVERSION_AGE}")
-math(EXPR libdiscid_SOVERSION_MINOR "${libdiscid_SOVERSION_AGE}")
-math(EXPR libdiscid_SOVERSION_PATCH "${libdiscid_SOVERSION_REVISION}")
 
-set(libdiscid_VERSION ${libdiscid_SOVERSION_MAJOR}.${libdiscid_SOVERSION_MINOR}.${libdiscid_SOVERSION_PATCH})
-set(libdiscid_SOVERSION ${libdiscid_SOVERSION_MAJOR})
+SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})
+SET(libdiscid_SOVERSION ${libdiscid_MAJOR})
+# version for windows resource file
+SET(libdiscid_VERSION_RC ${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0)
+
+# currently the sole purpose of the project is the library,
+# so we use that version
+SET(PROJECT_VERSION ${libdiscid_VERSION})
+
 
 SET(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 SET(EXEC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation prefix for executables and object code libraries" FORCE)
@@ -27,34 +33,58 @@ SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include CACHE PATH "Installation
 # compatibility with automake
 SET(PACKAGE ${PROJECT_NAME})
 SET(VERSION ${PROJECT_VERSION})
+SET(PACKAGE_STRING "${PACKAGE} ${VERSION}")
 SET(prefix ${CMAKE_INSTALL_PREFIX})
 SET(exec_prefix ${EXEC_INSTALL_PREFIX})
 SET(includedir ${INCLUDE_INSTALL_DIR})
 SET(libdir ${LIB_INSTALL_DIR})
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/versioninfo.rc.in ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
 
+
+# normalizing operating systems
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    SET(libdiscid_OSDEP_SRCS src/disc_linux.c src/disc_scsi.c)
+    SET(libdiscid_OS "linux")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    SET(libdiscid_OS "darwin")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+    SET(libdiscid_OS "freebsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
+    SET(libdiscid_OS "openbsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+    SET(libdiscid_OS "openbsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
+    SET(libdiscid_OS "solaris")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    SET(libdiscid_OS "win32")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+    SET(libdiscid_OS "win32")
+ELSE()
+    SET(libdiscid_OS "generic")
+    MESSAGE(STATUS "WARNING: unknown operating system, no disc reading available!")
+ENDIF()
+
+# choose platform dependent source files
+IF(libdiscid_OS MATCHES "win32")
+    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
+    SET(libdiscid_RCS ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
+    SET(libdiscid_OSDEP_LIBS winmm)
+ELSEIF(libdiscid_OS MATCHES "linux")
+    SET(libdiscid_OSDEP_SRCS src/disc_linux.c src/disc_scsi.c)
+ELSEIF(libdiscid_OS MATCHES "darwin")
     SET(libdiscid_OSDEP_SRCS src/disc_darwin.c)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
-    SET(libdiscid_OSDEP_SRCS src/disc_solaris.c)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
-    SET(libdiscid_OSDEP_LIBS winmm)
-# ${CMAKE_SYSTEM_NAME} leads to CYGWIN, is taken as ${CYGWIN} -> no braces
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
-    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
-    SET(libdiscid_OSDEP_LIBS winmm)
-ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    MESSAGE(FATAL_ERROR	"unsupported operating system")
-ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+ELSE()
+    SET(libdiscid_OSDEP_SRCS src/disc_${libdiscid_OS}.c)
+ENDIF()
 
-ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} src/base64.c src/disc.c src/sha1.c)
+STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")
+MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
+
+ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES
     OUTPUT_NAME discid
@@ -76,13 +106,19 @@ INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 INSTALL(FILES include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
 
+
 ADD_CUSTOM_TARGET(docs doxygen)
+
+ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
 
 ADD_CUSTOM_TARGET(dist
     rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
-    COMMAND svn export http://svn.musicbrainz.org/${PROJECT_NAME}/trunk "${PROJECT_NAME}-${PROJECT_VERSION}"
-    COMMAND tar -zcvf "${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" "${PROJECT_NAME}-${PROJECT_VERSION}"
+    COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"
+    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./autogen.sh
+    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make dist
+    COMMAND cp "${PROJECT_NAME}-${PROJECT_VERSION}/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" .
 )
+
 
 # Tests needed for sha1.h
 INCLUDE(TestBigEndian)
@@ -93,3 +129,7 @@ CHECK_TYPE_SIZE(long SIZEOF_LONG)
 CONFIGURE_FILE(config-cmake.h.in ${CMAKE_BINARY_DIR}/config.h)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
+
+IF(CMAKE_COMPILER_IS_GNUCC)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O2")
+ENDIF()

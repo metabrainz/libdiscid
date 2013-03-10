@@ -1,9 +1,4 @@
-dnl Process this file with autoconf to produce a configure script.  dnl
-dnl NOTE: Each time a release is made, the version number below and the
-dnl       libtool version number in src/Makefile.am have to be incremented.
-dnl       The libtool version number has to be changed ALWAYS, no matter how
-dnl       small the change to the source code was!
-dnl
+dnl Process this file with autoconf to produce a configure script.
 
 # AC_INIT would complain with "not a literal" when using MAJOR/MINOR/PATCH vars
 # currently the sole purpose of the project is the library,

@@ -30,7 +30,7 @@
 /* Send a scsi command and receive data. */
 int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	     unsigned char *data, int data_len) {
-	return scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
+	return mb_scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
 }
 
 static void decode_isrc(unsigned char *q_channel, char *isrc) {
@@ -79,7 +79,7 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 
 }
 
-void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
+void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	int i;
 	unsigned char cmd[10];
 	unsigned char data[24];
@@ -117,7 +117,7 @@ void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 
 }
 
-void read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
+void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	/* there should be at least one ISRC in 100 sectors per spec
 	 * We try 150 (= 2 seconds) to be sure, but break when successfull
 	 */

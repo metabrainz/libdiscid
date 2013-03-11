@@ -13,7 +13,7 @@ implemented (ISRC, MCN). The TOC always has to be read.
 
 You are free on how to implement the features defined in discid.h,
 but it might help for many advanced features
-when scsi_cmd_unportable is implemented on the platform.
+when mb_scsi_cmd_unportable is implemented on the platform.
 After this is done, the scsi functions available in src/scsi.h
 can be used.
 These functions are implemented as scsi commands,

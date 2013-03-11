@@ -132,7 +132,7 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 }
 
 /* Send a scsi command and receive data. */
-int scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
+int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 			unsigned char *data, int data_len) {
 	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
@@ -223,8 +223,8 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 
 		/* Read the ISRC for the track */
 		// TODO: test if raw actually is available
-		//read_track_isrc(fd, disc, i);
-		read_track_isrc_raw(fd, disc, i);
+		//mb_scsi_read_track_isrc(fd, disc, i);
+		mb_scsi_read_track_isrc_raw(fd, disc, i);
 	}
 
 	close(fd);

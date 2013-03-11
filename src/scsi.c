@@ -21,6 +21,16 @@
 
 --------------------------------------------------------------------------- */
 
+/*
+ * These commands are standard SCSI commands defined by INCITS T10
+ * SPC: primary commands
+ * MMC: multimedia commands
+ *
+ * The specs can be found on the net (t10.org, needs registration)
+ * The Seagate SCSI Commands Reference Manual is also an
+ * excellant resource that is freely available.
+ */
+
 #include <stdio.h>
 #include <string.h>
 
@@ -28,7 +38,7 @@
 #include "scsi.h"
 
 /* Send a scsi command and receive data. */
-int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
+static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	     unsigned char *data, int data_len) {
 	return mb_scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
 }
@@ -89,7 +99,7 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	memset(data, 0, sizeof data);
 	memset(buffer, 0, sizeof buffer);
 
-	cmd[0] = 0x42;		/* READ SUB-CHANNEL */
+	cmd[0] = 0x42;		/* READ SUB-CHANNEL (MMC)*/
 	/* cmd[1] reserved / MSF bit (unused) */
 	cmd[2] = 1 << 6;	/* 6th bit set (SUBQ) -> get sub-channel data */
 	cmd[3] = 0x03;		/* get ISRC (ADR 3, Q sub-channel Mode-3) */
@@ -144,7 +154,7 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	 * Multi-Read Feature (0x001d) and
 	 * CD Read Feature (0x001e),
 	 */
-	cmd[0] = 0xbe;	/* READ CD */
+	cmd[0] = 0xbe;	/* READ CD (MMC) */
 	cmd[2] = offset >> 32;
 	cmd[3] = offset >> 16;
 	cmd[4] = offset >> 8;

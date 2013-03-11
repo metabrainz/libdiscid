@@ -89,6 +89,23 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 
 }
 
+
+void mb_scsi_stop_disc(int fd) {
+	unsigned char cmd[6];
+
+	memset(cmd, 0, sizeof cmd);
+
+	cmd[0] = 0x1b;		/* START STOP UNIT (SPC)*/
+	cmd[1] = 1;		/* return immediately */
+	/* cmd 2-3 reserved */
+	cmd[4] = 0;		/* stop */
+	/* cmd 5 = control byte */
+
+	if (scsi_cmd(fd, cmd, sizeof cmd, NULL, 0) != 0) {
+		fprintf(stderr, "Warning: Cannot stop device");
+	}
+}
+
 void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	int i;
 	unsigned char cmd[10];

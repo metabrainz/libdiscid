@@ -227,6 +227,8 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 		mb_scsi_read_track_isrc_raw(fd, disc, i);
 	}
 
+	/* TODO: only do this when the device was stopped when we started */
+	mb_scsi_stop_disc(fd);
 	close(fd);
 
 	return 1;

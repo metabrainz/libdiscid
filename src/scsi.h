@@ -24,6 +24,7 @@
 
 /* 
  * Send a scsi command to a file descriptor (fd) and receive data.
+ * This should return 1 on success and 0 on failure.
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
@@ -46,3 +47,8 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num);
  * parsing the sub-channel and an ISRC using the READ command (0xbe)
  */
 void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num);
+
+/*
+ * stop the CD drive -> stop disc spinning
+ */
+void mb_scsi_stop_disc(int fd);

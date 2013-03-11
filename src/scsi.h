@@ -20,11 +20,22 @@
 
 ----------------------------------------------------------------------------*/
 
+#include "discid/discid_private.h"
+
 /* 
  * Send a scsi command to a file descriptor (fd) and receive data.
+ *
+ * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
 int scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 			unsigned char *data, int data_len);
+
+
+
+/*
+ * The following functions are implemented in scsi.c
+ * and can be used after scsi_cmd_unportable is implemented on the plaform.
+ */
 
 /* 
  * read an ISRC using the READ SUB-CHANNEL command (0x42)

@@ -129,6 +129,10 @@ LIBDISCID_API void discid_free(DiscId *d);
  * identifier. If the device is NULL, the default drive, as returned by
  * discid_get_default_device() is used.
  *
+ * If you do not require all features provided by libdiscid, such as MCN
+ * or ISRC reading, you should consider using discid_read_sparse() instead
+ * of discid_read() for performance reasons.
+ *
  * On error, this function returns false and sets the error message which you
  * can access using discid_get_error_msg(). In this case, the other functions
  * won't return meaningful values and should not be used.

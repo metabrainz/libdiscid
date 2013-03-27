@@ -25,6 +25,7 @@
 --------------------------------------------------------------------------- */
 #include <string.h>
 #include <assert.h>
+#include <limits.h>
 
 #include "sha1.h"
 #include "base64.h"
@@ -127,7 +128,7 @@ char *discid_get_webservice_url(DiscId *d) {
 }
 
 int discid_read(DiscId *d, const char *device) {
-	return discid_read_sparse(d, device, DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC);
+	return discid_read_sparse(d, device, UINT_MAX);
 }
 
 int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {

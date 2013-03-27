@@ -147,8 +147,8 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  *
  * This function is similar to discid_read() but it allows to use only the features
  * explicitely specified. By default this function will read only the TOC, but
- * additional features like DISCID_FEATURE_MCN and DISCID_FEATURE_ISRC can be set
- * using the features parameter. Mutliple features can be set using bitwise OR.
+ * additional features like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
+ * using the features parameter. Multiple features can be set using bitwise OR.
  *
  * On error, this function returns false and sets the error message which you
  * can access using discid_get_error_msg(). In this case, the other functions

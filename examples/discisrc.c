@@ -42,8 +42,8 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	/* read the disc in the default disc drive */
-	if (discid_read(disc, device) == 0) {
+	/* read the disc in the specified disc drive with the MCN and ISRC feature enabled */
+	if (discid_read_sparse(disc, device, DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		return 1;
 	}

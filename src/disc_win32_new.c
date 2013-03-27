@@ -164,7 +164,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 }
 
 
-int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
+int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device, unsigned int features)
 {
 	HANDLE hDevice;
 	DWORD dwReturned;
@@ -213,7 +213,9 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 		return 0;
 	}
 
-	read_disc_mcn(hDevice, disc);
+	if (features & DISCID_FEATURE_MCN) {
+		read_disc_mcn(hDevice, disc);
+	}
 
 	disc->first_track_num = toc.FirstTrack;
 	disc->last_track_num = toc.LastTrack;
@@ -232,7 +234,9 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device)
 
 	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
 		disc->track_offsets[i] = AddressToSectors(toc.TrackData[i - 1].Address);
-		read_disc_isrc(hDevice, disc, i);
+		if (features & DISCID_FEATURE_ISRC) {
+			read_disc_isrc(hDevice, disc, i);
+		}
 	}
 
 	CloseHandle(hDevice);

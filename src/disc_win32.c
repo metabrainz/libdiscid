@@ -41,7 +41,7 @@ char *mb_disc_get_default_device_unportable(void) {
 	return MB_DEFAULT_DEVICE;
 } 
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) {
 	int	i, ret, last_track;
 	char mci_command[128];
 	char mci_return[128];

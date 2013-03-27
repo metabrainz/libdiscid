@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
 		device = argv[1];
 	}
 
-	/* read the disc in the default disc drive */
-	if (discid_read(disc, device) == 0) {
+	/* read the disc in the specified disc drive */
+	if (discid_read_sparse(disc, device, 0) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		return 1;
 	}

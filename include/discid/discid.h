@@ -64,7 +64,7 @@
  *
  * DiscId *disc = discid_new();
  *
- * if ( discid_read(disc, "/dev/cdrom") == 0 ) {
+ * if ( discid_read_sparse(disc, "/dev/cdrom", 0) == 0 ) {
  *     fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
  *     return 1;
  * }

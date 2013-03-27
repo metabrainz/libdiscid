@@ -97,9 +97,6 @@ TARGET_LINK_LIBRARIES(discid libdiscid)
 ADD_EXECUTABLE(discisrc examples/discisrc.c)
 TARGET_LINK_LIBRARIES(discisrc libdiscid)
 
-ADD_EXECUTABLE(discid_sparse examples/discid_sparse.c)
-TARGET_LINK_LIBRARIES(discid_sparse libdiscid)
-
 ADD_EXECUTABLE(test_discid test/test_discid.c)
 TARGET_LINK_LIBRARIES(test_discid libdiscid)
 

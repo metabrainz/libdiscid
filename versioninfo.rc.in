@@ -14,7 +14,7 @@ FILETYPE	VFT_DLL
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904E4"	# = U.S. English, charset=Multilingual
+        BLOCK "040904E4"	// = U.S. English, charset=Multilingual
         BEGIN
             VALUE "CompanyName",	"MetaBrainz Foundation\0"
             VALUE "FileDescription",	"MusicBrainz disc ID library\0"
@@ -25,5 +25,9 @@ BEGIN
             VALUE "ProductName",	"libdiscid\0"
             VALUE "ProductVersion",	VER_PRODUCTVERSION_STR
         END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
     END
 END

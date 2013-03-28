@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
 	int i;
 	char *device = NULL;
 	DiscId *disc = discid_new();
-
+    char *features[DISCID_FEATURE_LENGTH];
+	
 	printf("%s\n", discid_get_version_string());
 
 	/* If we have an argument, use it as the device name */
@@ -66,7 +67,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* another way to access the features */
-	char *features[DISCID_FEATURE_LENGTH];
 	discid_get_feature_list(features);
 	printf("All features: ");
 	for (i = 0; i < DISCID_FEATURE_LENGTH; i++) {

@@ -147,11 +147,13 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
 
 
 /**
- * Read the disc in the given CD-ROM/DVD-ROM drive using only the specified features.
+ * Read the disc in the given CD-ROM/DVD-ROM drive
+ * using only the specified features.
  *
- * This function is similar to discid_read() but it allows to use only the features
- * explicitely specified. By default this function will read only the TOC, but
- * additional features like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
+ * This function is similar to discid_read() but it allows to use only the
+ * features explicitely specified.
+ * By default this function will read only the TOC, but additional features
+ * like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
  * using the features parameter. Multiple features can be set using bitwise OR.
  *
  * On error, this function returns false and sets the error message which you
@@ -164,7 +166,7 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  *
  * @param d a DiscId object created by discid_new()
  * @param device an operating system dependent device identifier, or NULL
- * @param featurs a list of bit flags from the discid_feature enum
+ * @param features a list of bit flags from the enum ::discid_feature
  * @return true if successful, or false on error.
  */
 LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);

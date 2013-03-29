@@ -18,8 +18,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <discid/discid.h>
@@ -29,8 +27,8 @@ int main(int argc, char *argv[]) {
 	int i;
 	char *device = NULL;
 	DiscId *disc = discid_new();
-    char *features[DISCID_FEATURE_LENGTH];
-	
+	char *features[DISCID_FEATURE_LENGTH];
+
 	printf("%s\n", discid_get_version_string());
 
 	/* If we have an argument, use it as the device name */

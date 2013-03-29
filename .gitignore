@@ -34,11 +34,9 @@ libdiscid.opensdf
 Debug/
 
 # Build results
-test_discid
-test_discid.exe
 libdiscid.so*
-libdiscid.dll*
+test_discid
 discisrc
-discisrc.exe
 discid
-discid.exe
+*.exe
+*.dll

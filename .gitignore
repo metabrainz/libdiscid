@@ -24,3 +24,21 @@ install-sh
 ltmain.sh
 missing
 test-driver
+
+# Visual Studio files
+*.suo
+*.vcxproj*
+libdiscid.sln
+libdiscid.sdf
+libdiscid.opensdf
+Debug/
+
+# Build results
+test_discid
+test_discid.exe
+libdiscid.so*
+libdiscid.dll*
+discisrc
+discisrc.exe
+discid
+discid.exe

@@ -64,7 +64,7 @@
  *
  * DiscId *disc = discid_new();
  *
- * if ( discid_read(disc, "/dev/cdrom") == 0 ) {
+ * if ( discid_read_sparse(disc, "/dev/cdrom", 0) == 0 ) {
  *     fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
  *     return 1;
  * }
@@ -129,6 +129,10 @@ LIBDISCID_API void discid_free(DiscId *d);
  * identifier. If the device is NULL, the default drive, as returned by
  * discid_get_default_device() is used.
  *
+ * If you do not require all features provided by libdiscid, such as MCN
+ * or ISRC reading, you should consider using discid_read_sparse() instead
+ * of discid_read() for performance reasons.
+ *
  * On error, this function returns false and sets the error message which you
  * can access using discid_get_error_msg(). In this case, the other functions
  * won't return meaningful values and should not be used.
@@ -140,6 +144,30 @@ LIBDISCID_API void discid_free(DiscId *d);
  * @return true if successful, or false on error.
  */
 LIBDISCID_API int discid_read(DiscId *d, const char *device);
+
+
+/**
+ * Read the disc in the given CD-ROM/DVD-ROM drive using only the specified features.
+ *
+ * This function is similar to discid_read() but it allows to use only the features
+ * explicitely specified. By default this function will read only the TOC, but
+ * additional features like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
+ * using the features parameter. Multiple features can be set using bitwise OR.
+ *
+ * On error, this function returns false and sets the error message which you
+ * can access using discid_get_error_msg(). In this case, the other functions
+ * won't return meaningful values and should not be used.
+ *
+ * This function may be used multiple times with the same DiscId object.
+ *
+ * \since libdiscid 0.5.0
+ *
+ * @param d a DiscId object created by discid_new()
+ * @param device an operating system dependent device identifier, or NULL
+ * @param featurs a list of bit flags from the discid_feature enum
+ * @return true if successful, or false on error.
+ */
+LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);
 
 
 /**

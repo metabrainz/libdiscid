@@ -34,7 +34,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	return 0;
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) {
 	snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 		"disc reading not implemented on this platform");
 	return 0;

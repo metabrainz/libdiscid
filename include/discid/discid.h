@@ -179,6 +179,7 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  */
 LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);
 
+#define HAVE_SPARSE_READ
 
 /**
  * Provides the TOC of a known CD.

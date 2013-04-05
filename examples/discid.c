@@ -18,11 +18,13 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <discid/discid.h>
+
+#ifndef HAVE_SPARSE_READ
+#define discid_read_sparse(disc, dev, i) discid_read(disc, dev)
+#endif
 
 
 int main(int argc, char *argv[]) {
@@ -35,7 +37,7 @@ int main(int argc, char *argv[]) {
 		device = argv[1];
 	}
 
-	/* read the disc in the specified disc drive */
+	/* read the disc in the specified (or default) disc drive */
 	if (discid_read_sparse(disc, device, 0) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		return 1;

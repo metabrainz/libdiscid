@@ -30,8 +30,18 @@
 #	else
 #		define LIBDISCID_API __declspec(dllimport)
 #	endif
+#	define LIBDISCID_INTERNAL
 #else
-#	define LIBDISCID_API
+#	if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#		define LIBDISCID_API
+#		define LIBDISCID_INTERNAL __attribute__((visibility("hidden")))
+#	elif defined(__SUNPRO_C)
+#		define LIBDISCID_API __global
+#		define LIBDISCID_API __hidden
+#	else
+#		define LIBDISCID_API
+#		define LIBDISCID_INTERNAL
+#	endif
 #endif
 
 

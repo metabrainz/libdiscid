@@ -24,24 +24,25 @@
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
-#if (defined(_WIN32) || defined(_WIN64))
+#if (defined(_WIN32) || defined(_WIN64)) /* also on MinGW, but no hiding */
 #	ifdef libdiscid_EXPORTS
 #		define LIBDISCID_API __declspec(dllexport)
 #	else
 #		define LIBDISCID_API __declspec(dllimport)
 #	endif
 #	define LIBDISCID_INTERNAL
+#elif defined(__CYGWIN__) /* no WIN32, but also no visibility support on gcc4 */
+#	define LIBDISCID_API
+#	define LIBDISCID_INTERNAL
+#elif (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define LIBDISCID_API
+#	define LIBDISCID_INTERNAL __attribute__((visibility("hidden")))
+#elif defined(__SUNPRO_C)
+#	define LIBDISCID_API __global
+#	define LIBDISCID_API __hidden
 #else
-#	if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
-#		define LIBDISCID_API
-#		define LIBDISCID_INTERNAL __attribute__((visibility("hidden")))
-#	elif defined(__SUNPRO_C)
-#		define LIBDISCID_API __global
-#		define LIBDISCID_API __hidden
-#	else
-#		define LIBDISCID_API
-#		define LIBDISCID_INTERNAL
-#	endif
+#	define LIBDISCID_API
+#	define LIBDISCID_INTERNAL
 #endif
 
 

@@ -23,6 +23,11 @@
      $Id$
 
 --------------------------------------------------------------------------- */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
@@ -277,7 +282,6 @@ void discid_get_feature_list(char *features[DISCID_FEATURE_LENGTH]) {
 
 char *discid_get_version_string(void) {
 #ifdef HAVE_CONFIG_H
-#include <config.h>
 	return PACKAGE_STRING;
 #else
 	return "";

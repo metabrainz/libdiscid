@@ -1,4 +1,4 @@
-#include <Winver.h>
+#include <winver.h>
 
 #define VER_FILEVERSION		@libdiscid_VERSION_RC@
 #define VER_FILEVERSION_STR	"@VERSION@\0"

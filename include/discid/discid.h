@@ -26,17 +26,9 @@
 
 #if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
 #	ifdef libdiscid_EXPORTS
-#		ifdef __GNUC__
-#			define LIBDISCID_API __attribute__((dllexport))
-#		else
-#			define LIBDISCID_API __declspec(dllexport)
-#		endif
+#		define LIBDISCID_API __declspec(dllexport)
 #	else
-#		ifdef __GNUC__
-#			define LIBDISCID_API __attribute__((dllimport))
-#		else
-#			define LIBDISCID_API __declspec(dllimport)
-#		endif
+#		define LIBDISCID_API __declspec(dllimport)
 #	endif
 #	define LIBDISCID_INTERNAL
 #elif (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)

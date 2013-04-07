@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <discid/discid.h>
 
-#ifndef HAVE_SPARSE_READ
+#ifndef DISCID_HAVE_SPARSE_READ
 #define discid_read_sparse(disc, dev, i) discid_read(disc, dev)
 #endif
 

@@ -284,7 +284,7 @@ LIBDISCID_API int discid_get_first_track_num(DiscId *d);
 
 
 /**
- * Return the number of the last track on this disc.
+ * Return the number of the last audio track on this disc.
  *
  * @param d a DiscId object created by discid_new()
  * @return the number of the last track

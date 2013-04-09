@@ -10,6 +10,7 @@ config.h
 versioninfo.rc
 libdiscid.pc
 docs/
+include/discid/version.h
 
 # Autotools files
 configure

@@ -37,6 +37,6 @@ Debug/
 libdiscid.so*
 test_discid
 discisrc
-discid
+/discid
 *.exe
 *.dll

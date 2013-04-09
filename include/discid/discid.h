@@ -36,7 +36,7 @@
 #	define LIBDISCID_INTERNAL __attribute__((visibility("hidden")))
 #elif defined(__SUNPRO_C)
 #	define LIBDISCID_API __global
-#	define LIBDISCID_API __hidden
+#	define LIBDISCID_INTERNAL __hidden
 #else
 #	define LIBDISCID_API
 #	define LIBDISCID_INTERNAL

@@ -1,0 +1,11 @@
+/* automatically generated file containing version information about
+   libdiscid */
+
+#ifndef MUSICBRAINZ_DISC_ID_VERSION_H
+#define MUSICBRAINZ_DISC_ID_VERSION_H
+
+#define DISCID_VERSION_MAJOR @libdiscid_MAJOR@
+#define DISCID_VERSION_MINOR @libdiscid_MINOR@
+#define DISCID_VERSION_PATCH @libdiscid_PATCH@
+
+#endif

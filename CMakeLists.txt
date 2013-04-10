@@ -113,7 +113,7 @@ ADD_CUSTOM_TARGET(dist
     rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
     COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"
     COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./autogen.sh
-    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make dist
+    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make distcheck
     COMMAND cp "${PROJECT_NAME}-${PROJECT_VERSION}/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" .
 )
 

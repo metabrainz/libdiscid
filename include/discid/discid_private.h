@@ -27,7 +27,7 @@
 #ifndef MUSICBRAINZ_DISC_ID_PRIVATE_H
 #define MUSICBRAINZ_DISC_ID_PRIVATE_H
 
-#include "discid.h"
+#include "discid/discid.h"
 
 
 /* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */

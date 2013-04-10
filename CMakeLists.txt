@@ -42,7 +42,7 @@ SET(libdir ${LIB_INSTALL_DIR})
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/versioninfo.rc.in ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/include/discid/version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/discid/version.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/include/discid/discid.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/discid/discid.h)
 
 # normalizing operating systems
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -102,7 +102,7 @@ TARGET_LINK_LIBRARIES(test_discid libdiscid)
 
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
-INSTALL(FILES include/discid/discid.h include/discid/version.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
+INSTALL(FILES include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
 
 
 ADD_CUSTOM_TARGET(docs doxygen)

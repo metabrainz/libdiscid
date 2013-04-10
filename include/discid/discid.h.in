@@ -24,8 +24,6 @@
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
-#include "version.h"
-
 #if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
 #	ifdef libdiscid_EXPORTS
 #		define LIBDISCID_API __declspec(dllexport)
@@ -44,7 +42,9 @@
 #	define LIBDISCID_INTERNAL
 #endif
 
-
+#define DISCID_VERSION_MAJOR @libdiscid_MAJOR@
+#define DISCID_VERSION_MINOR @libdiscid_MINOR@
+#define DISCID_VERSION_PATCH @libdiscid_PATCH@
 
 #ifdef __cplusplus
   extern "C" {

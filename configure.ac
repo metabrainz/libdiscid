@@ -91,5 +91,5 @@ fi
 AC_OUTPUT([
   Makefile src/Makefile include/Makefile include/discid/Makefile
   examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
-  include/discid/version.h
+  include/discid/discid.h
 ])

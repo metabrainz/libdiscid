@@ -27,6 +27,10 @@ AC_SUBST(libdiscid_VERSION)
 AC_SUBST(libdiscid_VERSION_LT)
 AC_SUBST(libdiscid_VERSION_RC)
 
+AC_SUBST(libdiscid_MAJOR)
+AC_SUBST(libdiscid_MINOR)
+AC_SUBST(libdiscid_PATCH)
+
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
 
@@ -87,4 +91,5 @@ fi
 AC_OUTPUT([
   Makefile src/Makefile include/Makefile include/discid/Makefile
   examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
+  include/discid/discid.h
 ])

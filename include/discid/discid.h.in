@@ -42,7 +42,9 @@
 #	define LIBDISCID_INTERNAL
 #endif
 
-
+#define DISCID_VERSION_MAJOR @libdiscid_MAJOR@
+#define DISCID_VERSION_MINOR @libdiscid_MINOR@
+#define DISCID_VERSION_PATCH @libdiscid_PATCH@
 
 #ifdef __cplusplus
   extern "C" {

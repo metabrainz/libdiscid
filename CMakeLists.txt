@@ -39,10 +39,10 @@ SET(exec_prefix ${EXEC_INSTALL_PREFIX})
 SET(includedir ${INCLUDE_INSTALL_DIR})
 SET(libdir ${LIB_INSTALL_DIR})
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/versioninfo.rc.in ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/include/discid/discid.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/discid/discid.h)
+CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc)
+CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc)
+CONFIGURE_FILE(Doxyfile.in Doxyfile)
+CONFIGURE_FILE(include/discid/discid.h.in include/discid/discid.h)
 
 # normalizing operating systems
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")

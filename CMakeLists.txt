@@ -117,21 +117,23 @@ ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 
 ADD_CUSTOM_TARGET(dist
-   rm -rf "${libdiscid_DISTDIR}"
    COMMAND git clone . "${libdiscid_DISTDIR}"
    COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
    COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
    COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
+   COMMAND rm -rf "${libdiscid_DISTDIR}"
 )
 
 # create binary in MinGW/MSYS
 IF(libdiscid_OS MATCHES "win32")
     ADD_CUSTOM_TARGET(distwin32
-	rm -rf "${libdiscid_DISTDIR}-win32"
 	COMMAND mkdir "${libdiscid_DISTDIR}-win32"
+	COMMAND tar -xf "${libdiscid_DISTDIR}.tar.gz"
 	COMMAND cp -a "${libdiscid_DISTDIR}" "${libdiscid_DISTDIR}-win32/"
+	COMMAND rm -rf "${libdiscid_DISTDIR}"
 	COMMAND cp "libdiscid.dll" "${libdiscid_DISTDIR}-win32/discid.dll"
 	COMMAND zip -r "${libdiscid_DISTDIR}-win32.zip" "${libdiscid_DISTDIR}-win32/"
+	COMMAND rm -rf "${libdiscid_DISTDIR}-win32"
     )
     ADD_DEPENDENCIES(distwin32 dist check)
 ENDIF()

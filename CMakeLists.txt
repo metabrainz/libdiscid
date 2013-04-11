@@ -4,14 +4,14 @@ set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 PROJECT(libdiscid)
 
 # VERSION NUMBERING:
-# see http://semver.org, we use that schmea starting with 0.x.x already thoug
+# see http://semver.org, we use that schmea starting with 0.x.x already though
 # short:
 # MAJOR is increased when backwards incompatible changes are made to the API
 # MINOR is increased when features are added to the API
 # PATCH is increase for all other releases
 SET(libdiscid_MAJOR 0)
-SET(libdiscid_MINOR 4)
-SET(libdiscid_PATCH 1)
+SET(libdiscid_MINOR 5)
+SET(libdiscid_PATCH 0)
 
 
 SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})

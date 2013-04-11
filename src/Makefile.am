@@ -26,7 +26,7 @@ EXTRA_libdiscid_la_SOURCES = \
 	disc_darwin.c disc_freebsd.c disc_solaris.c disc_openbsd.c \
 	disc_generic.c
 
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 libdiscid_la_LIBADD = @DISC_OS_OBJ@
 libdiscid_la_DEPENDENCIES = @DISC_OS_OBJ@
 

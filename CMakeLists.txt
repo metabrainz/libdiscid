@@ -117,11 +117,11 @@ ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 
 ADD_CUSTOM_TARGET(dist
-    rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
-    COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"
-    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./autogen.sh
-    COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make distcheck
-    COMMAND cp "${PROJECT_NAME}-${PROJECT_VERSION}/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" .
+   rm -rf "${libdiscid_DISTDIR}"
+   COMMAND git clone . "${libdiscid_DISTDIR}"
+   COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
+   COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
+   COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
 )
 
 # create binary in MinGW/MSYS

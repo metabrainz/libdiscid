@@ -145,20 +145,32 @@ IF(libdiscid_OS MATCHES "darwin")
         COMMAND mkdir "${libdiscid_DISTDIR}-mac"
         COMMAND tar -xf "${libdiscid_DISTDIR}.tar.gz"
         COMMAND cp -a "${libdiscid_DISTDIR}" "${libdiscid_DISTDIR}-mac/"
+        COMMAND cd "${libdiscid_DISTDIR}-mac"
+                && mkdir intel32 intel64 ppc universal
         COMMAND mkdir "${darwin_build}_32"
         COMMAND cd "${darwin_build}_32" && CMAKE_OSX_ARCHITECTURES=i386 cmake ..
         COMMAND cd "${darwin_build}_32" && make check
+        COMMAND cp ${darwin_build}_32/libdiscid.${PROJECT_VERSION}.dylib
+                "${libdiscid_DISTDIR}-mac/intel32/libdiscid.0.dylib"
         COMMAND mkdir "${darwin_build}_64"
-        COMMAND cd "${darwin_build}_64" && CMAKE_OSX_ARCHITECTURES=x86_64 cmake ..
+        COMMAND cd "${darwin_build}_64"
+                && CMAKE_OSX_ARCHITECTURES=x86_64 cmake ..
         COMMAND cd "${darwin_build}_64" && make check
+        COMMAND cp ${darwin_build}_64/libdiscid.${PROJECT_VERSION}.dylib
+                "${libdiscid_DISTDIR}-mac/intel64/libdiscid.0.dylib"
         COMMAND mkdir "${darwin_build}_ppc"
         COMMAND cd "${darwin_build}_ppc" && CMAKE_OSX_ARCHITECTURES=ppc cmake ..
         COMMAND cd "${darwin_build}_ppc" && make check
-        COMMAND lipo -create ${darwin_build}_*/libdiscid.${PROJECT_VERSION}.dylib -output libdiscid.0.dylib
-COMMAND mv "libdiscid.0.dylib" "${libdiscid_DISTDIR}-mac/libdiscid.0.dylib"
-        COMMAND rm -rf "${darwin_build}_i386" "${darwin_build}_x86_64" "${darwin_build}_ppc"
+        COMMAND cp ${darwin_build}_ppc/libdiscid.${PROJECT_VERSION}.dylib
+                "${libdiscid_DISTDIR}-mac/ppc/libdiscid.0.dylib"
+        COMMAND lipo -create
+                ${darwin_build}_*/libdiscid.${PROJECT_VERSION}.dylib
+                -output "${libdiscid_DISTDIR}-mac/universal/libdiscid.0.dylib"
+        COMMAND rm -rf "${darwin_build}_i386" "${darwin_build}_x86_64"
+                "${darwin_build}_ppc"
         COMMAND rm -rf "${libdiscid_DISTDIR}"
-        COMMAND zip -r "${libdiscid_DISTDIR}-mac.zip" "${libdiscid_DISTDIR}-mac/"
+        COMMAND zip -r "${libdiscid_DISTDIR}-mac.zip"
+                "${libdiscid_DISTDIR}-mac/"
         COMMAND rm -rf "${libdiscid_DISTDIR}-mac"
     )
     ADD_DEPENDENCIES(distmac dist)

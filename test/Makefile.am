@@ -1,4 +1,6 @@
-TESTS = test_discid 
+if RUN_TESTS
+TESTS = test_discid
+endif
 
 check_PROGRAMS = test_discid
 

@@ -88,6 +88,14 @@ dnl Test endianness and size of a long; required for the SHA1 implementation.
 AC_C_BIGENDIAN
 AC_CHECK_SIZEOF(long)
 
+if test "$cross_compiling" = "yes" && test "$os" = "win32"; then
+  AC_MSG_WARN([detected cross compilation: disabling tests!!!])
+  #AC_SUBST([TESTS_ENVIRONMENT], [wine]) doesn't work for libtool builds
+  tests_enabled=no
+else
+  tests_enabled=yes
+fi
+AM_CONDITIONAL([RUN_TESTS], [test x${tests_enabled} = xyes])
 
 if test "$GCC" = yes; then
   CFLAGS="$CFLAGS -Wall -O2"

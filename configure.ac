@@ -23,7 +23,7 @@ libdiscid_PATCH=1
 libdiscid_VERSION=${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH}
 libdiscid_VERSION_LT=${libdiscid_MAJOR}:${libdiscid_MINOR}:${libdiscid_PATCH}
 libdiscid_VERSION_RC=${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0
-if test $libdiscid_PATCH -lt 9; then
+if test $libdiscid_PATCH -lt 10; then
   libdiscid_VERSION_NUM=${libdiscid_MINOR}0${libdiscid_PATCH}
 else
   libdiscid_VERSION_NUM=${libdiscid_MINOR}${libdiscid_PATCH}

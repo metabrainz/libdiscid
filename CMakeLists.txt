@@ -18,7 +18,7 @@ SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})
 SET(libdiscid_SOVERSION ${libdiscid_MAJOR})
 # version for windows resource file
 SET(libdiscid_VERSION_RC ${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0)
-IF(libdiscid_PATCH LESS 9)
+IF(libdiscid_PATCH LESS 10)
     SET(libdiscid_VERSION_NUM ${libdiscid_MINOR}0${libdiscid_PATCH})
 ELSE()
     SET(libdiscid_VERSION_NUM ${libdiscid_MINOR}${libdiscid_PATCH})

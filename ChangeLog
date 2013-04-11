@@ -4,6 +4,7 @@ libdiscid ChangeLog:
 libdiscid-0.5.0:
 
  - LIB-29: add read_sparse() for faster reading again
+ - add HAVE_SPARSE_READ and VERSION_* defines
  - LIB-36: hide internal symbols on Linux/Unix
 
 libdiscid-0.4.1:

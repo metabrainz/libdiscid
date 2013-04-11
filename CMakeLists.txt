@@ -138,6 +138,32 @@ IF(libdiscid_OS MATCHES "win32")
     ADD_DEPENDENCIES(distwin32 dist check)
 ENDIF()
 
+# create universal binary on Mac OS X
+IF(libdiscid_OS MATCHES "darwin")
+    SET(darwin_build "${libdiscid_DISTDIR}/_build_darwin")
+    ADD_CUSTOM_TARGET(distmac
+        COMMAND mkdir "${libdiscid_DISTDIR}-mac"
+        COMMAND tar -xf "${libdiscid_DISTDIR}.tar.gz"
+        COMMAND cp -a "${libdiscid_DISTDIR}" "${libdiscid_DISTDIR}-mac/"
+        COMMAND mkdir "${darwin_build}_32"
+        COMMAND cd "${darwin_build}_32" && CMAKE_OSX_ARCHITECTURES=i386 cmake ..
+        COMMAND cd "${darwin_build}_32" && make check
+        COMMAND mkdir "${darwin_build}_64"
+        COMMAND cd "${darwin_build}_64" && CMAKE_OSX_ARCHITECTURES=x86_64 cmake ..
+        COMMAND cd "${darwin_build}_64" && make check
+        COMMAND mkdir "${darwin_build}_ppc"
+        COMMAND cd "${darwin_build}_ppc" && CMAKE_OSX_ARCHITECTURES=ppc cmake ..
+        COMMAND cd "${darwin_build}_ppc" && make check
+        COMMAND lipo -create ${darwin_build}_*/libdiscid.${PROJECT_VERSION}.dylib -output libdiscid.0.dylib
+COMMAND mv "libdiscid.0.dylib" "${libdiscid_DISTDIR}-mac/libdiscid.0.dylib"
+        COMMAND rm -rf "${darwin_build}_i386" "${darwin_build}_x86_64" "${darwin_build}_ppc"
+        COMMAND rm -rf "${libdiscid_DISTDIR}"
+        COMMAND zip -r "${libdiscid_DISTDIR}-mac.zip" "${libdiscid_DISTDIR}-mac/"
+        COMMAND rm -rf "${libdiscid_DISTDIR}-mac"
+    )
+    ADD_DEPENDENCIES(distmac dist)
+ENDIF()
+
 
 # Tests needed for sha1.h
 INCLUDE(TestBigEndian)

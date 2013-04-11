@@ -17,8 +17,6 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-#    $Id$
-#
 AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src include examples test
@@ -27,6 +25,9 @@ pcdir = $(libdir)/pkgconfig
 pc_DATA = libdiscid.pc
 
 EXTRA_DIST = libdiscid.pc.in Doxyfile.in CMakeLists.txt config-cmake.h.in
+
+# not deleted automatically, in contrast to the .lo
+CLEANFILES = versioninfo.o
 
 docs:
 	doxygen

@@ -123,6 +123,7 @@ ADD_CUSTOM_TARGET(dist
    COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
    COMMAND rm -rf "${libdiscid_DISTDIR}"
 )
+ADD_DEPENDENCIES(dist check)
 
 # create binary in MinGW/MSYS
 IF(libdiscid_OS MATCHES "win32")
@@ -135,7 +136,7 @@ IF(libdiscid_OS MATCHES "win32")
 	COMMAND zip -r "${libdiscid_DISTDIR}-win32.zip" "${libdiscid_DISTDIR}-win32/"
 	COMMAND rm -rf "${libdiscid_DISTDIR}-win32"
     )
-    ADD_DEPENDENCIES(distwin32 dist check)
+    ADD_DEPENDENCIES(distwin32 dist)
 ENDIF()
 
 # create universal binary on Mac OS X

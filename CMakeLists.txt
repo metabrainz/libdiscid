@@ -114,6 +114,8 @@ ADD_CUSTOM_TARGET(docs doxygen)
 
 ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
 
+SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
+
 ADD_CUSTOM_TARGET(dist
     rm -rf "${PROJECT_NAME}-${PROJECT_VERSION}"
     COMMAND git clone . "${PROJECT_NAME}-${PROJECT_VERSION}"
@@ -121,6 +123,18 @@ ADD_CUSTOM_TARGET(dist
     COMMAND cd "${PROJECT_NAME}-${PROJECT_VERSION}" && ./configure && make distcheck
     COMMAND cp "${PROJECT_NAME}-${PROJECT_VERSION}/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" .
 )
+
+# create binary in MinGW/MSYS
+IF(libdiscid_OS MATCHES "win32")
+    ADD_CUSTOM_TARGET(distwin32
+	rm -rf "${libdiscid_DISTDIR}-win32"
+	COMMAND mkdir "${libdiscid_DISTDIR}-win32"
+	COMMAND cp -a "${libdiscid_DISTDIR}" "${libdiscid_DISTDIR}-win32/"
+	COMMAND cp "libdiscid.dll" "${libdiscid_DISTDIR}-win32/discid.dll"
+	COMMAND zip -r "${libdiscid_DISTDIR}-win32.zip" "${libdiscid_DISTDIR}-win32/"
+    )
+    ADD_DEPENDENCIES(distwin32 dist check)
+ENDIF()
 
 
 # Tests needed for sha1.h

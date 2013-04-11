@@ -117,7 +117,7 @@ ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 
 ADD_CUSTOM_TARGET(dist
-   COMMAND git clone . "${libdiscid_DISTDIR}"
+   COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
    COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
    COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
    COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .

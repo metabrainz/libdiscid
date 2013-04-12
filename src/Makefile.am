@@ -20,7 +20,7 @@
 #
 lib_LTLIBRARIES = libdiscid.la
 
-libdiscid_la_SOURCES = base64.c sha1.c disc.c
+libdiscid_la_SOURCES = base64.c sha1.c disc.c base64.h sha1.h
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 libdiscid_la_CFLAGS = $(WARN_CFLAGS)
@@ -58,8 +58,6 @@ if OS_WIN32
 libdiscid_la_LIBADD += -lwinmm
 libdiscid_la_SOURCES += disc_win32.c disc_win32_new.c versioninfo.rc
 endif
-
-EXTRA_DIST = base64.h sha1.h
 
 # for Windows Resource Files
 RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS)

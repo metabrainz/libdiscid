@@ -21,8 +21,7 @@
 lib_LTLIBRARIES = libdiscid.la
 
 libdiscid_la_SOURCES = base64.c sha1.c disc.c base64.h sha1.h
-
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
+libdiscid_la_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 libdiscid_la_CFLAGS = $(WARN_CFLAGS)
 
 # use a (well defined) version number, rather than version-info calculations

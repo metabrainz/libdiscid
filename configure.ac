@@ -98,7 +98,7 @@ fi
 AM_CONDITIONAL([RUN_TESTS], [test x${tests_enabled} = xyes])
 
 if test "$GCC" = yes; then
-  CFLAGS="$CFLAGS -Wall -O2"
+  CFLAGS="$CFLAGS -Wall"
 fi
 
 

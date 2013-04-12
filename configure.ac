@@ -58,8 +58,17 @@ case "${host_cpu}-${host_os}" in
   *)          os=generic;
 	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac
-dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
+#AM_CONDITIONAL([OS_BEOS], [test x$os = xbeos])
+AM_CONDITIONAL([OS_DARWIN], [test x$os = xdarwin])
+AM_CONDITIONAL([OS_FREEBSD], [test x$os = xfreebsd])
+AM_CONDITIONAL([OS_GENERIC], [test x$os = xgeneric])
+AM_CONDITIONAL([OS_LINUX], [test x$os = xlinux])
+AM_CONDITIONAL([OS_OPENBSD], [test x$os = xopenbsd])
+#AM_CONDITIONAL([OS_OS2], [test x$os = xos2])
+#AM_CONDITIONAL([OS_QNX], [test x$os = xqnx])
+AM_CONDITIONAL([OS_SOLARIS], [test x$os = xsolaris])
+AM_CONDITIONAL([OS_WIN32], [test x$os = xwin32])
 
 dnl The file containing the operating system dependent disc access code.
 if test "${os}" = "win32"; then

@@ -43,18 +43,18 @@ AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
 
 
 case "${host_cpu}-${host_os}" in
-  #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;
-  *-mingw*)   os=win32; LIBS='-lwinmm' ;;
-  *-cygwin*)  os=win32; LIBS='-lwinmm' ;;
+  #*-beos*)    os=beos;;
+  *-mingw*)   os=win32;;
+  *-cygwin*)  os=win32;;
   *-freebsd*) os=freebsd ;;
   *-kfreebsd*) os=freebsd ;;
-  *-darwin*)  os=darwin; LIBS='-framework CoreFoundation -framework IOKit';;
+  *-darwin*)  os=darwin;;
   *-linux*)   os=linux ;;
   *-netbsd*)  os=openbsd ;;
   *-openbsd*) os=openbsd ;;
   #*-os2_emx*) os=os2 ;;
   *-solaris*) os=solaris ;;
-  #*-qnx*)     os=qnx; LIBS='-lsocket' ;;
+  #*-qnx*)     os=qnx;;
   *)          os=generic;
 	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac

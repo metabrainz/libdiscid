@@ -79,7 +79,6 @@ LT_LANG([Windows Resource])
 dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_LIBTOOL
-AC_SUBST(LIBTOOL_DEPS)
 AC_PROG_INSTALL
 
 dnl Test endianness and size of a long; required for the SHA1 implementation.

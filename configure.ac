@@ -59,6 +59,7 @@ case "${host_cpu}-${host_os}" in
 	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac
 
+AC_MSG_NOTICE([Using disc read implementation for: $os]).
 #AM_CONDITIONAL([OS_BEOS], [test x$os = xbeos])
 AM_CONDITIONAL([OS_DARWIN], [test x$os = xdarwin])
 AM_CONDITIONAL([OS_FREEBSD], [test x$os = xfreebsd])
@@ -69,17 +70,6 @@ AM_CONDITIONAL([OS_OPENBSD], [test x$os = xopenbsd])
 #AM_CONDITIONAL([OS_QNX], [test x$os = xqnx])
 AM_CONDITIONAL([OS_SOLARIS], [test x$os = xsolaris])
 AM_CONDITIONAL([OS_WIN32], [test x$os = xwin32])
-
-dnl The file containing the operating system dependent disc access code.
-if test "${os}" = "win32"; then
-  DISC_OS_OBJ="disc_${os}.lo disc_${os}_new.lo"
-  AC_MSG_NOTICE([using discid implementation disc_${os}.c disc_${os}_new.c])
-  DISC_OS_OBJ="${DISC_OS_OBJ} ../versioninfo.lo"
-else
-  DISC_OS_OBJ="disc_${os}.lo"
-  AC_MSG_NOTICE([using discid implementation disc_${os}.c])
-fi
-AC_SUBST(DISC_OS_OBJ)
 
 LT_INIT([win32-dll])
 LT_LANG([Windows Resource])

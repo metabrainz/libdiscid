@@ -20,7 +20,6 @@ libdiscid_MINOR=5
 libdiscid_PATCH=0
 # don't forget to update AC_INIT above!
 
-libdiscid_VERSION=${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH}
 libdiscid_VERSION_LT=${libdiscid_MAJOR}:${libdiscid_MINOR}:${libdiscid_PATCH}
 libdiscid_VERSION_RC=${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0
 if test $libdiscid_PATCH -lt 10; then
@@ -28,7 +27,6 @@ if test $libdiscid_PATCH -lt 10; then
 else
   libdiscid_VERSION_NUM=${libdiscid_MINOR}${libdiscid_PATCH}
 fi
-AC_SUBST(libdiscid_VERSION)
 AC_SUBST(libdiscid_VERSION_LT)
 AC_SUBST(libdiscid_VERSION_RC)
 AC_SUBST(libdiscid_VERSION_NUM)

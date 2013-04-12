@@ -98,9 +98,8 @@ fi
 AM_CONDITIONAL([RUN_TESTS], [test x${tests_enabled} = xyes])
 
 if test "$GCC" = yes; then
-  CFLAGS="$CFLAGS -Wall"
+  WARN_CFLAGS="-Wall"
 fi
-
 
 AC_OUTPUT([
   Makefile src/Makefile include/Makefile include/discid/Makefile

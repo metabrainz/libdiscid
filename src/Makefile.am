@@ -27,6 +27,7 @@ EXTRA_libdiscid_la_SOURCES = \
 	disc_generic.c
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
+libdiscid_la_CFLAGS = $(WARN_CFLAGS)
 libdiscid_la_LIBADD = @DISC_OS_OBJ@
 libdiscid_la_DEPENDENCIES = @DISC_OS_OBJ@
 

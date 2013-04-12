@@ -39,8 +39,6 @@ AC_SUBST(libdiscid_PATCH)
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
 
-# compatibility with cmake
-EXTRA_DIST=config-cmake.h.in
 AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
 
 

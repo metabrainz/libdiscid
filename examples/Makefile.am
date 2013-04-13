@@ -1,6 +1,7 @@
 
 noinst_PROGRAMS = discid discisrc
 
+AM_CFLAGS = $(WARN_CFLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 discid_SOURCES = discid.c

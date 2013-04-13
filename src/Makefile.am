@@ -63,7 +63,7 @@ RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFL
 LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)
 
 .rc.o:
-	$(RCCOMPILE) -i "$<" -o "$@"
+	$(AM_V_GEN)$(RCCOMPILE) -i "$<" -o "$@"
 
 .rc.lo:
-	$(LTRCCOMPILE) -i "$<" -o "$@"
+	$(AM_V_GEN)$(LTRCCOMPILE) -i "$<" -o "$@"

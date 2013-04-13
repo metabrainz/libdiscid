@@ -59,7 +59,7 @@ case "${host_cpu}-${host_os}" in
 	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac
 
-AC_MSG_NOTICE([Using disc read implementation for: $os]).
+AC_MSG_NOTICE([Using disc read implementation for: $os])
 #AM_CONDITIONAL([OS_BEOS], [test x$os = xbeos])
 AM_CONDITIONAL([OS_DARWIN], [test x$os = xdarwin])
 AM_CONDITIONAL([OS_FREEBSD], [test x$os = xfreebsd])

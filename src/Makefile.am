@@ -55,7 +55,7 @@ libdiscid_la_SOURCES += disc_solaris.c
 endif
 if OS_WIN32
 libdiscid_la_LIBADD += -lwinmm
-libdiscid_la_SOURCES += disc_win32.c disc_win32_new.c versioninfo.rc
+libdiscid_la_SOURCES += disc_win32.c disc_win32_new.c ../versioninfo.rc
 endif
 
 # for Windows Resource Files

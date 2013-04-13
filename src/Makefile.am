@@ -20,20 +20,43 @@
 #
 lib_LTLIBRARIES = libdiscid.la
 
-libdiscid_la_SOURCES = base64.c sha1.c disc.c
-EXTRA_libdiscid_la_SOURCES = \
-	disc_linux.c disc_win32.c disc_win32_new.c \
-	disc_darwin.c disc_freebsd.c disc_solaris.c disc_openbsd.c \
-	disc_generic.c
-
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
-libdiscid_la_LIBADD = @DISC_OS_OBJ@
-libdiscid_la_DEPENDENCIES = @DISC_OS_OBJ@
+libdiscid_la_SOURCES = base64.c sha1.c disc.c base64.h sha1.h
+libdiscid_la_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
+libdiscid_la_CFLAGS = $(WARN_CFLAGS)
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined
+libdiscid_la_LIBADD =
 
-EXTRA_DIST = base64.h sha1.h
+#if OS_BEOS
+#libdiscid_la_LIBADD += "-lbe -lroot"
+#endif
+if OS_DARWIN
+libdiscid_la_LDFLAGS += "-framework CoreFoundation -framework IOKit"
+libdiscid_la_SOURCES += disc_darwin.c
+endif
+if OS_FREEBSD
+libdiscid_la_SOURCES += disc_freebsd.c
+endif
+if OS_GENERIC
+libdiscid_la_SOURCES += disc_generic.c
+endif
+if OS_LINUX
+libdiscid_la_SOURCES += disc_linux.c
+endif
+if OS_OPENBSD
+libdiscid_la_SOURCES += disc_openbsd.c
+endif
+#if OS_QNX
+#libdiscid_la_LIBADD += "-lsocket"
+#endif
+if OS_SOLARIS
+libdiscid_la_SOURCES += disc_solaris.c
+endif
+if OS_WIN32
+libdiscid_la_LIBADD += -lwinmm
+libdiscid_la_SOURCES += disc_win32.c disc_win32_new.c versioninfo.rc
+endif
 
 # for Windows Resource Files
 RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS)

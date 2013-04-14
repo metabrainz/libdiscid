@@ -17,7 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-SUBDIRS = src examples test
+SUBDIRS = src
 
 pcdir = $(libdir)/pkgconfig
 pc_DATA = libdiscid.pc
@@ -33,3 +33,22 @@ CLEANFILES = versioninfo.o
 
 docs:
 	doxygen
+
+if RUN_TESTS
+TESTS = test_discid
+endif
+
+check_PROGRAMS = test_discid
+noinst_PROGRAMS = discid discisrc
+
+AM_CFLAGS = $(WARN_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
+
+test_discid_SOURCES = test/test_discid.c
+test_discid_LDADD = $(top_builddir)/src/libdiscid.la
+
+discid_SOURCES = examples/discid.c
+discid_LDADD = $(top_builddir)/src/libdiscid.la
+
+discisrc_SOURCES = examples/discisrc.c
+discisrc_LDADD = $(top_builddir)/src/libdiscid.la

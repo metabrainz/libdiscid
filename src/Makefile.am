@@ -29,10 +29,10 @@ libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined
 libdiscid_la_LIBADD =
 
 #if OS_BEOS
-#libdiscid_la_LIBADD += "-lbe -lroot"
+#libdiscid_la_LIBADD += -lbe -lroot
 #endif
 if OS_DARWIN
-libdiscid_la_LDFLAGS += "-framework CoreFoundation -framework IOKit"
+libdiscid_la_LDFLAGS += -framework CoreFoundation -framework IOKit
 libdiscid_la_SOURCES += disc_darwin.c
 endif
 if OS_FREEBSD
@@ -48,7 +48,7 @@ if OS_OPENBSD
 libdiscid_la_SOURCES += disc_openbsd.c
 endif
 #if OS_QNX
-#libdiscid_la_LIBADD += "-lsocket"
+#libdiscid_la_LIBADD += -lsocket
 #endif
 if OS_SOLARIS
 libdiscid_la_SOURCES += disc_solaris.c

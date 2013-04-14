@@ -31,9 +31,6 @@ EXTRA_DIST = libdiscid.pc.in Doxyfile.in CMakeLists.txt config-cmake.h.in
 # not deleted automatically, in contrast to the .lo
 CLEANFILES = versioninfo.o
 
-docs:
-	doxygen
-
 if RUN_TESTS
 TESTS = test_discid
 endif
@@ -52,3 +49,7 @@ discid_LDADD = $(top_builddir)/src/libdiscid.la
 
 discisrc_SOURCES = examples/discisrc.c
 discisrc_LDADD = $(top_builddir)/src/libdiscid.la
+
+
+docs:
+	doxygen

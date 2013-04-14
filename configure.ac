@@ -6,7 +6,7 @@ dnl Process this file with autoconf to produce a configure script.
 # don't forget to update MAJOR/MINOR/PATCH below!
 AC_INIT(libdiscid, 0.5.0)
 AC_CONFIG_SRCDIR(src/disc.c)
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_CONFIG_HEADERS(config.h)
 

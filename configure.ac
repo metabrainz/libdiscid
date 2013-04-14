@@ -99,7 +99,7 @@ fi
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 AC_OUTPUT([
-  Makefile src/Makefile include/Makefile include/discid/Makefile
+  Makefile src/Makefile
   examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
   include/discid/discid.h
 ])

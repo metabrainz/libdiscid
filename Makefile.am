@@ -17,10 +17,14 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-SUBDIRS = src include examples test
+SUBDIRS = src examples test
 
 pcdir = $(libdir)/pkgconfig
 pc_DATA = libdiscid.pc
+
+discid_incdir = $(includedir)/discid
+discid_inc_HEADERS = include/discid/discid.h
+noinst_HEADERS = include/discid/discid_private.h
 
 EXTRA_DIST = libdiscid.pc.in Doxyfile.in CMakeLists.txt config-cmake.h.in
 

@@ -1,25 +1,26 @@
 dnl Process this file with autoconf to produce a configure script.
 
-# AC_INIT would complain with "not a literal" when using MAJOR/MINOR/PATCH vars
-# currently the sole purpose of the project is the library,
-# so we use the library version also as project version
-# don't forget to update MAJOR/MINOR/PATCH below!
-AC_INIT(libdiscid, 0.5.0)
-AC_CONFIG_SRCDIR(src/disc.c)
-AM_INIT_AUTOMAKE([foreign])
-m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
-AC_CONFIG_HEADERS(config.h)
-
 # VERSION NUMBERING:
 # see http://semver.org, we use that schema starting with 0.x.x
 # in short:
 # MAJOR is increased when backwards incompatible changes are made to the API
 # MINOR is increased when features are added to the API
 # PATCH is increase for all other releases
-libdiscid_MAJOR=0
-libdiscid_MINOR=5
-libdiscid_PATCH=0
-# don't forget to update AC_INIT above!
+define(MAJOR, 0)
+define(MINOR, 5)
+define(PATCH, 0)
+# currently the sole purpose of the project is the library,
+# so we use the library version also as project version
+AC_INIT(libdiscid, MAJOR.MINOR.PATCH)
+
+AC_CONFIG_SRCDIR(src/disc.c)
+AM_INIT_AUTOMAKE([foreign])
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+AC_CONFIG_HEADERS(config.h)
+
+libdiscid_MAJOR=MAJOR
+libdiscid_MINOR=MINOR
+libdiscid_PATCH=PATCH
 
 libdiscid_VERSION_LT=${libdiscid_MAJOR}:${libdiscid_MINOR}:${libdiscid_PATCH}
 libdiscid_VERSION_RC=${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0

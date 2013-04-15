@@ -14,7 +14,7 @@ define(PATCH, 0)
 AC_INIT(libdiscid, MAJOR.MINOR.PATCH)
 
 AC_CONFIG_SRCDIR(src/disc.c)
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_CONFIG_HEADERS(config.h)
 
@@ -100,7 +100,5 @@ fi
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 AC_OUTPUT([
-  Makefile src/Makefile include/Makefile include/discid/Makefile
-  examples/Makefile test/Makefile libdiscid.pc versioninfo.rc Doxyfile
-  include/discid/discid.h
+  Makefile libdiscid.pc versioninfo.rc Doxyfile include/discid/discid.h
 ])

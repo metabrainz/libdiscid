@@ -71,7 +71,7 @@ is_data_track (const struct cd_toc_entry *te)
 }
 
 int
-mb_disc_read_unportable (mb_disc_private *disc, const char *device)
+mb_disc_read_unportable (mb_disc_private *disc, const char *device, unsigned int features)
 {
     struct cd_toc_entry     te;
     struct ioc_toc_header   th;

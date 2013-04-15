@@ -28,8 +28,8 @@
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
-			unsigned char *data, int data_len);
+LIBDISCID_INTERNAL int mb_scsi_cmd_unportable(int fd, unsigned char *cmd,
+				int cmd_len, unsigned char *data, int data_len);
 
 
 
@@ -41,14 +41,16 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 /* 
  * read an ISRC using the READ SUB-CHANNEL command (0x42)
  */
-void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num);
+LIBDISCID_INTERNAL void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc,
+						int track_num);
 
 /* 
  * parsing the sub-channel and an ISRC using the READ command (0xbe)
  */
-void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num);
+LIBDISCID_INTERNAL void mb_scsi_read_track_isrc_raw(int fd,
+					mb_disc_private *disc, int track_num);
 
 /*
  * stop the CD drive -> stop disc spinning
  */
-void mb_scsi_stop_disc(int fd);
+LIBDISCID_INTERNAL void mb_scsi_stop_disc(int fd);

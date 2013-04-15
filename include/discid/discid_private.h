@@ -27,7 +27,7 @@
 #ifndef MUSICBRAINZ_DISC_ID_PRIVATE_H
 #define MUSICBRAINZ_DISC_ID_PRIVATE_H
 
-#include "discid.h"
+#include "discid/discid.h"
 
 
 /* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */
@@ -88,7 +88,7 @@ typedef struct {
  *
  * On error, 0 is returned. On success, 1 is returned.
  */
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device);
+LIBDISCID_INTERNAL int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features);
 
 
 /*
@@ -96,12 +96,12 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device);
  * on this operating system. It has to be in a format usable for the second
  * parameter of mb_disc_read_unportable().
  */
-char *mb_disc_get_default_device_unportable(void);
+LIBDISCID_INTERNAL char *mb_disc_get_default_device_unportable(void);
 
 /*
  * This should return 1 if the feature is supported by the platform
  * and 0 if not.
  */
-int mb_disc_has_feature_unportable(enum discid_feature feature);
+LIBDISCID_INTERNAL int mb_disc_has_feature_unportable(enum discid_feature feature);
 
 #endif /* MUSICBRAINZ_DISC_ID_PRIVATE_H */

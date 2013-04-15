@@ -68,7 +68,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-
+#include "base64.h"
 
 /* NOTE: This is not true RFC822 anymore. The use of the characters
    '/', '+', and '=' is no bueno when the ID will be used as part of a URL.

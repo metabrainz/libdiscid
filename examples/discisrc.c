@@ -18,8 +18,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <discid/discid.h>
@@ -29,6 +27,7 @@ int main(int argc, char *argv[]) {
 	int i;
 	char *device = NULL;
 	DiscId *disc = discid_new();
+	char *features[DISCID_FEATURE_LENGTH];
 
 	printf("%s\n", discid_get_version_string());
 
@@ -42,8 +41,8 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	/* read the disc in the default disc drive */
-	if (discid_read(disc, device) == 0) {
+	/* read the disc in the specified disc drive with the MCN and ISRC feature enabled */
+	if (discid_read_sparse(disc, device, DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		return 1;
 	}
@@ -66,7 +65,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* another way to access the features */
-	char *features[DISCID_FEATURE_LENGTH];
 	discid_get_feature_list(features);
 	printf("All features: ");
 	for (i = 0; i < DISCID_FEATURE_LENGTH; i++) {

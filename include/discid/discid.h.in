@@ -24,17 +24,28 @@
 #ifndef MUSICBRAINZ_DISC_ID_H
 #define MUSICBRAINZ_DISC_ID_H
 
-#if (defined(_WIN32) || defined(_WIN64))
+#if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
 #	ifdef libdiscid_EXPORTS
 #		define LIBDISCID_API __declspec(dllexport)
 #	else
 #		define LIBDISCID_API __declspec(dllimport)
 #	endif
+#	define LIBDISCID_INTERNAL
+#elif (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define LIBDISCID_API
+#	define LIBDISCID_INTERNAL __attribute__((visibility("hidden")))
+#elif defined(__SUNPRO_C)
+#	define LIBDISCID_API __global
+#	define LIBDISCID_INTERNAL __hidden
 #else
 #	define LIBDISCID_API
+#	define LIBDISCID_INTERNAL
 #endif
 
-
+#define DISCID_VERSION_MAJOR @libdiscid_MAJOR@
+#define DISCID_VERSION_MINOR @libdiscid_MINOR@
+#define DISCID_VERSION_PATCH @libdiscid_PATCH@
+#define DISCID_VERSION_NUM @libdiscid_VERSION_NUM@
 
 #ifdef __cplusplus
   extern "C" {
@@ -64,7 +75,7 @@
  *
  * DiscId *disc = discid_new();
  *
- * if ( discid_read(disc, "/dev/cdrom") == 0 ) {
+ * if ( discid_read_sparse(disc, "/dev/cdrom", 0) == 0 ) {
  *     fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
  *     return 1;
  * }
@@ -129,6 +140,10 @@ LIBDISCID_API void discid_free(DiscId *d);
  * identifier. If the device is NULL, the default drive, as returned by
  * discid_get_default_device() is used.
  *
+ * If you do not require all features provided by libdiscid, such as MCN
+ * or ISRC reading, you should consider using discid_read_sparse() instead
+ * of discid_read() for performance reasons.
+ *
  * On error, this function returns false and sets the error message which you
  * can access using discid_get_error_msg(). In this case, the other functions
  * won't return meaningful values and should not be used.
@@ -141,6 +156,33 @@ LIBDISCID_API void discid_free(DiscId *d);
  */
 LIBDISCID_API int discid_read(DiscId *d, const char *device);
 
+
+/**
+ * Read the disc in the given CD-ROM/DVD-ROM drive
+ * using only the specified features.
+ *
+ * This function is similar to discid_read() but it allows to use only the
+ * features explicitely specified.
+ * By default this function will read only the TOC, but additional features
+ * like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
+ * using the features parameter. Multiple features can be set using bitwise OR.
+ *
+ * On error, this function returns false and sets the error message which you
+ * can access using discid_get_error_msg(). In this case, the other functions
+ * won't return meaningful values and should not be used.
+ *
+ * This function may be used multiple times with the same DiscId object.
+ *
+ * \since libdiscid 0.5.0
+ *
+ * @param d a DiscId object created by discid_new()
+ * @param device an operating system dependent device identifier, or NULL
+ * @param features a list of bit flags from the enum ::discid_feature
+ * @return true if successful, or false on error.
+ */
+LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);
+
+#define DISCID_HAVE_SPARSE_READ
 
 /**
  * Provides the TOC of a known CD.
@@ -245,7 +287,7 @@ LIBDISCID_API int discid_get_first_track_num(DiscId *d);
 
 
 /**
- * Return the number of the last track on this disc.
+ * Return the number of the last audio track on this disc.
  *
  * @param d a DiscId object created by discid_new()
  * @return the number of the last track

@@ -172,7 +172,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 }
 
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) {
 	int fd;
 	unsigned long lba;
 	int first, last;
@@ -203,7 +203,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 	}
 
 	/* Read in the media catalog number */
-	read_disc_mcn( fd, disc );
+	if (features & DISCID_FEATURE_MCN) {
+		read_disc_mcn( fd, disc );
+	}
 
 	disc->first_track_num = first;
 	disc->last_track_num = last;
@@ -222,9 +224,11 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
 		disc->track_offsets[i] = lba + 150;
 
 		/* Read the ISRC for the track */
-		// TODO: test if raw actually is available
-		//mb_scsi_read_track_isrc(fd, disc, i);
-		mb_scsi_read_track_isrc_raw(fd, disc, i);
+		if (features & DISCID_FEATURE_ISRC) {
+			// TODO: test if raw actually is available
+			//mb_scsi_read_track_isrc(fd, disc, i);
+			mb_scsi_read_track_isrc_raw(fd, disc, i);
+		}
 	}
 
 	/* TODO: only do this when the device was stopped when we started */

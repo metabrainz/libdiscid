@@ -170,26 +170,29 @@ char *mb_disc_get_default_device_unportable(void)
     return defaultDevice;
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) 
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) 
 {
 	int fd;
 	int i;
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
 
-	if (device == NULL || *device == 0)
-        device = mb_disc_get_default_device_unportable();
+	if (device == NULL || *device == 0) {
+		device = mb_disc_get_default_device_unportable();
+	}
 
-    if (!*device)
-    {
-	    snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,  "No CD-ROMs found. Please insert a disc and try again.");
-	    return 0;
+	if (!*device) {
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 "No CD-ROMs found. Please insert a disc and try again."
+			);
+		return 0;
 	}
   
 	fd = open(device, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-	    snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,  "Cannot open '%s'", device);
-	    return 0;
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 "Cannot open '%s'", device);
+		return 0;
 	}
   
 	memset(&toc, 0, sizeof(toc));
@@ -198,46 +201,55 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device)
 	toc.buffer = (char *)malloc(TOC_BUFFER_LEN);
 	toc.bufferLength = TOC_BUFFER_LEN;
 	if (ioctl(fd, DKIOCCDREADTOC, &toc) < 0 ) {
-	    snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,  "Cannot read TOC from '%s'", device);
-	    free(toc.buffer);
-	    return 0;
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 "Cannot read TOC from '%s'", device);
+		free(toc.buffer);
+		return 0;
 	}
 	if ( toc.bufferLength < sizeof(CDTOC) ) {
-	    snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,  "Short TOC was returned from '%s'", device);
-	    free(toc.buffer);
-	    return 0;
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 "Short TOC was returned from '%s'", device);
+		free(toc.buffer);
+		return 0;
 	}
 
 	// Read in the media catalogue number
-	read_disc_mcn( fd, disc );
-  
+	if (features & DISCID_FEATURE_MCN) {
+		read_disc_mcn(fd, disc);
+	}
+
 	cdToc = (CDTOC *)toc.buffer;
 	int numDesc = CDTOCGetDescriptorCount(cdToc);
-  
+
 	int numTracks = 0;
-	for(i = 0; i < numDesc; i++)
-	{
-	    CDTOCDescriptor *desc = &cdToc->descriptors[i];
-  
-	    if (desc->session > 1)
-		continue;
-  
-	    if (desc->point == 0xA2 && desc->adr == 1)
-		 disc->track_offsets[0] = CDConvertMSFToLBA(desc->p) + 150; 
-  
-	    if (desc->point <= 99 && desc->adr == 1) {
-		disc->track_offsets[1 + numTracks] = CDConvertMSFToLBA(desc->p) + 150; 
-		 
-		// Read in the IRSC codes for tracks
-		read_disc_isrc( fd, disc, 1 + numTracks );
-		 
-		numTracks++;
-	    }
+	for(i = 0; i < numDesc; i++) {
+		CDTOCDescriptor *desc = &cdToc->descriptors[i];
+
+		if (desc->session > 1) {
+			continue;
+		}
+
+		if (desc->point == 0xA2 && desc->adr == 1) {
+			disc->track_offsets[0] = CDConvertMSFToLBA(desc->p)
+						 + 150;
+		}
+
+		if (desc->point <= 99 && desc->adr == 1) {
+			disc->track_offsets[1 + numTracks] = CDConvertMSFToLBA(
+								desc->p) + 150;
+
+			// Read in the IRSC codes for tracks
+			if (features & DISCID_FEATURE_ISRC) {
+				read_disc_isrc(fd, disc, 1 + numTracks);
+			}
+
+			numTracks++;
+		}
 	}
 	disc->first_track_num = 1;
 	disc->last_track_num = numTracks;
-	
-  
+
+
 	close(fd);
 	free(toc.buffer);
   

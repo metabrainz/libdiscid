@@ -23,8 +23,14 @@
      $Id$
 
 --------------------------------------------------------------------------- */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string.h>
 #include <assert.h>
+#include <limits.h>
 
 #include "sha1.h"
 #include "base64.h"
@@ -127,6 +133,10 @@ char *discid_get_webservice_url(DiscId *d) {
 }
 
 int discid_read(DiscId *d, const char *device) {
+	return discid_read_sparse(d, device, UINT_MAX);
+}
+
+int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -139,9 +149,8 @@ int discid_read(DiscId *d, const char *device) {
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
-	return disc->success = mb_disc_read_unportable(disc, device);
+	return disc->success = mb_disc_read_unportable(disc, device, features);
 }
-
 
 int discid_put(DiscId *d, int first, int last, int *offsets) {
 	mb_disc_private *disc = (mb_disc_private *) d;
@@ -273,7 +282,6 @@ void discid_get_feature_list(char *features[DISCID_FEATURE_LENGTH]) {
 
 char *discid_get_version_string(void) {
 #ifdef HAVE_CONFIG_H
-#include <config.h>
 	return PACKAGE_STRING;
 #else
 	return "";

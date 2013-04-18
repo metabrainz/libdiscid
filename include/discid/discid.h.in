@@ -134,7 +134,7 @@ LIBDISCID_API void discid_free(DiscId *d);
 
 
 /**
- * Read the disc in the given CD-ROM/DVD-ROM drive.
+ * Read all supported features of the disc in the given CD-ROM/DVD-ROM drive.
  *
  * This function reads the disc in the drive specified by the given device
  * identifier. If the device is NULL, the default drive, as returned by
@@ -159,13 +159,24 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
 
 /**
  * Read the disc in the given CD-ROM/DVD-ROM drive
- * using only the specified features.
+ * extracting only the TOC and additionally specified features.
  *
- * This function is similar to discid_read() but it allows to use only the
- * features explicitely specified.
- * By default this function will read only the TOC, but additional features
+ * This function will always read the TOC, but additional features
  * like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
- * using the features parameter. Multiple features can be set using bitwise OR.
+ * using the features parameter.
+ * Multiple features can be set using bitwise OR.
+ *
+ * If you only want to generate a disc ID, you only need the TOC,
+ * so set features to 0:
+ * \code
+ * discid_read_sparse(disc, device, 0)
+ * \endcode
+ * This is a bit more verbose, but equivalent since ::DISCID_FEATURE_READ == 0:
+ * \code
+ * discid_read_sparse(disc, device, DISCID_FEATURE_READ)
+ * \endcode
+ *
+ * If you want to read all features available, you can use discid_read().
  *
  * On error, this function returns false and sets the error message which you
  * can access using discid_get_error_msg(). In this case, the other functions

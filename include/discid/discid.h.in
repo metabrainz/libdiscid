@@ -171,7 +171,8 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  * \code
  * discid_read_sparse(disc, device, 0)
  * \endcode
- * This is a bit more verbose, but equivalent since ::DISCID_FEATURE_READ == 0:
+ * This is a bit more verbose, but equivalent since ::DISCID_FEATURE_READ
+ * is always implied:
  * \code
  * discid_read_sparse(disc, device, DISCID_FEATURE_READ)
  * \endcode

@@ -180,7 +180,8 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  * @param features a list of bit flags from the enum ::discid_feature
  * @return true if successful, or false on error.
  */
-LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);
+LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device,
+				     unsigned int features);
 
 #define DISCID_HAVE_SPARSE_READ
 
@@ -362,7 +363,12 @@ LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
  *   - "mcn"	read MCN from disc
  *   - "isrc"	read ISRC from disc
  *
- * You can use get_feature_list() or has_feature() below.
+ * A table in the
+ * <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
+ * specifies which features are available on which platform in what version.
+ *
+ * In the code you can use discid_get_feature_list() or discid_has_feature()
+ * below to get the features for your platform in this version.
  */
 
 enum discid_feature {

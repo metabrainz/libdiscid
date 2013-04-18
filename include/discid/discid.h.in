@@ -390,6 +390,8 @@ enum discid_feature {
 /**
  * Check if a certain feature is implemented on the current platform.
  *
+ * This only works for single features, not bit masks with multiple features.
+ *
  * \since libdiscid 0.4.0
  *
  * @param feature as enum ::discid_feature

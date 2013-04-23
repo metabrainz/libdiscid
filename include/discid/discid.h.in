@@ -42,6 +42,14 @@
 #	define LIBDISCID_INTERNAL
 #endif
 
+#if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
+#define LIBDISCID_DEPRECATED __declspec(deprecated)
+#elif (defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))) || defined(__clang__)
+#define LIBDISCID_DEPRECATED __attribute__((deprecated))
+#else
+#define LIBDISCID_DEPRECATED
+#endif
+
 #define DISCID_VERSION_MAJOR @libdiscid_MAJOR@
 #define DISCID_VERSION_MINOR @libdiscid_MINOR@
 #define DISCID_VERSION_PATCH @libdiscid_PATCH@
@@ -279,8 +287,11 @@ LIBDISCID_API char *discid_get_submission_url(DiscId *d);
  *
  * @param d a DiscId object created by discid_new()
  * @return a string containing an URL
+ *
+ * @deprecated This function is deprecated. Please use libmusicbrainz instead
+ * since this function returns an URL referring the deprecated webservice.
  */
-LIBDISCID_API char *discid_get_webservice_url(DiscId *d);
+LIBDISCID_API LIBDISCID_DEPRECATED char *discid_get_webservice_url(DiscId *d);
 
 /**
  * Return the name of the default disc drive for this operating system.

@@ -220,6 +220,16 @@ LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device,
  * for each track. The first element, offsets[0], is the leadout track. It
  * must contain the total number of sectors on the disc.
  *
+ * For discs with additional data tracks, the trailing data tracks
+ * should be ignored. offset[0] should then be the last sector of the last
+ * audio track.
+ * Make sure the length of the last audio track as returned by libdiscid
+ * after a put is the same as the length of your last audio track.
+ * Depending on your tools you might need to substract 11400 (2:32 min.).
+ * See also:
+ * <a href="http://musicbrainz.org/doc/Disc_ID_Calculation">Disc ID Calculation</a>
+ *
+ *
  * @param d a DiscID object created by discid_new()
  * @param first the number of the first audio track on disc (usually one)
  * @param last the number of the last audio track on the disc

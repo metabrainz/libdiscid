@@ -60,7 +60,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("Submit via    : %s\n", discid_get_submission_url(disc));
-	printf("WS url        : %s\n", discid_get_webservice_url(disc));
 
 	discid_free(disc);
 

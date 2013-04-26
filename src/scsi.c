@@ -49,6 +49,7 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 	int bit_pos;
 	int bit;
 	unsigned char buffer;
+	/* unsigned char crc[2]; */
 
 	isrc_pos = 0;
 	/* q_channel[0] = 0x03 -> mode 3 -> ISRC data */
@@ -83,10 +84,12 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 	isrc[9] = '0' + (q_channel[7] >> 4);
 	isrc[10] = '0' + (q_channel[7] & 0x0f);
 	isrc[11] = '0' + (q_channel[8] >> 4);
-	/* q_channel[9] are zero bits
-	 * q_channel 10-12 are AFRAME
+	/* q_channel[8] & 0x0f are zero bits */
+	/* q_channel[9] is AFRAME */
+	/* TODO: actually use the CRC data
+	 * crc[0] = q_channel[10];
+	 * crc[1] = q_channel[11];
 	 */
-
 }
 
 

@@ -364,7 +364,9 @@ LIBDISCID_API int discid_get_track_offset(DiscId *d, int track_num);
 LIBDISCID_API int discid_get_track_length(DiscId *d, int track_num);
 
 /**
- * Return the Media Catalogue Number for the disc.
+ * Return the Media Catalogue Number (MCN) for the disc.
+ *
+ * This is essentially an EAN (= UPC with 0 prefix).
  *
  * \since libdiscid 0.3.0
  *

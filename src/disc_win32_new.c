@@ -18,8 +18,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 ----------------------------------------------------------------------------*/
 
 #include <windows.h>
@@ -30,6 +28,8 @@
 #endif
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+
+#define MB_DEFAULT_DEVICE	"D:"
 
 #define CD_FRAMES     75
 #define XA_INTERVAL		((60 + 90 + 2) * CD_FRAMES)
@@ -103,7 +103,8 @@ typedef union _SUB_Q_CHANNEL_DATA {
 	SUB_Q_TRACK_ISRC  TrackIsrc;
 } SUB_Q_CHANNEL_DATA;
 
-int AddressToSectors(UCHAR address[4])
+
+static int AddressToSectors(UCHAR address[4])
 {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
@@ -152,6 +153,10 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
+char *mb_disc_get_default_device_unportable(void) {
+	return MB_DEFAULT_DEVICE;
+}
+
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	switch(feature) {
 		case DISCID_FEATURE_READ:
@@ -164,7 +169,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 }
 
 
-int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device, unsigned int features)
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features)
 {
 	HANDLE hDevice;
 	DWORD dwReturned;
@@ -244,4 +249,3 @@ int mb_disc_read_unportable_nt(mb_disc_private *disc, const char *device, unsign
 }
 
 /* EOF */
-

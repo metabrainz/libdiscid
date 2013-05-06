@@ -15,8 +15,8 @@ AC_CANONICAL_HOST
 
 case "${host_cpu}-${host_os}" in
   #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;
-  *-mingw*)   os=win32; LIBS='-lwinmm' ;;
-  *-cygwin*)  os=win32; LIBS='-lwinmm' ;;
+  *-mingw*)   os=win32;;
+  *-cygwin*)  os=win32;;
   *-freebsd*) os=freebsd ;;
   *-kfreebsd*) os=freebsd ;;
   *-darwin*)  os=darwin; LIBS='-framework CoreFoundation -framework IOKit';;
@@ -32,10 +32,16 @@ dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
 
 dnl The file containing the operating system dependent disc access code.
-DISC_OS_OBJ=disc_${os}.lo
+if test "${os}" = "win32"; then
+  DISC_OS_OBJ="disc_${os}.lo disc_toc.lo"
+elif test "${os}" = "linux"; then
+  DISC_OS_OBJ="disc_${os}.lo disc_unix.lo disc_toc.lo"
+else
+  DISC_OS_OBJ=disc_${os}.lo
+fi
 AC_SUBST(DISC_OS_OBJ)
 
-AC_MSG_NOTICE([using discid implementation disc_${os}.c])
+AC_MSG_NOTICE([using discid implementation ${DISC_OS_OBJ}])
 
 
 dnl Checks for programs.

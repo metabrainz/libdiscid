@@ -35,6 +35,7 @@
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "unix.h"
 
 #define MB_DEFAULT_DEVICE   "/dev/rcd0c"
 

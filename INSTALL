@@ -1,0 +1,58 @@
+Build and Installation of Libdiscid
+===================================
+
+You can either use the autotools or Cmake to build libdiscid.
+
+
+Cmake
+-----
+
+    cmake .
+
+
+Autotools
+---------
+
+    ./configure
+
+
+Both
+----
+
+After you created the Makefiles you normally issue
+
+    make
+    make install
+
+and test with:
+
+    make check
+
+API documentation is created with:
+
+    make docs
+
+
+Tips for Windows
+----------------
+
+For most systems cmake and autotools work (nearly) "out of the box".
+On Windows the build was tested using MinGW and running in the MinGW shell:
+
+    cmake -G "MSYS Makefiles"
+    make
+
+You can also create Visual Studio project files.
+Just type "cmake" to see a list of options.
+
+
+Notes for BSD
+-------------
+
+With Cmake builds the library version/soname will work the same as on Linux.
+With the Autotools, libtool is used and generates sonames as major+minor.
+For NetBSD there seems to be a change with libdiscid 0.4.0, where libtool now
+seems to use Linux versioning (soversion=major).
+
+Please make sure that the correct soname is used.
+Libdiscid still has major version 0 and is backwards compatible to 0.1.0.

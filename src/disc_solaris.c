@@ -22,27 +22,23 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
    02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <sys/cdio.h>
-#include <assert.h>
 
+
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define MB_DEFAULT_DEVICE	"/vol/dev/aliases/cdrom0"
-
-
-char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
-}
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
@@ -80,7 +76,22 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+char *mb_disc_get_default_device_unportable(void) {
+	return MB_DEFAULT_DEVICE;
+}
+
+int mb_disc_has_feature_unportable(enum discid_feature feature) {
+	switch(feature) {
+		case DISCID_FEATURE_READ:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
 	mb_disc_toc toc;
 
 	if ( !mb_disc_unix_read_toc(disc, &toc, device) )

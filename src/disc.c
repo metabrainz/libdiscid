@@ -23,8 +23,14 @@
      $Id$
 
 --------------------------------------------------------------------------- */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string.h>
 #include <assert.h>
+#include <limits.h>
 
 #include "sha1.h"
 #include "base64.h"
@@ -127,6 +133,10 @@ char *discid_get_webservice_url(DiscId *d) {
 }
 
 int discid_read(DiscId *d, const char *device) {
+	return discid_read_sparse(d, device, UINT_MAX);
+}
+
+int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 
 	assert( disc != NULL );
@@ -139,9 +149,8 @@ int discid_read(DiscId *d, const char *device) {
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
-	return disc->success = mb_disc_read_unportable(disc, device);
+	return disc->success = mb_disc_read_unportable(disc, device, features);
 }
-
 
 int discid_put(DiscId *d, int first, int last, int *offsets) {
 	mb_disc_private *disc = (mb_disc_private *) d;
@@ -171,7 +180,6 @@ int discid_put(DiscId *d, int first, int last, int *offsets) {
 char *discid_get_default_device(void) {
 	return mb_disc_get_default_device_unportable();
 }
-
 
 int discid_get_first_track_num(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
@@ -227,6 +235,59 @@ int discid_get_track_length(DiscId *d, int i) {
 	else
 		return disc->track_offsets[0] - disc->track_offsets[i];
 }
+
+char *discid_get_mcn(DiscId *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+
+	return disc->mcn;
+}
+
+char* discid_get_track_isrc(DiscId *d, int i) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+
+	assert( disc != NULL );
+	assert( TRACK_NUM_IS_VALID(disc, i) );
+
+	if ( ! TRACK_NUM_IS_VALID(disc, i) || i == 0)
+		return NULL;
+
+  return disc->isrc[i];
+}
+
+int discid_has_feature(enum discid_feature feature) {
+	return mb_disc_has_feature_unportable(feature);
+}
+
+void discid_get_feature_list(char *features[DISCID_FEATURE_LENGTH]) {
+	int i;
+
+	/* for the code, the parameter is actually only a pointer */
+	memset(features, 0, sizeof(char *) * DISCID_FEATURE_LENGTH);
+	i = 0;
+
+	if (discid_has_feature(DISCID_FEATURE_READ)) {
+		features[i++] = DISCID_FEATURE_STR_READ;
+	}
+	if (discid_has_feature(DISCID_FEATURE_MCN)) {
+		features[i++] = DISCID_FEATURE_STR_MCN;
+	}
+	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
+		features[i++] = DISCID_FEATURE_STR_ISRC;
+	}
+
+	return;
+}
+
+char *discid_get_version_string(void) {
+#ifdef HAVE_CONFIG_H
+	return PACKAGE_STRING;
+#else
+	return "";
+#endif
+}
+
 
 
 /****************************************************************************

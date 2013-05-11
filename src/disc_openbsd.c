@@ -21,8 +21,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 
 #include <sys/types.h>
@@ -35,6 +33,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 
 #define MB_DEFAULT_DEVICE   "/dev/rcd0c"
@@ -65,7 +64,6 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 	return 1;
 }
 
-
 int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track) {
 	struct cd_toc_entry te;
 	struct ioc_read_toc_entry rte;
@@ -85,9 +83,20 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	track->control = tr.control;
 
 	return 1;
+
+
+int mb_disc_has_feature_unportable(enum discid_feature feature) {
+	switch(feature) {
+		case DISCID_FEATURE_READ:
+			return 1;
+		default:
+			return 0;
+	}
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
 	mb_disc_toc toc;
 
 	if ( !mb_disc_unix_read_toc(disc, &toc, device) )

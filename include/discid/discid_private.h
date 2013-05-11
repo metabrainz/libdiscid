@@ -27,6 +27,8 @@
 #ifndef MUSICBRAINZ_DISC_ID_PRIVATE_H
 #define MUSICBRAINZ_DISC_ID_PRIVATE_H
 
+#include "discid/discid.h"
+
 
 /* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */
 #define MB_DISC_ID_LENGTH		32
@@ -46,6 +48,12 @@
 /* The URL that can be used for retrieving XML for a CD */
 #define MB_WEBSERVICE_URL		"http://mm.musicbrainz.org/ws/1/release"
 
+/* Maximum length of a Media Catalogue Number string */
+#define MCN_STR_LENGTH		13
+
+/* Maximum length of a ISRC code string */
+#define ISRC_STR_LENGTH		12
+
 /*
  * This data structure represents an audio disc.
  *
@@ -62,6 +70,8 @@ typedef struct {
 	char submission_url[MB_MAX_URL_LENGTH+1];
 	char webservice_url[MB_MAX_URL_LENGTH+1];
 	char error_msg[MB_ERROR_MSG_LENGTH+1];
+	char isrc[100][ISRC_STR_LENGTH+1];
+	char mcn[MCN_STR_LENGTH+1];
 	int success;
 } mb_disc_private;
 
@@ -88,7 +98,7 @@ typedef struct {
  *
  * On error, 0 is returned. On success, 1 is returned.
  */
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device);
+LIBDISCID_INTERNAL int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features);
 
 
 /*
@@ -96,14 +106,19 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device);
  * on this operating system. It has to be in a format usable for the second
  * parameter of mb_disc_read_unportable().
  */
-char *mb_disc_get_default_device_unportable(void);
+LIBDISCID_INTERNAL char *mb_disc_get_default_device_unportable(void);
 
+/*
+ * This should return 1 if the feature is supported by the platform
+ * and 0 if not.
+ */
+LIBDISCID_INTERNAL int mb_disc_has_feature_unportable(enum discid_feature feature);
 
 /*
  * Load data to the mb_disc_private structure based on mb_disc_toc.
  *
  * On error, 0 is returned. On success, 1 is returned.
  */
-int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc);
+LIBDISCID_INTERNAL int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc);
 
 #endif /* MUSICBRAINZ_DISC_ID_PRIVATE_H */

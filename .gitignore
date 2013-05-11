@@ -1,0 +1,55 @@
+# Cmake files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# other created files/folders
+Doxyfile
+config.h
+versioninfo.rc
+libdiscid.pc
+docs/
+include/discid/discid.h
+
+# Autotools files
+ar-lib
+configure
+config.guess
+config.log
+config.status
+config.sub
+config.h.in
+Makefile.in
+aclocal.m4
+autom4te.cache/
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+stamp-h1
+test-driver
+.deps
+.libs
+
+# Visual Studio files
+*.suo
+*.vcxproj*
+libdiscid.sln
+libdiscid.sdf
+libdiscid.opensdf
+Debug/
+
+# Build results
+libdiscid.so*
+test_discid
+discisrc
+/discid
+examples/discid
+*.exe
+*.dll
+*.lo
+*.o
+*.la
+.dirstamp

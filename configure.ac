@@ -1,67 +1,104 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl
-dnl NOTE: Each time a release is made, the version number below and the
-dnl       libtool version number in src/Makefile.am have to be incremented.
-dnl       The libtool version number has to be changed ALWAYS, no matter how
-dnl       small the change to the source code was!
-dnl
-AC_INIT(libdiscid, 0.2.2)
+
+# VERSION NUMBERING:
+# see http://semver.org, we use that schema starting with 0.x.x
+# in short:
+# MAJOR is increased when backwards incompatible changes are made to the API
+# MINOR is increased when features are added to the API
+# PATCH is increase for all other releases
+define(MAJOR, 0)
+define(MINOR, 5)
+define(PATCH, 0)
+# currently the sole purpose of the project is the library,
+# so we use the library version also as project version
+AC_INIT(libdiscid, MAJOR.MINOR.PATCH)
+
 AC_CONFIG_SRCDIR(src/disc.c)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign subdir-objects])
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_CONFIG_HEADERS(config.h)
+
+libdiscid_MAJOR=MAJOR
+libdiscid_MINOR=MINOR
+libdiscid_PATCH=PATCH
+
+libdiscid_VERSION_LT=${libdiscid_MAJOR}:${libdiscid_MINOR}:${libdiscid_PATCH}
+libdiscid_VERSION_RC=${libdiscid_MAJOR},${libdiscid_MINOR},${libdiscid_PATCH},0
+if test $libdiscid_PATCH -lt 10; then
+  libdiscid_VERSION_NUM=${libdiscid_MINOR}0${libdiscid_PATCH}
+else
+  libdiscid_VERSION_NUM=${libdiscid_MINOR}${libdiscid_PATCH}
+fi
+AC_SUBST(libdiscid_VERSION_LT)
+AC_SUBST(libdiscid_VERSION_RC)
+AC_SUBST(libdiscid_VERSION_NUM)
+
+AC_SUBST(libdiscid_MAJOR)
+AC_SUBST(libdiscid_MINOR)
+AC_SUBST(libdiscid_PATCH)
 
 dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
 
+AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
+
+
 case "${host_cpu}-${host_os}" in
-  #*-beos*)    os=beos; LIBS='-lbe -lroot' ;;
+  #*-beos*)    os=beos;;
   *-mingw*)   os=win32;;
   *-cygwin*)  os=win32;;
   *-freebsd*) os=freebsd ;;
   *-kfreebsd*) os=freebsd ;;
-  *-darwin*)  os=darwin; LIBS='-framework CoreFoundation -framework IOKit';;
+  *-darwin*)  os=darwin;;
   *-linux*)   os=linux ;;
   *-netbsd*)  os=openbsd ;;
   *-openbsd*) os=openbsd ;;
   #*-os2_emx*) os=os2 ;;
-  *-solaris*) os=solaris; LIBS='-lsocket -lnsl' ;;
-  #*-qnx*)     os=qnx; LIBS='-lsocket' ;;
-  *)          AC_MSG_ERROR([unsupported operating system]) ;;
+  *-solaris*) os=solaris ;;
+  #*-qnx*)     os=qnx;;
+  *)          os=generic;
+	  AC_MSG_WARN([unsupported operating system, no disc reading available!]) ;;
 esac
-dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 
+AC_MSG_NOTICE([Using disc read implementation for: $os])
+#AM_CONDITIONAL([OS_BEOS], [test x$os = xbeos])
+AM_CONDITIONAL([OS_DARWIN], [test x$os = xdarwin])
+AM_CONDITIONAL([OS_FREEBSD], [test x$os = xfreebsd])
+AM_CONDITIONAL([OS_GENERIC], [test x$os = xgeneric])
+AM_CONDITIONAL([OS_LINUX], [test x$os = xlinux])
+AM_CONDITIONAL([OS_OPENBSD], [test x$os = xopenbsd])
+#AM_CONDITIONAL([OS_OS2], [test x$os = xos2])
+#AM_CONDITIONAL([OS_QNX], [test x$os = xqnx])
+AM_CONDITIONAL([OS_SOLARIS], [test x$os = xsolaris])
+AM_CONDITIONAL([OS_WIN32], [test x$os = xwin32])
 
-dnl The file containing the operating system dependent disc access code.
-if test "${os}" = "win32"; then
-  DISC_OS_OBJ="disc_${os}.lo disc_toc.lo"
-elif test "${os}" = "darwin"; then
-  DISC_OS_OBJ=disc_${os}.lo
-else
-  DISC_OS_OBJ="disc_${os}.lo disc_unix.lo disc_toc.lo"
-fi
-AC_SUBST(DISC_OS_OBJ)
-
-AC_MSG_NOTICE([using discid implementation ${DISC_OS_OBJ}])
-
+LT_INIT([win32-dll])
+LT_LANG([Windows Resource])
 
 dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_LIBTOOL
-AC_SUBST(LIBTOOL_DEPS)  
 AC_PROG_INSTALL
-
 
 dnl Test endianness and size of a long; required for the SHA1 implementation.
 AC_C_BIGENDIAN
 AC_CHECK_SIZEOF(long)
 
+if test "$cross_compiling" = "yes" && test "$os" = "win32"; then
+  AC_MSG_WARN([detected cross compilation: disabling tests!!!])
+  #AC_SUBST([TESTS_ENVIRONMENT], [wine]) doesn't work for libtool builds
+  tests_enabled=no
+else
+  tests_enabled=yes
+fi
+AM_CONDITIONAL([RUN_TESTS], [test x${tests_enabled} = xyes])
 
 if test "$GCC" = yes; then
-  CFLAGS="$CFLAGS -Wall -O2"
+  WARN_CFLAGS="-Wall"
 fi
 
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 AC_OUTPUT([
-  Makefile src/Makefile include/Makefile include/discid/Makefile
-  examples/Makefile test/Makefile libdiscid.pc Doxyfile
+  Makefile libdiscid.pc versioninfo.rc Doxyfile include/discid/discid.h
 ])

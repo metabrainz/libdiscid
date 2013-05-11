@@ -35,7 +35,6 @@
 
 #define IOCTL_CDROM_READ_TOC         0x24000
 #define IOCTL_CDROM_READ_Q_CHANNEL   0x2402c
-#define IOCTL_CDROM_GET_LAST_SESSION 0x24038
 
 typedef struct {
 	UCHAR  Reserved;
@@ -52,13 +51,6 @@ typedef struct {
 	UCHAR  LastTrack;
 	TRACK_DATA  TrackData[100];
 } CDROM_TOC;
-
-typedef struct _CDROM_TOC_SESSION_DATA {
-	UCHAR  Length[2];
-	UCHAR  FirstCompleteSession;
-	UCHAR  LastCompleteSession;
-	TRACK_DATA  TrackData[1];
-} CDROM_TOC_SESSION_DATA;
 
 #define IOCTL_CDROM_SUB_Q_CHANNEL    0x00
 #define IOCTL_CDROM_CURRENT_POSITION 0x01

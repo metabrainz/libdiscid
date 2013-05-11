@@ -39,7 +39,7 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 
 
 /*
- * This function is implemented in disc_unix.c and can be used
+ * This function is implemented in unix.c and can be used
  * after the above functions are implemented on the platform.
  */
 int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc,

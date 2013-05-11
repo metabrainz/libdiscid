@@ -70,25 +70,25 @@ libdiscid_la_LDFLAGS += -framework CoreFoundation -framework IOKit
 libdiscid_la_SOURCES += src/disc_darwin.c
 endif
 if OS_FREEBSD
-libdiscid_la_SOURCES += src/disc_toc.c src/disc_unix.c src/disc_freebsd.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_freebsd.c
 endif
 if OS_GENERIC
 libdiscid_la_SOURCES += src/disc_generic.c
 endif
 if OS_LINUX
-libdiscid_la_SOURCES += src/disc_toc.c src/disc_unix.c src/disc_linux.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_linux.c
 endif
 if OS_OPENBSD
-libdiscid_la_SOURCES += src/disc_toc.c src/disc_unix.c src/disc_openbsd.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_openbsd.c
 endif
 #if OS_QNX
 #libdiscid_la_LIBADD += -lsocket
 #endif
 if OS_SOLARIS
-libdiscid_la_SOURCES += src/disc_toc.c src/disc_unix.c src/disc_solaris.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_solaris.c
 endif
 if OS_WIN32
-libdiscid_la_SOURCES += src/disc_toc.c src/disc_win32.c versioninfo.rc
+libdiscid_la_SOURCES += src/toc.c src/disc_win32.c versioninfo.rc
 endif
 
 

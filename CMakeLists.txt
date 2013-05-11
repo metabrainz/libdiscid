@@ -73,7 +73,7 @@ ENDIF()
 
 # choose platform dependent source files
 IF(libdiscid_OS MATCHES "win32")
-    SET(libdiscid_OSDEP_SRCS src/disc_toc.c src/disc_win32.c)
+    SET(libdiscid_OSDEP_SRCS src/toc.c src/disc_win32.c)
     SET(libdiscid_RCS ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 ELSEIF(libdiscid_OS MATCHES "darwin")
     # TODO: TOC reading code for Darwin/OS X
@@ -84,7 +84,7 @@ ELSEIF(libdiscid_OS MATCHES "generic")
     SET(libdiscid_OSDEP_SRCS src/disc_${libdiscid_OS}.c)
 ELSE()
     # unix platforms are the standard/default case
-    SET(libdiscid_OSDEP_SRCS src/disc_toc.c src/disc_unix.c src/disc_${libdiscid_OS}.c)
+    SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_${libdiscid_OS}.c)
 ENDIF()
 
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")

@@ -118,7 +118,7 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
 {
     dk_cd_read_mcn_t cd_read_mcn;
     bzero(&cd_read_mcn, sizeof(cd_read_mcn));
-	
+
     if(ioctl(fd, DKIOCCDREADMCN, &cd_read_mcn) == -1) {
         fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
     } else {
@@ -131,7 +131,7 @@ static void read_disc_isrc(int fd, mb_disc_private *disc, int track)
     dk_cd_read_isrc_t	cd_read_isrc;
     bzero(&cd_read_isrc, sizeof(cd_read_isrc));
     cd_read_isrc.track = track;
-	
+
     if(ioctl(fd, DKIOCCDREADISRC, &cd_read_isrc) == -1) {
         fprintf(stderr, "Warning: Unable to read the international standard recording code (ISRC) for track %i\n", track);
         return;

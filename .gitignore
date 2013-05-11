@@ -52,3 +52,4 @@ examples/discid
 *.lo
 *.o
 *.la
+.dirstamp

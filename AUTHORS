@@ -43,3 +43,6 @@ The following people have contributed to libdiscid:
 
    Sebastian Ramacher <sramacher at debian dot org>
     - Hiding of internal symbols on Linux/Unix
+
+   Christophe Fergeau <cfergeau@redhat.com>
+    - Autotools build restructuring

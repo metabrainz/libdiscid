@@ -73,9 +73,8 @@ ENDIF()
 
 # choose platform dependent source files
 IF(libdiscid_OS MATCHES "win32")
-    SET(libdiscid_OSDEP_SRCS src/disc_win32.c src/disc_win32_new.c)
+    SET(libdiscid_OSDEP_SRCS src/disc_win32.c)
     SET(libdiscid_RCS ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
-    SET(libdiscid_OSDEP_LIBS winmm)
 ELSEIF(libdiscid_OS MATCHES "linux")
     SET(libdiscid_OSDEP_SRCS src/disc_linux.c src/scsi.c)
 ELSEIF(libdiscid_OS MATCHES "darwin")

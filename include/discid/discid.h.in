@@ -42,6 +42,14 @@
 #	define LIBDISCID_INTERNAL
 #endif
 
+#if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
+#define LIBDISCID_DEPRECATED __declspec(deprecated)
+#elif (defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))) || defined(__clang__)
+#define LIBDISCID_DEPRECATED __attribute__((deprecated))
+#else
+#define LIBDISCID_DEPRECATED
+#endif
+
 #define DISCID_VERSION_MAJOR @libdiscid_MAJOR@
 #define DISCID_VERSION_MINOR @libdiscid_MINOR@
 #define DISCID_VERSION_PATCH @libdiscid_PATCH@
@@ -134,7 +142,7 @@ LIBDISCID_API void discid_free(DiscId *d);
 
 
 /**
- * Read the disc in the given CD-ROM/DVD-ROM drive.
+ * Read all supported features of the disc in the given CD-ROM/DVD-ROM drive.
  *
  * This function reads the disc in the drive specified by the given device
  * identifier. If the device is NULL, the default drive, as returned by
@@ -159,13 +167,25 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
 
 /**
  * Read the disc in the given CD-ROM/DVD-ROM drive
- * using only the specified features.
+ * extracting only the TOC and additionally specified features.
  *
- * This function is similar to discid_read() but it allows to use only the
- * features explicitely specified.
- * By default this function will read only the TOC, but additional features
+ * This function will always read the TOC, but additional features
  * like ::DISCID_FEATURE_MCN and ::DISCID_FEATURE_ISRC can be set
- * using the features parameter. Multiple features can be set using bitwise OR.
+ * using the features parameter.
+ * Multiple features can be set using bitwise OR.
+ *
+ * If you only want to generate a disc ID, you only need the TOC,
+ * so set features to 0:
+ * \code
+ * discid_read_sparse(disc, device, 0)
+ * \endcode
+ * This is a bit more verbose, but equivalent since ::DISCID_FEATURE_READ
+ * is always implied:
+ * \code
+ * discid_read_sparse(disc, device, DISCID_FEATURE_READ)
+ * \endcode
+ *
+ * If you want to read all features available, you can use discid_read().
  *
  * On error, this function returns false and sets the error message which you
  * can access using discid_get_error_msg(). In this case, the other functions
@@ -180,7 +200,8 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  * @param features a list of bit flags from the enum ::discid_feature
  * @return true if successful, or false on error.
  */
-LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int features);
+LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device,
+				     unsigned int features);
 
 #define DISCID_HAVE_SPARSE_READ
 
@@ -198,6 +219,16 @@ LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device, unsigned int
  * The offsets parameter points to an array which contains the track offsets
  * for each track. The first element, offsets[0], is the leadout track. It
  * must contain the total number of sectors on the disc.
+ *
+ * For discs with additional data tracks, the trailing data tracks
+ * should be ignored. offset[0] should then be the last sector of the last
+ * audio track.
+ * Make sure the length of the last audio track as returned by libdiscid
+ * after a put is the same as the length of your last audio track.
+ * Depending on your tools you might need to substract 11400 (2:32 min.).
+ * See also:
+ * <a href="http://musicbrainz.org/doc/Disc_ID_Calculation">Disc ID Calculation</a>
+ *
  *
  * @param d a DiscID object created by discid_new()
  * @param first the number of the first audio track on disc (usually one)
@@ -266,8 +297,11 @@ LIBDISCID_API char *discid_get_submission_url(DiscId *d);
  *
  * @param d a DiscId object created by discid_new()
  * @return a string containing an URL
+ *
+ * @deprecated This function is deprecated. Please use libmusicbrainz instead
+ * since this function returns an URL referring the deprecated webservice.
  */
-LIBDISCID_API char *discid_get_webservice_url(DiscId *d);
+LIBDISCID_API LIBDISCID_DEPRECATED char *discid_get_webservice_url(DiscId *d);
 
 /**
  * Return the name of the default disc drive for this operating system.
@@ -330,7 +364,9 @@ LIBDISCID_API int discid_get_track_offset(DiscId *d, int track_num);
 LIBDISCID_API int discid_get_track_length(DiscId *d, int track_num);
 
 /**
- * Return the Media Catalogue Number for the disc.
+ * Return the Media Catalogue Number (MCN) for the disc.
+ *
+ * This is essentially an EAN (= UPC with 0 prefix).
  *
  * \since libdiscid 0.3.0
  *
@@ -362,7 +398,12 @@ LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
  *   - "mcn"	read MCN from disc
  *   - "isrc"	read ISRC from disc
  *
- * You can use get_feature_list() or has_feature() below.
+ * A table in the
+ * <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
+ * specifies which features are available on which platform in what version.
+ *
+ * In the code you can use discid_get_feature_list() or discid_has_feature()
+ * below to get the features for your platform in this version.
  */
 
 enum discid_feature {
@@ -372,6 +413,8 @@ enum discid_feature {
 };
 /**
  * Check if a certain feature is implemented on the current platform.
+ *
+ * This only works for single features, not bit masks with multiple features.
  *
  * \since libdiscid 0.4.0
  *

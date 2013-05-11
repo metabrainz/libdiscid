@@ -100,6 +100,32 @@ static int AddressToSectors(UCHAR address[4])
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
 
+static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
+{
+	HANDLE hDevice;
+	char filename[128], *colon;
+	int len;
+
+	strcpy(filename, "\\\\.\\");
+	len = strlen(device);
+	colon = strchr(device, ':');
+	if (colon) {
+		len = colon - device + 1;
+	}
+	strncat(filename, device, len > 120 ? 120 : len);
+
+	hDevice = CreateFile(filename, GENERIC_READ,
+	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
+	                     NULL, OPEN_EXISTING, 0, NULL);
+	if (hDevice == INVALID_HANDLE_VALUE) {
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			"couldn't open the CD audio device");
+		return 0;
+	}
+
+	return hDevice;
+}
+
 static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc)
 {
 	DWORD dwReturned;
@@ -167,25 +193,9 @@ int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *
 	DWORD dwReturned;
 	BOOL bResult;
 	CDROM_TOC cd;
-	char filename[128], *colon;
-	int i, len;
+	int i;
 
-	strcpy(filename, "\\\\.\\");
-	len = strlen(device);
-	colon = strchr(device, ':');
-	if (colon) {
-		len = colon - device + 1;
-	}
-	strncat(filename, device, len > 120 ? 120 : len);
-
-	hDevice = CreateFile(filename, GENERIC_READ,
-	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                     NULL, OPEN_EXISTING, 0, NULL);
-	if (hDevice == INVALID_HANDLE_VALUE) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			"couldn't open the CD audio device");
-		return 0;
-	}	
+	hDevice = create_device_handle(disc, device);
 
 	bResult = DeviceIoControl(hDevice, IOCTL_CDROM_READ_TOC,
 	                          NULL, 0,
@@ -228,21 +238,11 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	if ( !mb_disc_load_toc(disc, &toc) )
 		return 0;
 		
-	hDevice = CreateFile(filename, GENERIC_READ,
-	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                     NULL, OPEN_EXISTING, 0, NULL);
-	if (hDevice == INVALID_HANDLE_VALUE) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			"couldn't open the CD audio device");
-		return 0;
-	}	
+	hDevice = create_device_handle(disc, device);
 
 	if (features & DISCID_FEATURE_MCN) {
 		read_disc_mcn(hDevice, disc);
 	}
-
-	disc->first_track_num = toc.FirstTrack;
-	disc->last_track_num = toc.LastTrack;
 
 	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
 		if (features & DISCID_FEATURE_ISRC) {

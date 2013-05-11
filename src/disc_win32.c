@@ -188,13 +188,13 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned 
 	strncat(filename, device, len > 120 ? 120 : len);
 
 	hDevice = CreateFile(filename, GENERIC_READ,
-	                     FILE_SHARE_READ | FILE_SHARE_WRITE, 
-	                     NULL, OPEN_EXISTING, 0, NULL);	
+	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
+	                     NULL, OPEN_EXISTING, 0, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"couldn't open the CD audio device");
 		return 0;
-	}	
+	}
 
 	bResult = DeviceIoControl(hDevice, IOCTL_CDROM_GET_LAST_SESSION,
 	                          NULL, 0,

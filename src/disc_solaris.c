@@ -79,4 +79,17 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	return ret;
 }
 
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
+	mb_disc_toc toc;
+
+	if ( !mb_disc_unix_read_toc(disc, &toc, device) )
+		return 0;
+
+	if ( !mb_disc_load_toc(disc, &toc) )
+		return 0;
+
+	return 1;
+}
+
 /* EOF */

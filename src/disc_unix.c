@@ -20,8 +20,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id: disc_linux.c 8505 2006-09-30 00:02:18Z luks $
-
 --------------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
@@ -74,17 +72,4 @@ int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *d
 
 	return 1;
 }
-
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device) {
-	mb_disc_toc toc;
-
-	if ( !mb_disc_unix_read_toc(disc, &toc, device) )
-		return 0;
-
-	if ( !mb_disc_load_toc(disc, &toc) )
-		return 0;
-		
-	return 1;
-}
-
 /* EOF */

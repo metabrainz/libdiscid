@@ -29,6 +29,8 @@ SET(libdir ${LIB_INSTALL_DIR})
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libdiscid.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
 
+# TODO (in merge):
+# also use unix.c and toc.c on other unix platforms
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(libdiscid_OSDEP_SRCS src/disc_unix.c src/disc_toc.c src/disc_linux.c)
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

@@ -34,10 +34,10 @@ dnl AM_CONDITIONAL(DARWIN, test x$os = xdarwin)
 dnl The file containing the operating system dependent disc access code.
 if test "${os}" = "win32"; then
   DISC_OS_OBJ="disc_${os}.lo disc_toc.lo"
-elif test "${os}" = "linux"; then
-  DISC_OS_OBJ="disc_${os}.lo disc_unix.lo disc_toc.lo"
-else
+elif test "${os}" = "darwin"; then
   DISC_OS_OBJ=disc_${os}.lo
+else
+  DISC_OS_OBJ="disc_${os}.lo disc_unix.lo disc_toc.lo"
 fi
 AC_SUBST(DISC_OS_OBJ)
 

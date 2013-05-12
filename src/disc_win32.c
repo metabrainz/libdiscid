@@ -27,10 +27,12 @@
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
-#if (defined(_MSC_VER) || defined(__CYGWIN__))
+#if defined(__CYGWIN__)
 #include <ntddcdrm.h>
-#else
+#elif defined(__MINGW32__)
 #include <ddk/ntddcdrm.h>
+#else
+#include "ntddcdrm.h"
 #endif
 
 #include "discid/discid.h"
@@ -41,7 +43,7 @@
 #define CD_FRAMES     75
 #define XA_INTERVAL		((60 + 90 + 2) * CD_FRAMES)
 
-#if !(defined(_MSC_VER) || defined(__CYGWIN__))
+#ifndef __CYGWIN__
 typedef struct _CDROM_TOC_SESSION_DATA {
 	UCHAR  Length[2];
 	UCHAR  FirstCompleteSession;

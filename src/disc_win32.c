@@ -23,9 +23,14 @@
 #include <windows.h>
 #include <string.h>
 #include <stdio.h>
+
 #ifdef _MSC_VER
+#include <ntddcdrm.h>
 #define snprintf _snprintf
+#else
+#include <ddk/ntddcdrm.h>
 #endif
+
 #include "discid/discid.h"
 #include "discid/discid_private.h"
 
@@ -34,74 +39,14 @@
 #define CD_FRAMES     75
 #define XA_INTERVAL		((60 + 90 + 2) * CD_FRAMES)
 
-#define IOCTL_CDROM_READ_TOC         0x24000
-#define IOCTL_CDROM_READ_Q_CHANNEL   0x2402c
-#define IOCTL_CDROM_GET_LAST_SESSION 0x24038
-
-typedef struct {
-	UCHAR  Reserved;
-	UCHAR  Control : 4;
-	UCHAR  Adr : 4;
-	UCHAR  TrackNumber;
-	UCHAR  Reserved1;
-	UCHAR  Address[4];
-} TRACK_DATA;
-
-typedef struct {
-	UCHAR  Length[2];
-	UCHAR  FirstTrack;
-	UCHAR  LastTrack;
-	TRACK_DATA  TrackData[100];
-} CDROM_TOC;
-
+#ifndef CDROM_TOC_SESSION_DATA
 typedef struct _CDROM_TOC_SESSION_DATA {
 	UCHAR  Length[2];
 	UCHAR  FirstCompleteSession;
 	UCHAR  LastCompleteSession;
 	TRACK_DATA  TrackData[1];
 } CDROM_TOC_SESSION_DATA;
-
-#define IOCTL_CDROM_SUB_Q_CHANNEL    0x00
-#define IOCTL_CDROM_CURRENT_POSITION 0x01
-#define IOCTL_CDROM_MEDIA_CATALOG    0x02
-#define IOCTL_CDROM_TRACK_ISRC       0x03
-
-typedef struct _CDROM_SUB_Q_DATA_FORMAT {
-	UCHAR Format;
-	UCHAR Track;
-} CDROM_SUB_Q_DATA_FORMAT;
-
-typedef struct _SUB_Q_HEADER {
-	UCHAR  Reserved;
-	UCHAR  AudioStatus;
-	UCHAR  DataLength[2];
-} SUB_Q_HEADER;
-
-typedef struct _SUB_Q_MEDIA_CATALOG_NUMBER {
-	SUB_Q_HEADER  Header;
-	UCHAR  FormatCode;
-	UCHAR  Reserved[3];
-	UCHAR  Reserved1 : 7;
-	UCHAR  Mcval :1;
-	UCHAR  MediaCatalog[15];
-} SUB_Q_MEDIA_CATALOG_NUMBER;
-
-typedef struct _SUB_Q_TRACK_ISRC {
-	SUB_Q_HEADER  Header;
-	UCHAR  FormatCode;
-	UCHAR  Reserved0;
-	UCHAR  Track;
-	UCHAR  Reserved1;
-	UCHAR  Reserved2 : 7;
-	UCHAR  Tcval : 1;
-	UCHAR  TrackIsrc[15];
-} SUB_Q_TRACK_ISRC;
-
-typedef union _SUB_Q_CHANNEL_DATA {
-	/*SUB_Q_CURRENT_POSITION  CurrentPosition;*/
-	SUB_Q_MEDIA_CATALOG_NUMBER  MediaCatalog;
-	SUB_Q_TRACK_ISRC  TrackIsrc;
-} SUB_Q_CHANNEL_DATA;
+#endif
 
 
 static int AddressToSectors(UCHAR address[4])

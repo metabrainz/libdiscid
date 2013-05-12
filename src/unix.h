@@ -44,3 +44,8 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
  */
 int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc,
 			  const char *device);
+
+/*
+ * utility function to try opening the device with open()
+ */
+int mb_disc_unix_open(mb_disc_private *disc, const char *device);

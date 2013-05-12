@@ -198,11 +198,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	if ( !mb_disc_load_toc(disc, &toc) )
 		return 0;
 
-	if ((fd = open(device, O_RDONLY | O_NONBLOCK)) < 0) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			"cannot open device `%s'", device);
-		return 0;
-	}
+	fd = mb_disc_unix_open(disc, device);
 
 	/* Read in the media catalog number */
 	if (features & DISCID_FEATURE_MCN) {

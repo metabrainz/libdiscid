@@ -22,6 +22,7 @@
 
 --------------------------------------------------------------------------- */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -31,19 +32,24 @@
 #include "unix.h"
 
 
-/* TODO: make sure it's available */
-int snprintf(char *str, size_t size, const char *format, ...);
+int mb_disc_unix_open(mb_disc_private *disc, const char *device) {
+	int fd;
 
+	fd = open(device, O_RDONLY | O_NONBLOCK);
+	if (fd < 0) {
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 "cannot open device `%s'", device);
+		return 0;
+	} else {
+		return fd;
+	}
+}
 
 int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *device) {
 	int fd;
 	int i;
 
-	if ( (fd = open(device, O_RDONLY | O_NONBLOCK)) < 0 ) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			"cannot open device `%s'", device);
-		return 0;
-	}
+	fd = mb_disc_unix_open(disc, device);
 
 	/* Find the numbers of the first track (usually 1) and the last track. */
 	if ( !mb_disc_unix_read_toc_header(fd, toc) ) {

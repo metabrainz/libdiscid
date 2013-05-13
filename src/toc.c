@@ -50,18 +50,18 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 		return 0;
 	}
 
-	/* scan the TOC for audio tracks */
-	first_audio_track = -1;
+	/* we can't just skip data tracks at the front
+	 * releases are always expected to start with track 1 by MusicBrainz
+	 */
+	first_audio_track = toc->first_track_num;
 	last_audio_track = -1;
 	data_tracks = 0;
+	/* scan the TOC for audio tracks */
 	for ( i = toc->first_track_num; i <= toc->last_track_num; i++ ) {
 		track = &toc->tracks[i];
 		if ( track->control & DATA_TRACK ) {
 			data_tracks += 1;
 		} else {
-			if ( first_audio_track < 0 ) {
-				first_audio_track = i;
-			}
 			last_audio_track = i;
 		}
 	}

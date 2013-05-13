@@ -169,82 +169,86 @@ char *mb_disc_get_default_device_unportable(void)
     return defaultDevice;
 }
 
-int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
-	/* TODO */
-	return 0;
-}
-
-int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
-	/* TODO */
-	return 0;
-}
-
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) 
-{
-	int fd;
-	int i;
+int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
+	mb_disc_toc_track *track;
+	int i;
 
-	fd = mb_disc_unix_open(disc, device);
-  
 	memset(&toc, 0, sizeof(toc));
 	toc.format = kCDTOCFormatTOC;
 	toc.formatAsTime = 0;
 	toc.buffer = (char *)malloc(TOC_BUFFER_LEN);
 	toc.bufferLength = TOC_BUFFER_LEN;
-	if (ioctl(fd, DKIOCCDREADTOC, &toc) < 0 ) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "Cannot read TOC from '%s'", device);
-		free(toc.buffer);
+	if (ioctl(fd, DKIOCCDREADTOC, &toc) < 0) {
 		return 0;
 	}
-	if ( toc.bufferLength < sizeof(CDTOC) ) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "Short TOC was returned from '%s'", device);
-		free(toc.buffer);
+	if (toc.bufferLength < sizeof(CDTOC)) {
 		return 0;
 	}
 
+	cdToc = (CDTOC *)toc.buffer;
+	int numDesc = CDTOCGetDescriptorCount(cdToc);
+	for(i = 0; i < numDesc; i++) {
+		CDTOCDescriptor *desc = &cdToc->descriptors[i];
+		track = NULL;
+
+		/* A2 is the code for the lead-out position in the lead-in */
+		if (desc->point == 0xA2 && desc->adr == 1) {
+			track = &mb_toc->tracks[0];
+		}
+
+		/* actual track data, (adr 2-3 are for MCN and ISRC data) */
+		if (desc->point <= 99 && desc->adr == 1) {
+			track = &mb_toc->tracks[desc->point];
+		}
+
+		if (track) {
+			track->address = CDConvertMSFToLBA(desc->p);
+			track->control = desc->control;
+		}
+	}
+
+	mb_toc->first_track_num = cdToc->sessionFirst;
+	mb_toc->last_track_num = cdToc->sessionLast;
+
+	close(fd);
+	free(toc.buffer);
+
+	return 1;
+}
+
+int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
+	/* On Darwin the tracks are already filled along with the header */
+	return 1;
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) 
+{
+	mb_disc_toc toc;
+	int fd;
+	int i;
+
+	if (!mb_disc_unix_read_toc(disc, &toc, device)) 
+		return 0;
+	if (!mb_disc_load_toc(disc, &toc))
+		return 0;
+
+	fd = mb_disc_unix_open(disc, device);
+  
 	// Read in the media catalogue number
 	if (features & DISCID_FEATURE_MCN) {
 		read_disc_mcn(fd, disc);
 	}
 
-	cdToc = (CDTOC *)toc.buffer;
-	int numDesc = CDTOCGetDescriptorCount(cdToc);
-
-	int numTracks = 0;
-	for(i = 0; i < numDesc; i++) {
-		CDTOCDescriptor *desc = &cdToc->descriptors[i];
-
-		if (desc->session > 1) {
-			continue;
-		}
-
-		if (desc->point == 0xA2 && desc->adr == 1) {
-			disc->track_offsets[0] = CDConvertMSFToLBA(desc->p)
-						 + 150;
-		}
-
-		if (desc->point <= 99 && desc->adr == 1) {
-			disc->track_offsets[1 + numTracks] = CDConvertMSFToLBA(
-								desc->p) + 150;
-
-			// Read in the IRSC codes for tracks
-			if (features & DISCID_FEATURE_ISRC) {
-				read_disc_isrc(fd, disc, 1 + numTracks);
-			}
-
-			numTracks++;
+	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
+		// Read in the IRSC codes for tracks
+		if (features & DISCID_FEATURE_ISRC) {
+			read_disc_isrc(fd, disc, i);
 		}
 	}
-	disc->first_track_num = 1;
-	disc->last_track_num = numTracks;
-
 
 	close(fd);
-	free(toc.buffer);
   
 	return 1;
 }

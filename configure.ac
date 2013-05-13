@@ -49,6 +49,7 @@ case "${host_cpu}-${host_os}" in
   *-cygwin*)  os=win32;;
   *-freebsd*) os=freebsd ;;
   *-kfreebsd*) os=freebsd ;;
+  *-dragonfly*) os=freebsd ;;
   *-darwin*)  os=darwin;;
   *-linux*)   os=linux ;;
   *-netbsd*)  os=netbsd ;;

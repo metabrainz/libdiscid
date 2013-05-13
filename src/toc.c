@@ -73,7 +73,12 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	/* get offsets for all found data tracks */
 	for (i = first_audio_track; i <= last_audio_track; i++) {
 		track = &toc->tracks[i];
-		disc->track_offsets[i] = track->address + 150;
+		if (track->address > 0) {
+			disc->track_offsets[i] = track->address + 150;
+		} else {
+			/* this seems to happen on "copy-protected" discs */
+			disc->track_offsets[i] = 150;
+		}
 	}
 
 	/* if the last audio track is not the last track on the CD,

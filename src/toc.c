@@ -67,6 +67,12 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 		}
 	}
 
+	if (last_audio_track < 0) {
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			"no actual audio tracks on disc: CDROM or DVD?");
+		return 0;
+	}
+
 	disc->first_track_num = first_audio_track;
 	disc->last_track_num = last_audio_track;
 

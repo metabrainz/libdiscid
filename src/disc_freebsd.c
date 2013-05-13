@@ -64,12 +64,17 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	te.track = track_num;
 	te.address_format = CD_LBA_FORMAT;
 
+	/* CDIOREADTOCENTRY is created in FreeBSD because it doesn't need
+	 * an additional struct inside the te struct.
+	 * (freebsd commit ae544a60069e99ed14cab46e981a79ba165564a9)
+	 */
 	ret = ioctl(fd, CDIOREADTOCENTRY, &te);
 	assert( te.address_format == CD_LBA_FORMAT );
 
 	if ( ret < 0 )
 		return 0; /* error */
 
+	/* FreeBSD header note: the lba has network byte order */
 	track->address = ntohl(te.entry.addr.lba);
 	track->control = te.entry.control;
 

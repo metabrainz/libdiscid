@@ -38,13 +38,13 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	int first_audio_track, last_audio_track, data_tracks, i;
 	mb_disc_toc_track *track;
 
-	if ( toc->first_track_num < 1 ) {
+	if (toc->first_track_num < 1) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"invalid CD TOC - first track number must be 1 or higher");
 		return 0;
 	}
 
-	if ( toc->last_track_num < 1 ) {
+	if (toc->last_track_num < 1) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"invalid CD TOC - last track number must be 99 or lower");
 		return 0;
@@ -57,7 +57,7 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	last_audio_track = -1;
 	data_tracks = 0;
 	/* scan the TOC for audio tracks */
-	for ( i = toc->first_track_num; i <= toc->last_track_num; i++ ) {
+	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
 		track = &toc->tracks[i];
 		if ( track->control & DATA_TRACK ) {
 			data_tracks += 1;
@@ -70,19 +70,18 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	disc->last_track_num = last_audio_track;
 
 	/* get offsets for all found data tracks */
-	for ( i = first_audio_track; i <= last_audio_track; i++ ) {
+	for (i = first_audio_track; i <= last_audio_track; i++) {
 		track = &toc->tracks[i];
 		disc->track_offsets[i] = track->address + 150;
 	}
 
-	/* the last audio track is not the last track on the CD, use the offset
-	   of the next data track as the "lead-out" offset */
-	if ( last_audio_track < toc->last_track_num ) {
+	/* if the last audio track is not the last track on the CD,
+	 * use the offset of the next data track as the "lead-out" offset */
+	if (last_audio_track < toc->last_track_num) {
 		track = &toc->tracks[last_audio_track + 1];
 		disc->track_offsets[0] = track->address - XA_INTERVAL + 150;
-	}
-	/* use the regular lead-out track */
-	else {
+	} else {
+		/* use the regular lead-out track */
 		track = &toc->tracks[0];
 		disc->track_offsets[0] = track->address + 150;
 	}

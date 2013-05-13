@@ -20,13 +20,15 @@
 
 ----------------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+
 #include <windows.h>
 #include <string.h>
 #include <stdio.h>
 
-#ifdef _MSC_VER
-#define snprintf _snprintf
-#endif
 #if defined(__CYGWIN__)
 #include <ntddcdrm.h>
 #elif defined(__MINGW32__)

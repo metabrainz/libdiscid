@@ -58,21 +58,11 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 		track = &toc->tracks[i];
 		if ( track->control & DATA_TRACK ) {
 			data_tracks += 1;
-		}
-		else {
-			/* if this is the first audio track we see, set first_audio_track */
+		} else {
 			if ( first_audio_track < 0 ) {
-				if ( data_tracks ) {
-					snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-						"invalid CD TOC - data tracks before audio tracks are not supported");
-					return 0;
-				}
 				first_audio_track = i;
 			}
-			/* if we have not seen any data tracks yet, set last_audio_track */
-			if ( !data_tracks ) {
-				last_audio_track = i;
-			}
+			last_audio_track = i;
 		}
 	}
 

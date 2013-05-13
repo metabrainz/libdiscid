@@ -80,10 +80,11 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	if ( ret < 0 )
 		return 0; /* error */
 
-	track->address = tr.addr.lba;
-	track->control = tr.control;
+	track->address = te.addr.lba;
+	track->control = te.control;
 
 	return 1;
+}
 
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {

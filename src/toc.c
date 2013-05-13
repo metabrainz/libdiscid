@@ -87,6 +87,17 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 		disc->track_offsets[0] = track->address + 150;
 	}
 
+	/* as long as the lead-out isn't actually bigger than
+	 * the position of the last track, the last track is invalid.
+	 * This happens on "copy-protected"/invalid discs.
+	 * The track is then neither a valid audio track, nor data track.
+	 */
+	while (disc->track_offsets[0] < disc->track_offsets[last_audio_track]) {
+		disc->last_track_num = --last_audio_track;
+		track = &toc->tracks[last_audio_track + 1];
+		disc->track_offsets[0] = track->address - XA_INTERVAL + 150;
+	}
+
 	return 1;
 }
 

@@ -19,19 +19,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 --------------------------------------------------------------------------- */
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+
 #ifdef _MSC_VER
 #define snprintf _snprintf
+#define _CRT_SECURE_NO_WARNINGS
 #endif
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 
 #include "discid/discid_private.h"
 
 #define XA_INTERVAL		((60 + 90 + 2) * 75)
 #define DATA_TRACK		0x04
-
-int snprintf(char *str, size_t size, const char *format, ...);
 
 
 int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {

@@ -94,6 +94,7 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	 */
 	while (disc->track_offsets[0] < disc->track_offsets[last_audio_track]) {
 		disc->last_track_num = --last_audio_track;
+		disc->track_offsets[last_audio_track + 1] = 0;
 		track = &toc->tracks[last_audio_track + 1];
 		disc->track_offsets[0] = track->address - XA_INTERVAL + 150;
 	}

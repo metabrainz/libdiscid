@@ -77,7 +77,7 @@ IF(libdiscid_OS MATCHES "win32")
     SET(libdiscid_RCS ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 ELSEIF(libdiscid_OS MATCHES "darwin")
     # TODO: TOC reading code for Darwin/OS X
-    SET(libdiscid_OSDEP_SRCS src/disc_darwin.c)
+    SET(libdiscid_OSDEP_SRCS src/unix.c src/disc_darwin.c)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
 ELSEIF(libdiscid_OS MATCHES "generic")

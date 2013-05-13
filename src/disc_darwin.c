@@ -44,6 +44,7 @@
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "unix.h"
 
 #define TOC_BUFFER_LEN 2048
 #define MAXPATHLEN     1024
@@ -168,6 +169,16 @@ char *mb_disc_get_default_device_unportable(void)
     return defaultDevice;
 }
 
+int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
+	/* TODO */
+	return 0;
+}
+
+int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
+	/* TODO */
+	return 0;
+}
+
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) 
 {
 	int fd;
@@ -175,23 +186,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned 
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
 
-	if (device == NULL || *device == 0) {
-		device = mb_disc_get_default_device_unportable();
-	}
-
-	if (!*device) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "No CD-ROMs found. Please insert a disc and try again."
-			);
-		return 0;
-	}
-  
-	fd = open(device, O_RDONLY | O_NONBLOCK);
-	if (fd < 0) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "Cannot open '%s'", device);
-		return 0;
-	}
+	fd = mb_disc_unix_open(disc, device);
   
 	memset(&toc, 0, sizeof(toc));
 	toc.format = kCDTOCFormatTOC;

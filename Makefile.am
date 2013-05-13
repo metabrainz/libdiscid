@@ -67,7 +67,7 @@ libdiscid_la_LIBADD =
 #endif
 if OS_DARWIN
 libdiscid_la_LDFLAGS += -framework CoreFoundation -framework IOKit
-libdiscid_la_SOURCES += src/disc_darwin.c
+libdiscid_la_SOURCES += src/unix.c src/disc_darwin.c
 endif
 if OS_FREEBSD
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_freebsd.c

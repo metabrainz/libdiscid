@@ -78,8 +78,8 @@ endif
 if OS_LINUX
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_linux.c
 endif
-if OS_OPENBSD
-libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_openbsd.c
+if OS_NETBSD
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_netbsd.c
 endif
 #if OS_QNX
 #libdiscid_la_LIBADD += -lsocket

@@ -56,7 +56,7 @@ discisrc_LDADD = $(top_builddir)/libdiscid.la
 lib_LTLIBRARIES = libdiscid.la
 
 libdiscid_la_SOURCES = src/base64.c src/sha1.c src/disc.c
-libdiscid_la_SOURCES += src/base64.h src/sha1.h src/unix.h
+libdiscid_la_SOURCES += src/base64.h src/sha1.h src/unix.h src/ntddcdrm.h
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined

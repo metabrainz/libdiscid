@@ -173,7 +173,8 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
 	mb_disc_toc_track *track;
-	int i;
+	int i, numDesc;
+	int track_num, min_track, max_track;
 
 	memset(&toc, 0, sizeof(toc));
 	toc.format = kCDTOCFormatTOC;
@@ -188,7 +189,9 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 	}
 
 	cdToc = (CDTOC *)toc.buffer;
-	int numDesc = CDTOCGetDescriptorCount(cdToc);
+	numDesc = CDTOCGetDescriptorCount(cdToc);
+	min_track = -1;
+	max_track = -1;
 	for(i = 0; i < numDesc; i++) {
 		CDTOCDescriptor *desc = &cdToc->descriptors[i];
 		track = NULL;
@@ -200,7 +203,14 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 
 		/* actual track data, (adr 2-3 are for MCN and ISRC data) */
 		if (desc->point <= 99 && desc->adr == 1) {
-			track = &mb_toc->tracks[desc->point];
+			track_num = desc->point;
+			track = &mb_toc->tracks[track_num];
+			if (min_track < 0 || min_track > track_num) {
+				min_track = track_num;
+			}
+			if (max_track < track_num) {
+				max_track = track_num;
+			}
 		}
 
 		if (track) {
@@ -209,8 +219,8 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 		}
 	}
 
-	mb_toc->first_track_num = cdToc->sessionFirst;
-	mb_toc->last_track_num = cdToc->sessionLast;
+	mb_toc->first_track_num = min_track;
+	mb_toc->last_track_num = max_track;
 
 	close(fd);
 	free(toc.buffer);

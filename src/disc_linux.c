@@ -89,7 +89,7 @@ char *mb_disc_get_default_device_unportable(void) {
 	return MB_DEFAULT_DEVICE;
 }
 
-static void read_disc_mcn(int fd, mb_disc_private *disc)
+void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
 {
 	struct cdrom_mcn mcn;
 
@@ -131,7 +131,7 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	}
 }
 
-static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
+void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 	int i;
 	unsigned char cmd[10];
 	unsigned char data[24];
@@ -171,7 +171,6 @@ static void read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 		strncpy(disc->isrc[track_num], buffer, ISRC_STR_LENGTH);
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
-
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -183,38 +182,6 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 		default:
 			return 0;
 	}
-}
-
-
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
-			    unsigned int features) {
-	mb_disc_toc toc;
-	int fd;
-	int i;
-
-	if ( !mb_disc_unix_read_toc(disc, &toc, device) )
-		return 0;
-
-	if ( !mb_disc_load_toc(disc, &toc) )
-		return 0;
-
-	fd = mb_disc_unix_open(disc, device);
-
-	/* Read in the media catalog number */
-	if (features & DISCID_FEATURE_MCN) {
-		read_disc_mcn(fd, disc);
-	}
-
-	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
-		/* Read the ISRC for the track */
-		if (features & DISCID_FEATURE_ISRC) {
-			read_track_isrc(fd, disc, i);
-		}
-	}
-
-	close(fd);
-
-	return 1;
 }
 
 /* EOF */

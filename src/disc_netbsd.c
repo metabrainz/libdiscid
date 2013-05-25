@@ -86,6 +86,13 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	return 1;
 }
 
+void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
+	return;
+}
+
+void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
+	return;
+}
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	switch(feature) {
@@ -94,18 +101,4 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 		default:
 			return 0;
 	}
-}
-
-
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
-			    unsigned int features) {
-	mb_disc_toc toc;
-
-	if ( !mb_disc_unix_read_toc(disc, &toc, device) )
-		return 0;
-
-	if ( !mb_disc_load_toc(disc, &toc) )
-		return 0;
-
-	return 1;
 }

@@ -19,8 +19,6 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id: mb_darwin.cpp,v 1.4 2005/10/28 22:05:27 robert Exp $
-
 ----------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -46,6 +44,7 @@
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "unix.h"
 
 #define TOC_BUFFER_LEN 2048
 #define MAXPATHLEN     1024
@@ -114,7 +113,7 @@ static kern_return_t get_device_file_path( io_iterator_t mediaIterator, char *de
     return kernResult;
 }
 
-static void read_disc_mcn(int fd, mb_disc_private *disc)
+void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
 {
     dk_cd_read_mcn_t cd_read_mcn;
     bzero(&cd_read_mcn, sizeof(cd_read_mcn));
@@ -126,7 +125,7 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
     }
 }
 
-static void read_disc_isrc(int fd, mb_disc_private *disc, int track)
+void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track)
 {
     dk_cd_read_isrc_t	cd_read_isrc;
     bzero(&cd_read_isrc, sizeof(cd_read_isrc));
@@ -170,88 +169,66 @@ char *mb_disc_get_default_device_unportable(void)
     return defaultDevice;
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) 
-{
-	int fd;
-	int i;
+int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 	dk_cd_read_toc_t toc;
 	CDTOC *cdToc;
+	mb_disc_toc_track *track;
+	int i, numDesc;
+	int track_num, min_track, max_track;
 
-	if (device == NULL || *device == 0) {
-		device = mb_disc_get_default_device_unportable();
-	}
-
-	if (!*device) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "No CD-ROMs found. Please insert a disc and try again."
-			);
-		return 0;
-	}
-  
-	fd = open(device, O_RDONLY | O_NONBLOCK);
-	if (fd < 0) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "Cannot open '%s'", device);
-		return 0;
-	}
-  
 	memset(&toc, 0, sizeof(toc));
 	toc.format = kCDTOCFormatTOC;
 	toc.formatAsTime = 0;
 	toc.buffer = (char *)malloc(TOC_BUFFER_LEN);
 	toc.bufferLength = TOC_BUFFER_LEN;
-	if (ioctl(fd, DKIOCCDREADTOC, &toc) < 0 ) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "Cannot read TOC from '%s'", device);
-		free(toc.buffer);
+	if (ioctl(fd, DKIOCCDREADTOC, &toc) < 0) {
 		return 0;
 	}
-	if ( toc.bufferLength < sizeof(CDTOC) ) {
-		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			 "Short TOC was returned from '%s'", device);
-		free(toc.buffer);
+	if (toc.bufferLength < sizeof(CDTOC)) {
 		return 0;
-	}
-
-	// Read in the media catalogue number
-	if (features & DISCID_FEATURE_MCN) {
-		read_disc_mcn(fd, disc);
 	}
 
 	cdToc = (CDTOC *)toc.buffer;
-	int numDesc = CDTOCGetDescriptorCount(cdToc);
-
-	int numTracks = 0;
+	numDesc = CDTOCGetDescriptorCount(cdToc);
+	min_track = -1;
+	max_track = -1;
 	for(i = 0; i < numDesc; i++) {
 		CDTOCDescriptor *desc = &cdToc->descriptors[i];
+		track = NULL;
 
-		if (desc->session > 1) {
-			continue;
-		}
-
+		/* A2 is the code for the lead-out position in the lead-in */
 		if (desc->point == 0xA2 && desc->adr == 1) {
-			disc->track_offsets[0] = CDConvertMSFToLBA(desc->p)
-						 + 150;
+			track = &mb_toc->tracks[0];
 		}
 
+		/* actual track data, (adr 2-3 are for MCN and ISRC data) */
 		if (desc->point <= 99 && desc->adr == 1) {
-			disc->track_offsets[1 + numTracks] = CDConvertMSFToLBA(
-								desc->p) + 150;
-
-			// Read in the IRSC codes for tracks
-			if (features & DISCID_FEATURE_ISRC) {
-				read_disc_isrc(fd, disc, 1 + numTracks);
+			track_num = desc->point;
+			track = &mb_toc->tracks[track_num];
+			if (min_track < 0 || min_track > track_num) {
+				min_track = track_num;
 			}
+			if (max_track < track_num) {
+				max_track = track_num;
+			}
+		}
 
-			numTracks++;
+		if (track) {
+			track->address = CDConvertMSFToLBA(desc->p);
+			track->control = desc->control;
 		}
 	}
-	disc->first_track_num = 1;
-	disc->last_track_num = numTracks;
 
+	mb_toc->first_track_num = min_track;
+	mb_toc->last_track_num = max_track;
 
 	close(fd);
 	free(toc.buffer);
-  
+
+	return 1;
+}
+
+int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
+	/* On Darwin the tracks are already filled along with the header */
 	return 1;
 }

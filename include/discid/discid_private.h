@@ -75,6 +75,16 @@ typedef struct {
 	int success;
 } mb_disc_private;
 
+typedef struct {
+	int control;
+	int address;
+} mb_disc_toc_track;
+
+typedef struct {
+	int first_track_num;
+	int last_track_num;
+	mb_disc_toc_track tracks[100];
+} mb_disc_toc;
 
 /*
  * This function has to be implemented once per operating system.
@@ -103,5 +113,12 @@ LIBDISCID_INTERNAL char *mb_disc_get_default_device_unportable(void);
  * and 0 if not.
  */
 LIBDISCID_INTERNAL int mb_disc_has_feature_unportable(enum discid_feature feature);
+
+/*
+ * Load data to the mb_disc_private structure based on mb_disc_toc.
+ *
+ * On error, 0 is returned. On success, 1 is returned.
+ */
+LIBDISCID_INTERNAL int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc);
 
 #endif /* MUSICBRAINZ_DISC_ID_PRIVATE_H */

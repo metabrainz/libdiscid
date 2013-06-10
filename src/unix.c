@@ -45,11 +45,8 @@ int mb_disc_unix_open(mb_disc_private *disc, const char *device) {
 	}
 }
 
-int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *device) {
-	int fd;
+int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
 	int i;
-
-	fd = mb_disc_unix_open(disc, device);
 
 	/* Find the numbers of the first track (usually 1) and the last track. */
 	if ( !mb_disc_unix_read_toc_header(fd, toc) ) {
@@ -74,6 +71,37 @@ int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *d
 		mb_disc_unix_read_toc_entry(fd, i, &toc->tracks[i]);
 	}
 	mb_disc_unix_read_toc_entry(fd, 0xAA, &toc->tracks[0]);
+
+	return 1;
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	mb_disc_toc toc;
+	int fd;
+	int i;
+
+	fd = mb_disc_unix_open(disc, device);
+
+	if ( !mb_disc_unix_read_toc(fd, disc, &toc) )
+		return 0;
+
+	if ( !mb_disc_load_toc(disc, &toc) )
+		return 0;
+
+	/* Read in the media catalog number */
+	if (features & DISCID_FEATURE_MCN
+		&& mb_disc_has_feature_unportable(DISCID_FEATURE_MCN)) {
+		mb_disc_unix_read_mcn(fd, disc);
+	}
+
+	/* Read the ISRC for the track */
+	if (features & DISCID_FEATURE_ISRC
+		&& mb_disc_has_feature_unportable(DISCID_FEATURE_ISRC)) {
+		for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
+			mb_disc_unix_read_isrc(fd, disc, i);
+		}
+	}
 
 	close(fd);
 

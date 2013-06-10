@@ -36,7 +36,7 @@
 
 
 int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
-	int first_audio_track, last_audio_track, data_tracks, i;
+	int first_audio_track, last_audio_track, i;
 	mb_disc_toc_track *track;
 
 	if (toc->first_track_num < 1) {
@@ -56,13 +56,10 @@ int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc)  {
 	 */
 	first_audio_track = toc->first_track_num;
 	last_audio_track = -1;
-	data_tracks = 0;
 	/* scan the TOC for audio tracks */
 	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
 		track = &toc->tracks[i];
-		if ( track->control & DATA_TRACK ) {
-			data_tracks += 1;
-		} else {
+		if ( !(track->control & DATA_TRACK) ) {
 			last_audio_track = i;
 		}
 	}

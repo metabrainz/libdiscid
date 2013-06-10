@@ -55,8 +55,7 @@ LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, in
  * This function is implemented in unix.c and can be used
  * after the above functions are implemented on the platform.
  */
-LIBDISCID_INTERNAL int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc,
-			  const char *device);
+LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc);
 
 /*
  * utility function to try opening the device with open()

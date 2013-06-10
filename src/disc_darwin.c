@@ -113,7 +113,7 @@ static kern_return_t get_device_file_path( io_iterator_t mediaIterator, char *de
     return kernResult;
 }
 
-static void read_disc_mcn(int fd, mb_disc_private *disc)
+void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
 {
     dk_cd_read_mcn_t cd_read_mcn;
     bzero(&cd_read_mcn, sizeof(cd_read_mcn));
@@ -125,7 +125,7 @@ static void read_disc_mcn(int fd, mb_disc_private *disc)
     }
 }
 
-static void read_disc_isrc(int fd, mb_disc_private *disc, int track)
+void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track)
 {
     dk_cd_read_isrc_t	cd_read_isrc;
     bzero(&cd_read_isrc, sizeof(cd_read_isrc));
@@ -230,35 +230,5 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 
 int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
 	/* On Darwin the tracks are already filled along with the header */
-	return 1;
-}
-
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device, unsigned int features) 
-{
-	mb_disc_toc toc;
-	int fd;
-	int i;
-
-	if (!mb_disc_unix_read_toc(disc, &toc, device)) 
-		return 0;
-	if (!mb_disc_load_toc(disc, &toc))
-		return 0;
-
-	fd = mb_disc_unix_open(disc, device);
-  
-	// Read in the media catalogue number
-	if (features & DISCID_FEATURE_MCN) {
-		read_disc_mcn(fd, disc);
-	}
-
-	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
-		// Read in the IRSC codes for tracks
-		if (features & DISCID_FEATURE_ISRC) {
-			read_disc_isrc(fd, disc, i);
-		}
-	}
-
-	close(fd);
-  
 	return 1;
 }

@@ -28,24 +28,36 @@
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc);
+LIBDISCID_INTERNAL int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc);
 
 /*
  * Read a TOC entry for a certain track from disc
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track);
+LIBDISCID_INTERNAL int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track);
 
+/*
+ * Read the MCN from the disc
+ *
+ * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
+ */
+LIBDISCID_INTERNAL void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc);
+
+/*
+ * Read the ISRC for a certain track from disc
+ *
+ * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
+ */
+LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num);
 
 /*
  * This function is implemented in unix.c and can be used
  * after the above functions are implemented on the platform.
  */
-int mb_disc_unix_read_toc(mb_disc_private *disc, mb_disc_toc *toc,
-			  const char *device);
+LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc);
 
 /*
  * utility function to try opening the device with open()
  */
-int mb_disc_unix_open(mb_disc_private *disc, const char *device);
+LIBDISCID_INTERNAL int mb_disc_unix_open(mb_disc_private *disc, const char *device);

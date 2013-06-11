@@ -151,6 +151,14 @@ int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
+	/* pre-read the TOC to reduce "not-ready" problems
+	 * See LIB-44 (issues with multi-session discs)
+	 */
+	if (!mb_disc_read_unportable(disc, device, DISCID_FEATURE_READ)) {
+		return 0;
+	}
+	memset(disc, 0, sizeof(mb_disc_private));
+
 	return disc->success = mb_disc_read_unportable(disc, device, features);
 }
 

@@ -37,13 +37,11 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#define MB_DEFAULT_DEVICE   "/dev/rcd0c"
-
-#ifdef __NetBSD__
-    #ifdef __i386__
-        #define MB_DEFAULT_DEVICE   "/dev/rcd0d"
-    #endif/* __i386__ */
-#endif/* __NetBSD__ */
+#if (defined(__NetBSD__) && defined(__i386__))
+	#define MB_DEFAULT_DEVICE   "/dev/rcd0d"
+#else
+	#define MB_DEFAULT_DEVICE   "/dev/rcd0c"
+#endif
 
 
 char *mb_disc_get_default_device_unportable(void) {

@@ -37,7 +37,7 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#if (defined(__NetBSD__) && defined(__i386__))
+#if (defined(__NetBSD__) && (defined(__i386__) || defined(__x86_64__)))
 	#define MB_DEFAULT_DEVICE   "/dev/rcd0d"
 #else
 	#define MB_DEFAULT_DEVICE   "/dev/rcd0c"

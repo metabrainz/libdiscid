@@ -10,6 +10,7 @@ libdiscid-0.5.1:
  - LIB-44: fix invalid disc IDs on first read of multi-session discs
  - LIB-37: Autotools optimization (non-recursive build etc.)
  - LIB-42: remove Windows 9x platform code
+   renamed openbsd platform code to netbsd, still used by both.
 
 libdiscid-0.5.0:
 

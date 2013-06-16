@@ -11,6 +11,7 @@ The following people have contributed to libdiscid:
    Lukáš Lalinský <lalinsky at gmail dot com>
     - Ported the win32 code and added a Makefile for MSVC.
     - Added FreeDB support and a test program.
+    - Started multi-session disc restructuring
     - Several other useful changes.
 
    Robert Kaye <rob at eorbit dot net>
@@ -32,6 +33,7 @@ The following people have contributed to libdiscid:
    Johannes Dewender <brainz at JonnyJD dot net>
     - Implemented ISRC reading on Linux
     - Implemented features API and generic platform
+    - Finished multi-session disc restructuring
     - Various build system fixes/improvements
       Completed CMake support on all platforms
       Switch to libtool -version-number
@@ -40,6 +42,7 @@ The following people have contributed to libdiscid:
    Philipp Wolfer <ph.wolfer at gmail dot com>
     - Implemented MCN reading on Linux
     - Implemented read_sparse()
+    - Various fixes and refactoring
 
    Sebastian Ramacher <sramacher at debian dot org>
     - Hiding of internal symbols on Linux/Unix

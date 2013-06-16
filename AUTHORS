@@ -45,7 +45,7 @@ The following people have contributed to libdiscid:
     - Various fixes and refactoring
 
    Sebastian Ramacher <sramacher at debian dot org>
-    - Hiding of internal symbols on Linux/Unix
+    - Hiding of internal symbols on Linux/Unix, deprecation of symbols
 
    Christophe Fergeau <cfergeau@redhat.com>
     - Autotools build restructuring

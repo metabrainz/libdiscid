@@ -39,7 +39,11 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#define MB_DEFAULT_DEVICE		"/dev/acd0"
+#if __FreeBSD__ >= 9
+	#define MB_DEFAULT_DEVICE		"/dev/cd0"
+#else
+	#define MB_DEFAULT_DEVICE		"/dev/acd0"
+#endif
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {

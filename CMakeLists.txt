@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
-PROJECT(libdiscid)
+PROJECT(libdiscid C)
 
 # VERSION NUMBERING:
 # see http://semver.org, we use that schmea starting with 0.x.x already though

@@ -58,6 +58,11 @@ LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, in
 LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc);
 
 /*
+ * utility function to test for device existance
+ */
+LIBDISCID_INTERNAL int mb_disc_unix_exists(const char *device);
+
+/*
  * utility function to try opening the device with open()
  */
 LIBDISCID_INTERNAL int mb_disc_unix_open(mb_disc_private *disc, const char *device);

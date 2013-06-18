@@ -27,10 +27,27 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "discid/discid_private.h"
 #include "unix.h"
 
+
+int mb_disc_unix_exists(const char *device) {
+	int fd;
+	fd = open(device, O_RDONLY | O_NONBLOCK);
+	if (fd < 0) {
+		/* we only check for existance, access should fail later on */
+		if (errno == ENOENT) {
+			return 0;
+		} else {
+			return 1;
+		}
+	} else {
+		close(fd);
+		return 1;
+	}
+}
 
 int mb_disc_unix_open(mb_disc_private *disc, const char *device) {
 	int fd;

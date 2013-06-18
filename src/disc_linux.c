@@ -40,8 +40,6 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#define MB_DEFAULT_DEVICE	"/dev/cdrom"
-
 
 /* timeout better shouldn't happen for scsi commands -> device is reset */
 #define DEFAULT_TIMEOUT 30000	/* in ms */
@@ -49,6 +47,11 @@
 #ifndef SG_MAX_SENSE
 #define SG_MAX_SENSE 16
 #endif
+
+#define NUM_DEVICE_NAMES 2
+
+static char *device_candidates[NUM_DEVICE_NAMES] = {"/dev/cdrom",
+						    "/dev/cdrom1"};
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
@@ -86,7 +89,15 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+	int i;
+
+	for (i = 0; i < NUM_DEVICE_NAMES; i++) {
+		if (mb_disc_unix_exists(device_candidates[i])) {
+			return device_candidates[i];
+		}
+	}
+	/* use the first name for the error message later on */
+	return device_candidates[0];
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)

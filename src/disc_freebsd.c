@@ -42,6 +42,7 @@
 
 #define NUM_CANDIDATES 2
 
+/* starting with FreeBSD 9 /dev/cd0 is always used, /dev/acd0 is deprecated */
 static char *device_candidates[NUM_CANDIDATES] = {"/dev/cd0", "/dev/acd0"};
 
 

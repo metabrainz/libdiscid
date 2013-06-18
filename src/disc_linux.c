@@ -50,8 +50,7 @@
 
 #define NUM_CANDIDATES 2
 
-static char *device_candidates[NUM_DEVICE_NAMES] = {"/dev/cdrom",
-						    "/dev/cdrom1"};
+static char *device_candidates[NUM_CANDIDATES] = {"/dev/cdrom", "/dev/cdrom1"};
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {

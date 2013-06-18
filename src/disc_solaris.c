@@ -87,16 +87,7 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	int i;
-
-	for (i = 0; i < NUM_CANDIDATES; i++) {
-		if (mb_disc_unix_exists(device_candidates[i])) {
-			fprintf(stderr, "%s\n",  device_candidates[i]);
-			return device_candidates[i];
-		}
-	}
-	/* use the first name for the error message later on */
-	return device_candidates[0];
+	return mb_disc_unix_find_device(device_candidates, NUM_CANDIDATES);
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {

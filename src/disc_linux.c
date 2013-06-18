@@ -48,7 +48,7 @@
 #define SG_MAX_SENSE 16
 #endif
 
-#define NUM_DEVICE_NAMES 2
+#define NUM_CANDIDATES 2
 
 static char *device_candidates[NUM_DEVICE_NAMES] = {"/dev/cdrom",
 						    "/dev/cdrom1"};
@@ -89,15 +89,7 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	int i;
-
-	for (i = 0; i < NUM_DEVICE_NAMES; i++) {
-		if (mb_disc_unix_exists(device_candidates[i])) {
-			return device_candidates[i];
-		}
-	}
-	/* use the first name for the error message later on */
-	return device_candidates[0];
+	return mb_disc_unix_find_device(device_candidates, NUM_CANDIDATES);
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)

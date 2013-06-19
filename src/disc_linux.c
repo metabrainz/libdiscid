@@ -49,8 +49,10 @@
 #endif
 
 #define NUM_CANDIDATES 2
+#define MAX_DEV_LEN 50
 
 static char *device_candidates[NUM_CANDIDATES] = {"/dev/cdrom", "/dev/cdrom1"};
+static char default_device[MAX_DEV_LEN] = "\0";
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
@@ -88,7 +90,44 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	return mb_disc_unix_find_device(device_candidates, NUM_CANDIDATES);
+	FILE *proc_file;
+	char *current_device;
+	char *lineptr = NULL;
+	size_t bufflen;
+
+	proc_file = fopen("/proc/sys/dev/cdrom/info", "r");
+	if (proc_file != NULL) {
+		do {
+			if (getline(&lineptr, &bufflen, proc_file) < 0) {
+				/* no devices detected at all
+				 * get one for error message
+				 */
+				return mb_disc_unix_find_device(
+						device_candidates,
+						NUM_CANDIDATES);
+			}
+		} while (strstr(lineptr, "drive name:") == NULL);
+		current_device = strtok(lineptr, "\t");
+		while (current_device != NULL) {
+			current_device = strtok(NULL, "\t");
+			if (current_device != NULL) {
+				snprintf(default_device, MAX_DEV_LEN,
+					 "/dev/%s", current_device);
+			}
+		}
+		/* trim the trailing \n */
+		default_device[strlen(default_device)-1] = '\0';
+
+		free(lineptr);
+		fclose(proc_file);
+	}
+
+	if (strlen(default_device) > 0) {
+		return default_device;
+	} else {
+		return mb_disc_unix_find_device(device_candidates,
+						NUM_CANDIDATES);
+	}
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)

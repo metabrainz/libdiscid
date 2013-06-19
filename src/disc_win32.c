@@ -186,7 +186,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 	if ( !mb_disc_load_toc(disc, &toc) )
 		return 0;
-		
+
 	hDevice = create_device_handle(disc, device);
 
 	if (features & DISCID_FEATURE_MCN) {
@@ -204,4 +204,3 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 }
 
 /* EOF */
-

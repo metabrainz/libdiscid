@@ -48,10 +48,9 @@
 #define SG_MAX_SENSE 16
 #endif
 
-#define NUM_CANDIDATES 2
+#define MB_DEFAULT_DEVICE "/dev/cdrom"
 #define MAX_DEV_LEN 50
 
-static char *device_candidates[NUM_CANDIDATES] = {"/dev/cdrom", "/dev/cdrom1"};
 static char default_device[MAX_DEV_LEN] = "\0";
 
 
@@ -95,16 +94,19 @@ char *mb_disc_get_default_device_unportable(void) {
 	char *lineptr = NULL;
 	size_t bufflen;
 
+	/* prefer the default device symlink to the internal names */
+	if (mb_disc_unix_exists(MB_DEFAULT_DEVICE)) {
+		return MB_DEFAULT_DEVICE;
+	}
+
 	proc_file = fopen("/proc/sys/dev/cdrom/info", "r");
 	if (proc_file != NULL) {
 		do {
 			if (getline(&lineptr, &bufflen, proc_file) < 0) {
 				/* no devices detected at all
-				 * get one for error message
+				 * get one for the error message later on
 				 */
-				return mb_disc_unix_find_device(
-						device_candidates,
-						NUM_CANDIDATES);
+				return MB_DEFAULT_DEVICE;
 			}
 		} while (strstr(lineptr, "drive name:") == NULL);
 		current_device = strtok(lineptr, "\t");
@@ -125,8 +127,8 @@ char *mb_disc_get_default_device_unportable(void) {
 	if (strlen(default_device) > 0) {
 		return default_device;
 	} else {
-		return mb_disc_unix_find_device(device_candidates,
-						NUM_CANDIDATES);
+		/* This probably won't happen. No drives -> no /proc info */
+		return MB_DEFAULT_DEVICE;
 	}
 }
 

@@ -24,6 +24,11 @@
 
 
 /*
+ * required functions
+ * ------------------
+ */
+
+/*
  * Read the TOC header from disc
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
@@ -53,12 +58,23 @@ LIBDISCID_INTERNAL void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc);
 LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc,
 					       int track_num);
 
+
+/*
+ * provided functions
+ * ------------------
+ */
+
 /*
  * This function is implemented in unix.c and can be used
  * after the above functions are implemented on the platform.
  */
 LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc,
 					     mb_disc_toc *toc);
+
+/*
+ * utility function to find an existing device from a candidate list
+ */
+LIBDISCID_INTERNAL int mb_disc_unix_exists(const char *device);
 
 /*
  * utility function to find an existing device from a candidate list

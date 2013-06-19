@@ -33,7 +33,7 @@
 #include "unix.h"
 
 
-static int exists(const char *device) {
+int mb_disc_unix_exists(const char *device) {
 	int fd;
 	fd = open(device, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
@@ -53,7 +53,7 @@ char *mb_disc_unix_find_device(char *candidates[], int num_candidates) {
 	int i;
 
 	for (i = 0; i < num_candidates; i++) {
-		if (exists(candidates[i])) {
+		if (mb_disc_unix_exists(candidates[i])) {
 			return candidates[i];
 		}
 	}

@@ -57,6 +57,7 @@ lib_LTLIBRARIES = libdiscid.la
 
 libdiscid_la_SOURCES = src/base64.c src/sha1.c src/disc.c
 libdiscid_la_SOURCES += src/base64.h src/sha1.h src/scsi.h
+libdiscid_la_SOURCES += src/unix.h src/ntddcdrm.h
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined
@@ -67,28 +68,28 @@ libdiscid_la_LIBADD =
 #endif
 if OS_DARWIN
 libdiscid_la_LDFLAGS += -framework CoreFoundation -framework IOKit
-libdiscid_la_SOURCES += src/disc_darwin.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_darwin.c
 endif
 if OS_FREEBSD
-libdiscid_la_SOURCES += src/disc_freebsd.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_freebsd.c
 endif
 if OS_GENERIC
 libdiscid_la_SOURCES += src/disc_generic.c
 endif
 if OS_LINUX
-libdiscid_la_SOURCES += src/disc_linux.c src/scsi.c
+libdiscid_la_SOURCES += src/toc.c src/scsi.c src/unix.c src/disc_linux.c
 endif
-if OS_OPENBSD
-libdiscid_la_SOURCES += src/disc_openbsd.c
+if OS_NETBSD
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_netbsd.c
 endif
 #if OS_QNX
 #libdiscid_la_LIBADD += -lsocket
 #endif
 if OS_SOLARIS
-libdiscid_la_SOURCES += src/disc_solaris.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_solaris.c
 endif
 if OS_WIN32
-libdiscid_la_SOURCES += src/disc_win32.c versioninfo.rc
+libdiscid_la_SOURCES += src/toc.c src/disc_win32.c versioninfo.rc
 endif
 
 

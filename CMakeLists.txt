@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
-PROJECT(libdiscid)
+PROJECT(libdiscid C)
 
 # VERSION NUMBERING:
 # see http://semver.org, we use that schmea starting with 0.x.x already though
@@ -11,7 +11,7 @@ PROJECT(libdiscid)
 # PATCH is increase for all other releases
 SET(libdiscid_MAJOR 0)
 SET(libdiscid_MINOR 5)
-SET(libdiscid_PATCH 0)
+SET(libdiscid_PATCH 1)
 
 
 SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})
@@ -56,10 +56,10 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(libdiscid_OS "darwin")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     SET(libdiscid_OS "freebsd")
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
-    SET(libdiscid_OS "openbsd")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
-    SET(libdiscid_OS "openbsd")
+    SET(libdiscid_OS "netbsd")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
+    SET(libdiscid_OS "netbsd")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
     SET(libdiscid_OS "solaris")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -73,16 +73,20 @@ ENDIF()
 
 # choose platform dependent source files
 IF(libdiscid_OS MATCHES "win32")
-    SET(libdiscid_OSDEP_SRCS src/disc_win32.c)
+    SET(libdiscid_OSDEP_SRCS src/toc.c src/disc_win32.c)
     SET(libdiscid_RCS ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 ELSEIF(libdiscid_OS MATCHES "linux")
-    SET(libdiscid_OSDEP_SRCS src/disc_linux.c src/scsi.c)
+    SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_linux.c src/scsi.c)
 ELSEIF(libdiscid_OS MATCHES "darwin")
-    SET(libdiscid_OSDEP_SRCS src/disc_darwin.c)
+    # TODO: TOC reading code for Darwin/OS X
+    SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_darwin.c)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
-ELSE()
+ELSEIF(libdiscid_OS MATCHES "generic")
     SET(libdiscid_OSDEP_SRCS src/disc_${libdiscid_OS}.c)
+ELSE()
+    # unix platforms are the standard/default case
+    SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_${libdiscid_OS}.c)
 ENDIF()
 
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")

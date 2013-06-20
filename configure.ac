@@ -8,7 +8,7 @@ dnl Process this file with autoconf to produce a configure script.
 # PATCH is increase for all other releases
 define(MAJOR, 0)
 define(MINOR, 5)
-define(PATCH, 0)
+define(PATCH, 1)
 # currently the sole purpose of the project is the library,
 # so we use the library version also as project version
 AC_INIT(libdiscid, MAJOR.MINOR.PATCH)
@@ -49,10 +49,11 @@ case "${host_cpu}-${host_os}" in
   *-cygwin*)  os=win32;;
   *-freebsd*) os=freebsd ;;
   *-kfreebsd*) os=freebsd ;;
+  *-dragonfly*) os=freebsd ;;
   *-darwin*)  os=darwin;;
   *-linux*)   os=linux ;;
-  *-netbsd*)  os=openbsd ;;
-  *-openbsd*) os=openbsd ;;
+  *-netbsd*)  os=netbsd ;;
+  *-openbsd*) os=netbsd ;;
   #*-os2_emx*) os=os2 ;;
   *-solaris*) os=solaris ;;
   #*-qnx*)     os=qnx;;
@@ -66,7 +67,7 @@ AM_CONDITIONAL([OS_DARWIN], [test x$os = xdarwin])
 AM_CONDITIONAL([OS_FREEBSD], [test x$os = xfreebsd])
 AM_CONDITIONAL([OS_GENERIC], [test x$os = xgeneric])
 AM_CONDITIONAL([OS_LINUX], [test x$os = xlinux])
-AM_CONDITIONAL([OS_OPENBSD], [test x$os = xopenbsd])
+AM_CONDITIONAL([OS_NETBSD], [test x$os = xnetbsd])
 #AM_CONDITIONAL([OS_OS2], [test x$os = xos2])
 #AM_CONDITIONAL([OS_QNX], [test x$os = xqnx])
 AM_CONDITIONAL([OS_SOLARIS], [test x$os = xsolaris])

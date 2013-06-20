@@ -1,9 +1,16 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased:
+libdiscid-0.5.1:
 
+ - LIB-40: discid_get_webservice_url() (web service version 1) is deprecated
+           please use libmusicbrainz to gather metadata by disc ID
+ - LIB-7:  rewrote data track handling, releases with multiple data tracks
+           This also fixes LIB-18 (no ID for DVDs) and LIB-9 (PS/PS2 CDs)
+ - LIB-44: fix invalid disc IDs on first read of multi-session discs
  - LIB-37: Autotools optimization (non-recursive build etc.)
+ - LIB-42: remove Windows 9x platform code
+   renamed openbsd platform code to netbsd, still used by both.
 
 libdiscid-0.5.0:
 

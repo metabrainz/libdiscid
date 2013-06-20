@@ -20,12 +20,14 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
 #endif
 
 #include <string.h>
@@ -147,6 +149,14 @@ int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {
 	assert( device != NULL );
 
 	/* Necessary, because the disc handle could have been used before. */
+	memset(disc, 0, sizeof(mb_disc_private));
+
+	/* pre-read the TOC to reduce "not-ready" problems
+	 * See LIB-44 (issues with multi-session discs)
+	 */
+	if (!mb_disc_read_unportable(disc, device, DISCID_FEATURE_READ)) {
+		return 0;
+	}
 	memset(disc, 0, sizeof(mb_disc_private));
 
 	return disc->success = mb_disc_read_unportable(disc, device, features);

@@ -49,3 +49,6 @@ The following people have contributed to libdiscid:
 
    Christophe Fergeau <cfergeau@redhat.com>
     - Autotools build restructuring
+
+   Laurent Monin <zas@norz.org>
+    - Times for discid example

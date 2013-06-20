@@ -26,10 +26,11 @@
 #define discid_read_sparse(disc, dev, i) discid_read(disc, dev)
 #endif
 
+#define FRAMES_PER_SECOND 75.0
 
 int main(int argc, char *argv[]) {
 	DiscId *disc = discid_new();
-	int i;
+	int i, first_track, last_track;
 	char *device = NULL;
 
 	/* If we have an argument, use it as the device name */
@@ -46,17 +47,22 @@ int main(int argc, char *argv[]) {
 	printf("DiscID        : %s\n", discid_get_id(disc));
 	printf("FreeDB DiscID : %s\n", discid_get_freedb_id(disc));
 
-	printf("First track   : %d\n", discid_get_first_track_num(disc));
-	printf("Last track    : %d\n", discid_get_last_track_num(disc));
+	first_track = discid_get_first_track_num(disc);
+	last_track = discid_get_last_track_num(disc);
+	printf("First track   : %d\n", first_track);
+	printf("Last track    : %d\n", last_track);
 
-	printf("Length        : %d sectors\n", discid_get_sectors(disc));
+	printf("Length        : %d frames\n", discid_get_sectors(disc));
 
-	for ( i = discid_get_first_track_num(disc);
-			i <= discid_get_last_track_num(disc); i++ ) {
+	for ( i = first_track; i <= last_track; i++ ) {
+		int frames = discid_get_track_length(disc, i);
+		float duration_in_secs = (float) frames / FRAMES_PER_SECOND;
+		int minutes = duration_in_secs / 60;
+		float seconds = duration_in_secs - minutes * 60;
 
-		printf("Track %-2d      : %8d %8d\n", i,
-			discid_get_track_offset(disc, i),
-			discid_get_track_length(disc, i));
+		printf("Track %-2d      : %8d %8d (%02d:%05.2f)\n",
+				i, discid_get_track_offset(disc, i),
+				frames, minutes, seconds);
 	}
 
 	printf("Submit via    : %s\n", discid_get_submission_url(disc));

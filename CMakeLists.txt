@@ -105,10 +105,10 @@ TARGET_LINK_LIBRARIES(discid libdiscid)
 ADD_EXECUTABLE(discisrc examples/discisrc.c)
 TARGET_LINK_LIBRARIES(discisrc libdiscid)
 
-ADD_EXECUTABLE(test_discid test/test.c test/test_discid.c)
+ADD_EXECUTABLE(test_discid EXCLUDE_FROM_ALL test/test.c test/test_discid.c)
 TARGET_LINK_LIBRARIES(test_discid libdiscid)
 
-ADD_EXECUTABLE(test_disc test/test.c test/test_disc.c)
+ADD_EXECUTABLE(test_disc EXCLUDE_FROM_ALL test/test.c test/test_disc.c)
 TARGET_LINK_LIBRARIES(test_disc libdiscid)
 
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
@@ -118,7 +118,16 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/discid/discid.h DESTINATION ${
 
 ADD_CUSTOM_TARGET(docs doxygen)
 
-ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
+ADD_CUSTOM_TARGET(check
+	COMMAND echo test_discid:
+	COMMAND echo ------------
+	COMMAND ./test_discid
+	COMMAND echo
+	COMMAND echo
+	COMMAND echo test_disc:
+	COMMAND echo ----------
+	COMMAND ./test_disc || test $$? -eq 77
+	DEPENDS test_discid test_disc)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 

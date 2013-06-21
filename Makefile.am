@@ -38,11 +38,11 @@ noinst_HEADERS += test/test.h src/unix.h src/ntddcdrm.h
 
 
 if RUN_TESTS
-TESTS = test_discid
+TESTS = test_discid test_disc
 endif
 
-check_PROGRAMS = test_discid
-noinst_PROGRAMS = discid discisrc test_disc
+check_PROGRAMS = test_discid test_disc
+noinst_PROGRAMS = discid discisrc
 
 test_discid_SOURCES = test/test.c test/test_discid.c
 test_discid_LDADD = $(top_builddir)/libdiscid.la

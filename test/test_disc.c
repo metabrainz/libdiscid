@@ -83,7 +83,22 @@ static int test_read_simple() {
 	return 1;
 }
 
+static int check_for_disc() {
+	DiscId *d;
+	int result;
+	d = discid_new();
+	result = discid_read_sparse(d, NULL, 0);
+	discid_free(d);
+	return result;
+}
+
 int main(int argc, char *argv[]) {
+
+	if (!check_for_disc()) {
+		printf("No disc found!\n");
+		printf("SKIPPING!\n\n");
+		return 77; /* code for SKIP in autotools */
+	}
 
 	announce("simple read");
 	evaluate(test_read_simple());

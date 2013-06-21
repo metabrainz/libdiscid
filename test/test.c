@@ -51,7 +51,9 @@ int assert_true(int result, const char *msg) {
 	if (result) {
 		return 1;
 	} else {
-		snprintf(details, sizeof details, "    %s!\n", msg);
+		if (strlen(msg) > 0) {
+			snprintf(details, sizeof details, "    %s!\n", msg);
+		}
 		return 0;
 	}
 }
@@ -71,9 +73,15 @@ int equal_str(const char *result, const char *expected, const char *msg) {
 	if (strcmp(expected, result) == 0) {
 		return 1;
 	} else {
-		snprintf(details, sizeof details,
+		if (strlen(msg) > 0) {
+			snprintf(details, sizeof details,
 				"    %s:\n\tExpected : %s\n\tActual   : %s\n",
 				msg, expected, result);
+		} else {
+			snprintf(details, sizeof details,
+				"\tExpected : %s\n\tActual   : %s\n",
+				expected, result);
+		}
 		return 0;
 	}
 }

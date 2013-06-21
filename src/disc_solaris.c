@@ -61,15 +61,16 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	struct cdrom_tocentry te;
 	int ret;
 
+	memset(&te, 0, sizeof te);
 	te.cdte_track = track_num;
 	te.cdte_format = CDROM_LBA;
 
 	ret = ioctl(fd, CDROMREADTOCENTRY, &te);
-	assert( te.cdte_format == CDROM_LBA );
 
 	if ( ret < 0 )
 		return ret; /* error */
 
+	assert( te.cdte_format == CDROM_LBA );
 	track->address = te.cdte_addr.lba;
 	track->control = te.cdte_ctrl;
 

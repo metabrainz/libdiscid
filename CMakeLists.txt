@@ -108,6 +108,9 @@ TARGET_LINK_LIBRARIES(discisrc libdiscid)
 ADD_EXECUTABLE(test_discid test/test_discid.c)
 TARGET_LINK_LIBRARIES(test_discid libdiscid)
 
+ADD_EXECUTABLE(test_disc test/test_disc.c)
+TARGET_LINK_LIBRARIES(test_disc libdiscid)
+
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)

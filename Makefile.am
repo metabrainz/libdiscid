@@ -3,17 +3,17 @@
 #
 #  Copyright (C) 2013 Johannes Dewender
 #  Copyright (C) 2006 Matthias Friedrich
-#  
+#
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
 #  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
-#  
+#
 #  This library is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  Lesser General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,7 +33,8 @@ pc_DATA = libdiscid.pc
 
 discid_incdir = $(includedir)/discid
 discid_inc_HEADERS = include/discid/discid.h
-noinst_HEADERS = include/discid/discid_private.h test/test.h
+noinst_HEADERS = include/discid/discid_private.h src/base64.h src/sha1.h
+noinst_HEADERS += test/test.h src/unix.h src/ntddcdrm.h
 
 
 if RUN_TESTS
@@ -59,7 +60,6 @@ discisrc_LDADD = $(top_builddir)/libdiscid.la
 lib_LTLIBRARIES = libdiscid.la
 
 libdiscid_la_SOURCES = src/base64.c src/sha1.c src/disc.c
-libdiscid_la_SOURCES += src/base64.h src/sha1.h src/unix.h src/ntddcdrm.h
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined

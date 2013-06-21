@@ -33,7 +33,7 @@ pc_DATA = libdiscid.pc
 
 discid_incdir = $(includedir)/discid
 discid_inc_HEADERS = include/discid/discid.h
-noinst_HEADERS = include/discid/discid_private.h
+noinst_HEADERS = include/discid/discid_private.h test/test.h
 
 
 if RUN_TESTS
@@ -43,10 +43,10 @@ endif
 check_PROGRAMS = test_discid
 noinst_PROGRAMS = discid discisrc test_disc
 
-test_discid_SOURCES = test/test_discid.c
+test_discid_SOURCES = test/test.c test/test_discid.c
 test_discid_LDADD = $(top_builddir)/libdiscid.la
 
-test_disc_SOURCES = test/test_disc.c
+test_disc_SOURCES = test/test.c test/test_disc.c
 test_disc_LDADD = $(top_builddir)/libdiscid.la
 
 discid_SOURCES = examples/discid.c

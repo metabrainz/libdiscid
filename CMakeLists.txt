@@ -105,10 +105,10 @@ TARGET_LINK_LIBRARIES(discid libdiscid)
 ADD_EXECUTABLE(discisrc examples/discisrc.c)
 TARGET_LINK_LIBRARIES(discisrc libdiscid)
 
-ADD_EXECUTABLE(test_discid test/test_discid.c)
+ADD_EXECUTABLE(test_discid test/test.c test/test_discid.c)
 TARGET_LINK_LIBRARIES(test_discid libdiscid)
 
-ADD_EXECUTABLE(test_disc test/test_disc.c)
+ADD_EXECUTABLE(test_disc test/test.c test/test_disc.c)
 TARGET_LINK_LIBRARIES(test_disc libdiscid)
 
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})

@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
 
 	if (discid_read_sparse(disc, device, 0) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
+		discid_free(disc);
 		return 1;
 	}
 

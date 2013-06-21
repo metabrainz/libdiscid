@@ -19,17 +19,32 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 --------------------------------------------------------------------------- */
+#include <stdio.h>
+#include <string.h>
 
-#define DETAIL_LENGTH 1024
-extern char details[DETAIL_LENGTH];
-extern int passed;
-extern int tests;
+#include <discid/discid.h>
+#include "test.h"
 
-void announce(const char *text);
-void evaluate(int result);
-int assert_true(int result, const char *msg);
-int equal_int(int result, int expected, const char *msg);
-int equal_str(const char *result, const char *expected, const char *msg);
-int test_result();
+
+int main(int argc, char *argv[]) {
+	DiscId *d;
+
+	announce("discid_get_version_string");
+	evaluate(assert_true(strlen(discid_get_version_string()) > 0, ""));
+
+	/* TODO
+	 * test access with/without initialization doesn't fail
+	 */
+
+	announce("discid_new");
+	d = discid_new();
+	evaluate(assert_true(d != NULL, ""));
+
+	announce("discid_free");
+	discid_free(d);
+	evaluate(1); /* only segfaults etc. would "show" */
+	
+	return !test_result();
+}
 
 /* EOF */

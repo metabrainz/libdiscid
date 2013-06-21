@@ -103,10 +103,7 @@ int main(int argc, char *argv[]) {
 	announce("simple read");
 	evaluate(test_read_simple());
 
-	printf("\n%d tests, %d passed, %d failed\n",
-	       tests, passed, tests - passed);
-	
-	return passed != tests;
+	return !test_result();
 }
 
 /* EOF */

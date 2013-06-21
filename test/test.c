@@ -86,4 +86,10 @@ int equal_str(const char *result, const char *expected, const char *msg) {
 	}
 }
 
+int test_result() {
+	printf("\n%d tests, %d passed, %d failed\n",
+	       tests, passed, tests - passed);
+	return passed == tests;
+}
+
 /* EOF */

@@ -38,21 +38,21 @@ noinst_HEADERS += test/test.h src/unix.h src/ntddcdrm.h
 
 
 if RUN_TESTS
-TESTS = test_discid test_disc
+TESTS = test_core test_put test_read
 endif
 
-check_PROGRAMS = test_discid test_disc
+check_PROGRAMS = test_core test_put test_read
 noinst_PROGRAMS = discid discisrc
 
-test_discid_SOURCES = test/test.c test/test_discid.c
-test_discid_LDADD = $(top_builddir)/libdiscid.la
-
-test_disc_SOURCES = test/test.c test/test_disc.c
-test_disc_LDADD = $(top_builddir)/libdiscid.la
+test_core_SOURCES = test/test.c test/test_core.c
+test_core_LDADD = $(top_builddir)/libdiscid.la
+test_put_SOURCES = test/test.c test/test_put.c
+test_put_LDADD = $(top_builddir)/libdiscid.la
+test_read_SOURCES = test/test.c test/test_read.c
+test_read_LDADD = $(top_builddir)/libdiscid.la
 
 discid_SOURCES = examples/discid.c
 discid_LDADD = $(top_builddir)/libdiscid.la
-
 discisrc_SOURCES = examples/discisrc.c
 discisrc_LDADD = $(top_builddir)/libdiscid.la
 

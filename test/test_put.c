@@ -2,6 +2,7 @@
 
    MusicBrainz -- The Internet music metadatabase
 
+   Copyright (C) 2013 Johannes Dewender
    Copyright (C) 2006 Matthias Friedrich
 
    This library is free software; you can redistribute it and/or
@@ -23,7 +24,6 @@
 #include <string.h>
 
 #include <discid/discid.h>
-#include "discid/discid_private.h"
 #include "test.h"
 
 
@@ -38,6 +38,10 @@ int main(int argc, char *argv[]) {
 	};
 
 	d = discid_new();
+
+	/* TODO
+	 * test a put failure, as in with wrong input
+	 */
 
 	/* Setting TOC */
 	announce("discid_put");
@@ -58,12 +62,9 @@ int main(int argc, char *argv[]) {
 	evaluate(equal_str(discid_get_submission_url(d), expected, ""));
 
 
-	printf("\n%d tests, %d passed, %d failed\n",
-	       tests, passed, tests - passed);
-	
 	discid_free(d);
 	
-	return tests != passed;
+	return !test_result();
 }
 
 /* EOF */

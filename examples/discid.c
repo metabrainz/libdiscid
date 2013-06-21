@@ -51,18 +51,18 @@ void sectors_to_time(int sectors, int round, char *buf, size_t bufsize) {
 	if (round) {
 		int seconds_rounded = seconds + 0.5;
 		if (hours > 0) {
-			snprintf(buf, bufsize, "%2d:%02d:%02d",
+			snprintf(buf, bufsize, "%d:%02d:%02d",
 				 hours, minutes, seconds_rounded);
 		} else {
-			snprintf(buf, bufsize, "%2d:%02d",
+			snprintf(buf, bufsize, "  %2d:%02d",
 				 minutes, seconds_rounded);
 		}
 	} else {
 		if (hours > 0) {
-			snprintf(buf, bufsize, "%2d:%02d:%05.2f",
+			snprintf(buf, bufsize, "%d:%02d:%05.2f",
 				 hours, minutes, seconds);
 		} else {
-			snprintf(buf, bufsize, "%2d:%05.2f",
+			snprintf(buf, bufsize, "  %2d:%05.2f",
 				 minutes, seconds);
 		}
 	}

@@ -110,6 +110,8 @@ ADD_EXECUTABLE(test_put EXCLUDE_FROM_ALL test/test.c test/test_put.c)
 TARGET_LINK_LIBRARIES(test_put libdiscid)
 ADD_EXECUTABLE(test_read EXCLUDE_FROM_ALL test/test.c test/test_read.c)
 TARGET_LINK_LIBRARIES(test_read libdiscid)
+ADD_EXECUTABLE(test_read_full EXCLUDE_FROM_ALL test/test.c test/test_read_full.c)
+TARGET_LINK_LIBRARIES(test_read_full libdiscid)
 
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
@@ -132,7 +134,12 @@ ADD_CUSTOM_TARGET(check
 	COMMAND echo test_read:
 	COMMAND echo ----------
 	COMMAND ./test_read || test $$? -eq 77
-	DEPENDS test_core test_put test_read)
+	COMMAND echo
+	COMMAND echo
+	COMMAND echo test_read_full:
+	COMMAND echo ---------------
+	COMMAND ./test_read_full || test $$? -eq 77
+	DEPENDS test_core test_put test_read test_read_full)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 

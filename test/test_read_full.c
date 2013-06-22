@@ -29,20 +29,18 @@
 int main(int argc, char *argv[]) {
 	DiscId *d;
 	int i, first, last;
-	int subtest_passed;
-	int offset, previous_offset;
+	int found, invalid;
+	char *mcn;
+	char *isrc;
 
 	d = discid_new();
 
-	announce("discid_read_sparse");
-	if (!discid_read_sparse(d, NULL, 0)) {
+	announce("discid_read");
+	if (!discid_read(d, NULL)) {
 		printf("SKIP\n");
 		if (discid_has_feature(DISCID_FEATURE_READ)) {
 			printf("\tNo disc found\n\n");
 		} else {
-			/* We don't skip earlier
-			 * since read should fail "nicely"
-			 */
 			printf("\tRead not implemented\n\n");
 		}
 		discid_free(d);
@@ -55,52 +53,39 @@ int main(int argc, char *argv[]) {
 	announce("discid_get_id");
 	evaluate(equal_int(strlen(discid_get_id(d)), 28));
 
-	announce("discid_get_freedb_id");
-	evaluate(equal_int(strlen(discid_get_freedb_id(d)), 8));
-
 	announce("discid_get_submission_url");
 	evaluate(strlen(discid_get_submission_url(d)) > 0);
 
-	announce("discid_get_first_track_num");
 	first = discid_get_first_track_num(d);
-	evaluate(first > 0);
-	announce("discid_get_last_track_num");
 	last = discid_get_last_track_num(d);
-	evaluate(last > 0);
 
-	announce("discid_get_sectors");
-	evaluate(equal_int(discid_get_sectors(d),
-				discid_get_track_offset(d, last)
-				+ discid_get_track_length(d, last)));
-
-	announce("discid_get_track_offset sane");
-	previous_offset = 0;
-	subtest_passed = 0;
-	for (i=first; i<=last; i++) {
-		offset = discid_get_track_offset(d, i);
-		if (offset <= discid_get_sectors(d)) {
-			subtest_passed++;
-		}
-		if (previous_offset) {
-			if (offset >= previous_offset) {
-				subtest_passed++;
-			}
-		}
-		previous_offset = offset;
+	/* Even if everything works, there might not be an MCN on the disc */
+	announce("discid_get_mcn");
+	mcn = discid_get_mcn(d);
+	if (discid_has_feature(DISCID_FEATURE_MCN)) {
+		evaluate(strlen(mcn) == 0 || strlen(mcn) == 13);
+	} else {
+		evaluate(strlen(mcn) == 0);
 	}
-	evaluate(equal_int(subtest_passed, 2 * (last - first + 1) - 1));
 
-	announce("discid_get_mcn empty");
-	evaluate(strlen(discid_get_mcn(d)) == 0);
-
-	announce("discid_get_track_isrc empty");
-	subtest_passed = 0;
+	/* Even if everything works, there might not be ISRCs for all tracks */
+	announce("discid_get_track_isrc");
+	found = 0;
+	invalid = 0;
 	for (i=first; i<=last; i++) {
-		if (strlen(discid_get_track_isrc(d, i)) == 0) {
-			subtest_passed++;
+		isrc = discid_get_track_isrc(d, i);
+		if (strlen(isrc) == 12) {
+			found++;
+		} else if (strlen(isrc) != 0) {
+			invalid++;
+			break;
 		}
 	}
-	evaluate(equal_int(subtest_passed, last - first + 1));
+	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
+		evaluate(!invalid);
+	} else {
+		evaluate(!invalid && !found);
+	}
 
 
 	discid_free(d);

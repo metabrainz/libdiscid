@@ -27,9 +27,8 @@ extern int tests;
 
 void announce(const char *text);
 void evaluate(int result);
-int assert_true(int result, const char *msg);
-int equal_int(int result, int expected, const char *msg);
-int equal_str(const char *result, const char *expected, const char *msg);
+int equal_int(int result, int expected);
+int equal_str(const char *result, const char *expected);
 int test_result();
 
 /* EOF */

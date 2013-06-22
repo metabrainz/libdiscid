@@ -47,41 +47,24 @@ void evaluate(int result) {
 	tests++;
 }
 
-int assert_true(int result, const char *msg) {
-	if (result) {
-		return 1;
-	} else {
-		if (strlen(msg) > 0) {
-			snprintf(details, sizeof details, "    %s!\n", msg);
-		}
-		return 0;
-	}
-}
-
-int equal_int(int result, int expected, const char *msg) {
+int equal_int(int result, int expected) {
 	if (expected == result) {
 		return 1;
 	} else {
 		snprintf(details, sizeof details,
-				"    %s:\n\tExpected : %d\n\tActual   : %d\n",
-				msg, expected, result);
+				"\tExpected : %d\n\tActual   : %d\n",
+				expected, result);
 		return 0;
 	}
 }
 
-int equal_str(const char *result, const char *expected, const char *msg) {
+int equal_str(const char *result, const char *expected) {
 	if (strcmp(expected, result) == 0) {
 		return 1;
 	} else {
-		if (strlen(msg) > 0) {
-			snprintf(details, sizeof details,
-				"    %s:\n\tExpected : %s\n\tActual   : %s\n",
-				msg, expected, result);
-		} else {
-			snprintf(details, sizeof details,
+		snprintf(details, sizeof details,
 				"\tExpected : %s\n\tActual   : %s\n",
 				expected, result);
-		}
 		return 0;
 	}
 }

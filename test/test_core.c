@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 	DiscId *d;
 
 	announce("discid_get_version_string");
-	evaluate(assert_true(strlen(discid_get_version_string()) > 0, ""));
+	evaluate(strlen(discid_get_version_string()) > 0);
 
 	/* TODO
 	 * test access with/without initialization doesn't fail
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 	announce("discid_new");
 	d = discid_new();
-	evaluate(assert_true(d != NULL, ""));
+	evaluate(d != NULL);
 
 	announce("discid_free");
 	discid_free(d);

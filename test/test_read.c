@@ -31,20 +31,24 @@ int main(int argc, char *argv[]) {
 	int i, first, last;
 	int subtest_passed;
 	int offset, previous_offset;
+	char *error_msg;
+	int feature_read;
 
 	d = discid_new();
+
+	announce("discid_has_feature");
+	feature_read = discid_has_feature(DISCID_FEATURE_READ);
+	evaluate(feature_read == 0 || feature_read == 1);
 
 	announce("discid_read_sparse");
 	if (!discid_read_sparse(d, NULL, 0)) {
 		printf("SKIP\n");
-		if (discid_has_feature(DISCID_FEATURE_READ)) {
-			printf("\tNo disc found\n\n");
-		} else {
-			/* We don't skip earlier
-			 * since read should fail "nicely"
-			 */
-			printf("\tRead not implemented\n\n");
-		}
+
+		announce("discid_get_error_msg");
+		error_msg = discid_get_error_msg(d);
+		evaluate(strlen(error_msg) > 0);
+
+		printf("\t%s\n\n", error_msg);
 		discid_free(d);
 		return 77; /* code for SKIP in autotools */
 	}
@@ -101,6 +105,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	evaluate(equal_int(subtest_passed, last - first + 1));
+
+	announce("discid_get_error_msg");
+	evaluate(strlen(discid_get_error_msg(d)) == 0);
 
 
 	discid_free(d);

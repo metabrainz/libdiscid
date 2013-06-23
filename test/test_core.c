@@ -26,11 +26,44 @@
 #include "test.h"
 
 
+int feature_consistent(const char *feature) {
+	if (strcmp(feature, DISCID_FEATURE_STR_READ) == 0) {
+		return discid_has_feature(DISCID_FEATURE_READ);
+	} else if (strcmp(feature, DISCID_FEATURE_STR_MCN) == 0) {
+		return discid_has_feature(DISCID_FEATURE_MCN);
+	} else if (strcmp(feature, DISCID_FEATURE_STR_ISRC) == 0) {
+		return discid_has_feature(DISCID_FEATURE_ISRC);
+	} else {
+		return 0;
+	}
+}
+
 int main(int argc, char *argv[]) {
 	DiscId *d;
+	char *features[DISCID_FEATURE_LENGTH];
+	char *feature;
+	int i, found_features, invalid;
 
 	announce("discid_get_version_string");
 	evaluate(strlen(discid_get_version_string()) > 0);
+
+	announce("discid_get_feature_list");
+	discid_get_feature_list(features);
+	found_features = 0;
+	invalid = 0;
+	for (i = 0; i < DISCID_FEATURE_LENGTH; i++) {
+		feature = features[i];
+		if (feature) {
+			found_features++;
+			if (!feature_consistent(feature)) {
+				invalid++;
+			}
+		}
+	}
+	evaluate(!invalid && found_features ==
+			discid_has_feature(DISCID_FEATURE_READ)
+			+ discid_has_feature(DISCID_FEATURE_MCN)
+			+ discid_has_feature(DISCID_FEATURE_ISRC));
 
 	/* TODO
 	 * test access with/without initialization doesn't fail
@@ -39,6 +72,9 @@ int main(int argc, char *argv[]) {
 	announce("discid_new");
 	d = discid_new();
 	evaluate(d != NULL);
+
+	announce("discid_get_error_msg");
+	evaluate(strlen(discid_get_error_msg(d)) == 0);
 
 	announce("discid_free");
 	discid_free(d);

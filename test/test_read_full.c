@@ -32,17 +32,26 @@ int main(int argc, char *argv[]) {
 	int found, invalid;
 	char *mcn;
 	char *isrc;
+	char *error_msg;
+	int feature_mcn, feature_isrc;
 
 	d = discid_new();
+
+	announce("discid_has_feature");
+        feature_mcn = discid_has_feature(DISCID_FEATURE_MCN);
+        feature_isrc = discid_has_feature(DISCID_FEATURE_ISRC);
+        evaluate((feature_mcn == 0 || feature_mcn == 1)
+			&& (feature_isrc == 0 || feature_isrc == 1));
 
 	announce("discid_read");
 	if (!discid_read(d, NULL)) {
 		printf("SKIP\n");
-		if (discid_has_feature(DISCID_FEATURE_READ)) {
-			printf("\tNo disc found\n\n");
-		} else {
-			printf("\tRead not implemented\n\n");
-		}
+
+                announce("discid_get_error_msg");
+                error_msg = discid_get_error_msg(d);
+                evaluate(strlen(error_msg) > 0);
+
+		printf("\t%s\n\n", error_msg);
 		discid_free(d);
 		return 77; /* code for SKIP in autotools */
 	}
@@ -86,6 +95,9 @@ int main(int argc, char *argv[]) {
 	} else {
 		evaluate(!invalid && !found);
 	}
+
+	announce("discid_get_error_msg");
+        evaluate(strlen(discid_get_error_msg(d)) == 0);
 
 
 	discid_free(d);

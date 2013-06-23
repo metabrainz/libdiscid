@@ -21,6 +21,7 @@
 
 --------------------------------------------------------------------------- */
 #include <stdio.h>
+#include <locale.h>
 #include <discid/discid.h>
 
 #ifndef DISCID_HAVE_SPARSE_READ
@@ -74,6 +75,8 @@ int main(int argc, char *argv[]) {
 	char time_str[14];
 	int sectors;
 	DiscId *disc;
+
+	setlocale(LC_ALL, "");
 
 	disc = discid_new();
 

@@ -40,8 +40,10 @@ rm -f config.cache config.log config.guess config.sub configure
 
 echo "Generating configuration files for $package, please wait...."
 
-echo "  aclocal $ACLOCAL_FLAGS"
-aclocal $ACLOCAL_FLAGS
+echo "  autopoint"
+autopoint
+echo "  aclocal -I m4 $ACLOCAL_FLAGS"
+aclocal -I m4 $ACLOCAL_FLAGS
 echo "  autoheader"
 autoheader
 echo "  $LIBTOOLIZE --automake --force"

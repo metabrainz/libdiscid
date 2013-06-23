@@ -105,3 +105,7 @@ LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)
 
 docs:
 	doxygen
+
+SUBDIRS = po
+
+ACLOCAL_AMFLAGS = -I m4

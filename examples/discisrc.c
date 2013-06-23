@@ -24,24 +24,27 @@
 
 
 int main(int argc, char *argv[]) {
+	DiscId *disc;
 	int i;
-	char *device = NULL;
+	char *device;
 	char *features[DISCID_FEATURE_LENGTH];
-
-	DiscId *disc = discid_new();
 
 	printf("%s\n", discid_get_version_string());
 
 	/* If we have an argument, use it as the device name */
 	if (argc > 1) {
 		device = argv[1];
+	} else {
+		device = discid_get_default_device();
 	}
 
 	if (!discid_has_feature(DISCID_FEATURE_READ)) {
 		fprintf(stderr, "Error: not implemented on platform\n");
-		discid_free(disc);
 		return 1;
+	} else {
+		disc = discid_new();
 	}
+
 
 	/* read the disc in the specified disc drive with the MCN and ISRC feature enabled */
 	if (discid_read_sparse(disc, device, DISCID_FEATURE_MCN | DISCID_FEATURE_ISRC) == 0) {

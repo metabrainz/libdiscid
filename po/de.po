@@ -1,16 +1,16 @@
 # German translations for libdiscid package
 # German messages for libdiscid.
-# Copyright (C) 2013 Johannes Dewender
+# Copyright (C) 2013 MetaBrainz Foundation, Inc.
 # This file is distributed under the same license as the libdiscid package.
-# Johannes Dewender <github@JonnyJD.net>, 2013.
+# Johannes Dewender <github@jonnyjd.net>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: libdiscid 0.5.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-23 19:18+0200\n"
-"PO-Revision-Date: 2013-06-23 19:24+0200\n"
-"Last-Translator: Johannes Dewender <github@JonnyJD.net>\n"
+"Report-Msgid-Bugs-To: http://tickets.musicbrainz.org/browse/LIB\n"
+"POT-Creation-Date: 2013-06-24 00:27+0200\n"
+"PO-Revision-Date: 2013-06-24 00:28+0200\n"
+"Last-Translator: Johannes Dewender <github@jonnyjd.net>\n"
 "Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -21,4 +21,4 @@ msgstr ""
 #: src/disc.c:63
 #, c-format
 msgid "one two three\n"
-msgstr "eins zwei drei\n"
+msgstr "Eins Zwei Drei\n"

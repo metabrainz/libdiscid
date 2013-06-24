@@ -40,8 +40,8 @@ rm -f config.cache config.log config.guess config.sub configure
 
 echo "Generating configuration files for $package, please wait...."
 
-echo "  autopoint"
-autopoint
+echo "  autopoint --force"
+autopoint --force
 echo "  aclocal -I m4 $ACLOCAL_FLAGS"
 aclocal -I m4 $ACLOCAL_FLAGS
 echo "  autoheader"

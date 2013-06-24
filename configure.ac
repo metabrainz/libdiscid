@@ -86,7 +86,7 @@ AC_C_BIGENDIAN
 AC_CHECK_SIZEOF(long)
 
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION(0.18.2)
+AM_GNU_GETTEXT_VERSION(0.18.1)
 
 if test "$cross_compiling" = "yes" && test "$os" = "win32"; then
   AC_MSG_WARN([detected cross compilation: disabling tests!!!])

@@ -20,6 +20,11 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 --------------------------------------------------------------------------- */
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <stdio.h>
 #include <discid/discid.h>
 
@@ -44,12 +49,12 @@
  */
 void sectors_to_time(int sectors, int round, char *buf, size_t bufsize) {
 	float duration_in_secs = (float) sectors / SECTORS_PER_SECOND;
-	int hours = duration_in_secs / 3600;
-	int minutes = (duration_in_secs - hours * 3600) / 60;
+	int hours = (int) duration_in_secs / 3600;
+	int minutes = (int) (duration_in_secs - hours * 3600) / 60;
 	float seconds = duration_in_secs - (hours * 3600 + minutes * 60);
 
 	if (round) {
-		int seconds_rounded = seconds + 0.5;
+		int seconds_rounded = (int) (seconds + 0.5);
 		if (hours > 0) {
 			snprintf(buf, bufsize, "%d:%02d:%02d",
 				 hours, minutes, seconds_rounded);

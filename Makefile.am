@@ -61,7 +61,7 @@ libdiscid_la_SOURCES += src/base64.h src/sha1.h src/unix.h src/ntddcdrm.h
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined
-libdiscid_la_LIBADD = @LIBINTL@
+libdiscid_la_LIBADD = @LTLIBINTL@
 
 #if OS_BEOS
 #libdiscid_la_LIBADD += -lbe -lroot

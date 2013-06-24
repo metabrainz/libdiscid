@@ -14,6 +14,12 @@ operating system dependent CD-ROM/DVD-ROM access code have been ported
 from libmusicbrainz version 2. 
 
 
+There are no required dependencies. However, when not using GNU Libc,
+an external libintl and iconv are needed for Native Language Support (NLS).
+See INSTALL how to disable NLS.
+Users of GNU/Linux have NLS support without dependencies.
+
+
 Please report all bugs you find via the MusicBrainz bug tracker.
 Don't forget to state which OS and what version you are using:
 

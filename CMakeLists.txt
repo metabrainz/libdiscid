@@ -87,11 +87,41 @@ ELSE()
     SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_${libdiscid_OS}.c)
 ENDIF()
 
+# find natural language support (NLS, library, usage)
+MESSAGE(STATUS "Checking Natural Language Support (NLS)")
+INCLUDE(CheckIncludeFiles)
+#CHECK_INCLUDE_FILES(libintl.h ENABLE_NLS)
+CHECK_INCLUDE_FILES(libintl.h HAVE_LIBINTL_H)
+if(HAVE_LIBINTL_H)
+  INCLUDE(CheckFunctionExists)
+  CHECK_FUNCTION_EXISTS(dgettext LIBINTL_LIBC_HAS_DGETTEXT)
+  IF(LIBINTL_LIBC_HAS_DGETTEXT)
+  SET(ENABLE_NLS TRUE)
+  ELSE()
+    FIND_LIBRARY(LIBINTL_LIBS intl NAMES intl libintl intl-8)
+    IF(LIBINTL_LIBS)
+      SET(ENABLE_NLS TRUE)
+    ENDIF()
+  ENDIF()
+ENDIF()
+
+IF(ENABLE_NLS)
+  MESSAGE(STATUS "Checking Natural Language Support (NLS) - found")
+ELSE()
+  MESSAGE(STATUS "Checking Natural Language Support (NLS) - not found")
+ENDIF()
+
+IF(LIBINTL_LIBS)
+  SET(libdiscid_LIBS ${LIBINTL_LIBS})
+ELSE()
+  SET(libdiscid_LIBS "")
+ENDIF()
+
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")
 MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
 
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
-TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
+TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS} ${libdiscid_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES
     OUTPUT_NAME discid
     VERSION ${libdiscid_VERSION}
@@ -112,10 +142,6 @@ TARGET_LINK_LIBRARIES(test_discid libdiscid)
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
-
-# find gettext support (library, usage)
-INCLUDE(CheckIncludeFiles)
-CHECK_INCLUDE_FILES(libintl.h ENABLE_NLS)
 
 # find gettext support (binaries, mo creation)
 INCLUDE(FindGettext)

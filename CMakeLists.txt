@@ -34,6 +34,8 @@ SET(EXEC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation prefix 
 SET(BIN_INSTALL_DIR ${EXEC_INSTALL_PREFIX}/bin CACHE PATH "Installation prefix for user executables" FORCE)
 SET(LIB_INSTALL_DIR ${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX} CACHE PATH  "Installation prefix for object code libraries" FORCE)
 SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include CACHE PATH "Installation prefix for C header files" FORCE)
+SET(DISABLE_NLS FALSE CACHE BOOL "Disable Native Language Support (NLS, libintl, iconv)")
+
 
 # compatibility with automake
 SET(PACKAGE ${PROJECT_NAME})
@@ -43,6 +45,7 @@ SET(prefix ${CMAKE_INSTALL_PREFIX})
 SET(exec_prefix ${EXEC_INSTALL_PREFIX})
 SET(includedir ${INCLUDE_INSTALL_DIR})
 SET(libdir ${LIB_INSTALL_DIR})
+SET(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
 
 CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc)
 CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc)
@@ -86,18 +89,79 @@ ELSE()
     SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_${libdiscid_OS}.c)
 ENDIF()
 
+IF(DISABLE_NLS)
+  MESSAGE(STATUS "Native Language Support (NLS) was disabled by the user.")
+ELSE()
+  # find natural language support (NLS, library, usage)
+  MESSAGE(STATUS "Checking for Native Language Support (NLS)")
+  MESSAGE(STATUS "Looking for libintl.h")
+  IF(MINGW)
+    SET(CMAKE_INCLUDE_PATH "C:/MinGW/include")
+  ENDIF()
+  FIND_PATH(LIBINTL_INCLUDE libintl.h)
+  if(LIBINTL_INCLUDE)
+    MESSAGE(STATUS "Looking for libintl.h - found")
+    INCLUDE(CheckFunctionExists)
+    CHECK_FUNCTION_EXISTS(dgettext LIBINTL_LIBC_HAS_DGETTEXT)
+    IF(LIBINTL_LIBC_HAS_DGETTEXT)
+      SET(ENABLE_NLS TRUE)
+    ELSE()
+      MESSAGE(STATUS "Looking for libintl")
+      FIND_LIBRARY(LIBINTL_LIB intl NAMES intl libintl intl-8)
+      IF(LIBINTL_LIB)
+	MESSAGE(STATUS "Looking for libintl - found")
+      ELSE()
+	MESSAGE(STATUS "Looking for libintl - not found")
+      ENDIF()
+      # We don't need iconv ourselves and it is in GNU libc,
+      # but external libintl often also needs a different iconv.
+      MESSAGE(STATUS "Looking for libiconv")
+      FIND_LIBRARY(LIBICONV_LIB NAMES iconv libiconv iconv-2)
+      IF(LIBICONV_LIB)
+	MESSAGE(STATUS "Looking for libiconv - found")
+      ELSE()
+	MESSAGE(STATUS "Looking for libiconv - not found")
+      ENDIF()
+      IF(LIBINTL_LIB)
+	SET(ENABLE_NLS TRUE)
+	IF(LIBICONV_LIB)
+	  SET(LIBINTL_LIBS ${LIBINTL_LIB} ${LIBICONV_LIB})
+	ELSE()
+	  SET(LIBINTL_LIBS ${LIBINTL_LIB})
+	ENDIF()
+      ENDIF()
+    ENDIF()
+  ELSE()
+    MESSAGE(STATUS "Looking for libintl.h - not found")
+  ENDIF()
+
+  IF(ENABLE_NLS)
+    MESSAGE(STATUS "Checking for Native Language Support (NLS) - found")
+  ELSE()
+    MESSAGE(STATUS "Checking for Native Language Support (NLS) - not found")
+  ENDIF()
+ENDIF()	# DISABLE_NLS
+
+IF(LIBINTL_LIBS)
+  SET(libdiscid_LIBS ${LIBINTL_LIBS})
+ENDIF()
+IF(LIBINTL_INCLUDE)
+  SET(libdiscid_INCLUDES ${LIBINTL_INCLUDE})
+ENDIF()
+
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")
 MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
 
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
-TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
+TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS} ${libdiscid_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES
     OUTPUT_NAME discid
     VERSION ${libdiscid_VERSION}
     SOVERSION ${libdiscid_SOVERSION}
 )
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_BINARY_DIR}/include)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_BINARY_DIR}/include ${libdiscid_INCLUDES})
 
 ADD_EXECUTABLE(discid examples/discid.c)
 TARGET_LINK_LIBRARIES(discid libdiscid)
@@ -112,6 +176,19 @@ INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
 
+# find gettext support (binaries, mo creation)
+# this only makes sense if we have NLS support
+IF(ENABLE_NLS)
+  MESSAGE(STATUS "Looking for Gettext (only needed for maintainer!)")
+  INCLUDE(FindGettext)
+  IF(GETTEXT_FOUND)
+    GETTEXT_CREATE_TRANSLATIONS(po/${PACKAGE}.pot ALL po/de.po)
+  ELSEIF(ENABLE_NLS)
+    # install the distributed .mo
+    INSTALL(FILES po/de.gmo
+      DESTINATION share/locale/de/LC_MESSAGES/libdiscid.mo)
+  ENDIF()
+ENDIF()
 
 ADD_CUSTOM_TARGET(docs doxygen)
 
@@ -130,6 +207,9 @@ ADD_DEPENDENCIES(dist check)
 
 # create binary in MinGW/MSYS
 IF(libdiscid_OS MATCHES "win32")
+    # TODO: include libintl and iconv dlls when built with NLS!
+    # We possibly also need to include the libintl sources and license?
+    # they are also LGPL
     ADD_CUSTOM_TARGET(distwin32
 	COMMAND mkdir "${libdiscid_DISTDIR}-win32"
 	COMMAND tar -xf "${libdiscid_DISTDIR}.tar.gz"
@@ -188,7 +268,6 @@ INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE(long SIZEOF_LONG)
 
 CONFIGURE_FILE(config-cmake.h.in ${CMAKE_BINARY_DIR}/config.h)
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
 IF(CMAKE_COMPILER_IS_GNUCC)

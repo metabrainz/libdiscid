@@ -18,14 +18,21 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-     $Id$
-
 --------------------------------------------------------------------------- */
 /*
  * For internal use only. This header file is not installed.
  */
 #ifndef MUSICBRAINZ_DISC_ID_PRIVATE_H
 #define MUSICBRAINZ_DISC_ID_PRIVATE_H
+
+#if (defined(HAVE_CONFIG_H) && defined(ENABLE_NLS))
+#	include "config.h"
+#	include <libintl.h>
+#	define _(String) dgettext (PACKAGE, String)
+#else
+#	/* typecast for type checks by the compiler */
+#	define _(String) ((const char *)(String))
+#endif
 
 #include "discid/discid.h"
 

@@ -26,6 +26,7 @@ CLEANFILES = versioninfo.o
 
 AM_CFLAGS = $(WARN_CFLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
+AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
 
 
 pcdir = $(libdir)/pkgconfig
@@ -60,7 +61,7 @@ libdiscid_la_SOURCES += src/base64.h src/sha1.h src/unix.h src/ntddcdrm.h
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined
-libdiscid_la_LIBADD =
+libdiscid_la_LIBADD = @LTLIBINTL@
 
 #if OS_BEOS
 #libdiscid_la_LIBADD += -lbe -lroot
@@ -105,3 +106,7 @@ LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)
 
 docs:
 	doxygen
+
+SUBDIRS = po
+
+ACLOCAL_AMFLAGS = -I m4

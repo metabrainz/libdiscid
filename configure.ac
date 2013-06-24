@@ -85,6 +85,9 @@ dnl Test endianness and size of a long; required for the SHA1 implementation.
 AC_C_BIGENDIAN
 AC_CHECK_SIZEOF(long)
 
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.18.1)
+
 if test "$cross_compiling" = "yes" && test "$os" = "win32"; then
   AC_MSG_WARN([detected cross compilation: disabling tests!!!])
   #AC_SUBST([TESTS_ENVIRONMENT], [wine]) doesn't work for libtool builds
@@ -100,6 +103,6 @@ fi
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
-AC_OUTPUT([
+AC_OUTPUT([ po/Makefile.in
   Makefile libdiscid.pc versioninfo.rc Doxyfile include/discid/discid.h
 ])

@@ -9,11 +9,19 @@ Cmake
 
     cmake .
 
+You can disable NLS (libintl/gettext) with:
+
+    cmake -DDISABLE_NLS=1 .
+
 
 Autotools
 ---------
 
     ./configure
+
+You can disable NLS (libintl/gettext) with:
+
+    ./configure --disable-nls
 
 
 Both

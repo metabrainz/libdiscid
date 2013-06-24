@@ -32,6 +32,19 @@ stamp-h1
 test-driver
 .deps
 .libs
+# autopoint files
+ABOUT-NLS
+config.rpath
+config.h.in~
+m4/
+po/Makevars.template
+po/Rules-quot
+po/POTFILES
+po/stamp-po
+po/*.in
+po/*.sin
+po/*.header
+po/*.sed
 
 # Visual Studio files
 *.suo
@@ -53,3 +66,4 @@ examples/discid
 *.o
 *.la
 .dirstamp
+po/*.gmo

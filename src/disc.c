@@ -40,7 +40,6 @@
 #include "discid/discid.h"
 #include "discid/discid_private.h"
 
-
 #define TRACK_NUM_IS_VALID(disc, i) \
 	( i >= disc->first_track_num && i <= disc->last_track_num )
 
@@ -58,6 +57,13 @@ static void create_webservice_url(mb_disc_private *d, char buf[]);
  ****************************************************************************/
 
 DiscId *discid_new() {
+	/* set the directory for gettext messages
+	 * just in case the prefix was set weird
+	 */
+#ifdef ENABLE_NLS
+	bindtextdomain(PACKAGE, LOCALEDIR);
+#endif
+	printf(_("one two three\n"));
 	/* initializes everything to zero */
 	return calloc(1, sizeof(mb_disc_private));
 }

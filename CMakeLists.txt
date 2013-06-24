@@ -113,10 +113,17 @@ INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/discid/discid.h DESTINATION ${INCLUDE_INSTALL_DIR}/discid)
 
+# find gettext support (library, usage)
+INCLUDE(CheckIncludeFiles)
+CHECK_INCLUDE_FILES(libintl.h ENABLE_NLS)
+
+# find gettext support (binaries, mo creation)
 INCLUDE(FindGettext)
 IF(GETTEXT_FOUND)
-  SET(ENABLE_NLS 1)
   GETTEXT_CREATE_TRANSLATIONS(po/${PACKAGE}.pot ALL po/de.po)
+ELSEIF(ENABLE_NLS)
+  # install the distributed .mo
+  INSTALL(FILES po/de.gmo DESTINATION share/locale/de/LC_MESSAGES/libdiscid.mo)
 ENDIF()
 
 ADD_CUSTOM_TARGET(docs doxygen)

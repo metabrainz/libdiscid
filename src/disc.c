@@ -33,7 +33,6 @@
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
-#include <locale.h>
 
 #include "sha1.h"
 #include "base64.h"
@@ -61,7 +60,9 @@ DiscId *discid_new() {
 	/* set the directory for gettext messages
 	 * just in case the prefix was set weird
 	 */
+#ifdef ENABLE_NLS
 	bindtextdomain(PACKAGE, LOCALEDIR);
+#endif
 	printf(_("one two three\n"));
 	/* initializes everything to zero */
 	return calloc(1, sizeof(mb_disc_private));

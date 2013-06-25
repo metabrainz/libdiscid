@@ -55,6 +55,9 @@ int main(int argc, char *argv[]) {
 	/* we shouldn't be here if the feature is not implemented */
 	evaluate(discid_has_feature(DISCID_FEATURE_READ));
 
+	announce("discid_get_default_device");
+	/* In contrast to test_core, there should be a device now.  */
+	evaluate(strlen(discid_get_default_device()) > 0);
 
 	announce("discid_get_id");
 	evaluate(equal_int(strlen(discid_get_id(d)), 28));

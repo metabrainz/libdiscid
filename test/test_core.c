@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
 	char *features[DISCID_FEATURE_LENGTH];
 	char *feature;
 	int i, found_features, invalid;
+	int result;
 
 	announce("discid_get_version_string");
 	evaluate(strlen(discid_get_version_string()) > 0);
@@ -65,6 +66,12 @@ int main(int argc, char *argv[]) {
 			+ discid_has_feature(DISCID_FEATURE_MCN)
 			+ discid_has_feature(DISCID_FEATURE_ISRC));
 
+	announce("discid_get_default_device");
+	/* this doesn't test much, but shouldn't fail completely
+	 * TODO: make sure there is always something > 0 returned
+	 */
+	evaluate(strlen(discid_get_default_device()) >= 0);
+
 	/* TODO
 	 * test access with/without initialization doesn't fail
 	 */
@@ -73,8 +80,35 @@ int main(int argc, char *argv[]) {
 	d = discid_new();
 	evaluate(d != NULL);
 
+	announce("giving invalid device");
+	result = discid_read(d, "invalid_device_name");
+	evaluate(!result);
 	announce("discid_get_error_msg");
-	evaluate(strlen(discid_get_error_msg(d)) == 0);
+	/* depending on result from invalid read
+	 * If that fails, it still is only one failure.*/
+	if (result) {
+		evaluate(strlen(discid_get_error_msg(d)) == 0);
+	} else {
+		evaluate(strlen(discid_get_error_msg(d)) > 0);
+	}
+
+	/*
+	announce("empty values");
+	evaluate(discid_get_id(d) == NULL);
+	*/
+	/* TODO
+	 * This needs implementation.
+	 * Right now we get segmentation faults in debug builds (assert)
+	 * and have to test for NULL in release builds.
+	announce("empty values");
+	evaluate(strlen(discid_get_id(d)) == 0
+			&& strlen(discid_get_freedb_id(d)) == 0
+			&& strlen(discid_get_submission_url(d)) == 0
+			&& strlen(discid_get_mcn(d)) == 0
+			&& discid_get_first_track_num(d) == 0
+			&& discid_get_last_track_num(d) == 0
+			&& discid_get_sectors(d) == 0);
+			*/
 
 	announce("discid_free");
 	discid_free(d);

@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
 	d = discid_new();
 
 	/* TODO
-	 * test a put failure, as in with wrong input
+	 * Test a put failure, as in with wrong input.
+	 * This first needs some better checking in put()!
 	 */
 
 	/* Setting TOC */

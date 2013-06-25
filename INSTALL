@@ -1,54 +1,58 @@
 Build and Installation of Libdiscid
 ===================================
 
-You can either use the autotools or Cmake to build libdiscid.
-
+You can either use the GNU build system (autotools) or Cmake to build libdiscid.
+No additionaly tools (except a C compiler) are required.
+An out-of-source build is recommended.
 
 Cmake
 -----
-
-    cmake .
+    mkdir _build; cd _build/
+    cmake ..
+    make
+    make check
+    make install
 
 
 Autotools
 ---------
-
-    ./configure
+    mkdir _build; cd _build/
+    ../configure
+    make
+    make check
+    make install
 
 
 Both
 ----
-
-After you created the Makefiles you normally issue
-
-    make
-    make install
-
-and test with:
-
-    make check
-
-API documentation is created with:
+Optional API documentation in HTML format is created by Doxygen with:
 
     make docs
 
+Building from git repository
+----------------------------
+If you fetched the source with git, you should either
+use Cmake (no difference to the source distribution)
+or have autoconf, automake and libtool installed and do ./autogen.sh
+before doing the usual build.
 
 Tips for Windows
 ----------------
-
 For most systems cmake and autotools work (nearly) "out of the box".
-On Windows the build was tested using MinGW and running in the MinGW shell:
+On Windows you should use Cmake.
 
-    cmake -G "MSYS Makefiles"
+Building with MinGW in the MinGW/MSYS shell:
+
+    cmake -G "MSYS Makefiles" ..
     make
 
-You can also create Visual Studio project files.
-Just type "cmake" to see a list of options.
+Building with NMake (MS Visual Studio command line):
 
+    cmake -G "NMake Makefiles" ..
+    nmake
 
 Notes for BSD
 -------------
-
 With Cmake builds the library version/soname will work the same as on Linux.
 With the Autotools, libtool is used and generates sonames as major+minor.
 For NetBSD there seems to be a change with libdiscid 0.4.0, where libtool now

@@ -28,11 +28,14 @@
 
 int main(int argc, char *argv[]) {
 	DiscId *d;
+	DiscId *d2;
 	int i, first, last;
 	int subtest_passed;
 	int offset, previous_offset;
 	char *error_msg;
 	int feature_read;
+	int sectors;
+	int *track_offsets;
 
 	d = discid_new();
 
@@ -76,8 +79,8 @@ int main(int argc, char *argv[]) {
 	evaluate(last > 0);
 
 	announce("discid_get_sectors");
-	evaluate(equal_int(discid_get_sectors(d),
-				discid_get_track_offset(d, last)
+	sectors = discid_get_sectors(d);
+	evaluate(equal_int(sectors, discid_get_track_offset(d, last)
 				+ discid_get_track_length(d, last)));
 
 	announce("discid_get_track_offset sane");
@@ -85,7 +88,7 @@ int main(int argc, char *argv[]) {
 	subtest_passed = 0;
 	for (i=first; i<=last; i++) {
 		offset = discid_get_track_offset(d, i);
-		if (offset <= discid_get_sectors(d)) {
+		if (offset <= sectors) {
 			subtest_passed++;
 		}
 		if (previous_offset) {
@@ -108,6 +111,20 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	evaluate(equal_int(subtest_passed, last - first + 1));
+
+	announce("read/put idempotence");
+	d2 = discid_new();
+	/* create track offset array */
+	track_offsets = malloc(sizeof (int) * (last - first + 1));
+	memset(track_offsets, 0, sizeof (int) * (last - first + 1));
+	track_offsets[0] = sectors;
+	for (i=first; i<=last; i++) {
+		track_offsets[i] = discid_get_track_offset(d, i);
+	}
+	discid_put(d2, first, last, track_offsets);
+	evaluate(equal_str(discid_get_id(d2), discid_get_id(d))
+			&& equal_str(discid_get_submission_url(d2),
+				discid_get_submission_url(d)));
 
 	announce("discid_get_error_msg");
 	evaluate(strlen(discid_get_error_msg(d)) == 0);

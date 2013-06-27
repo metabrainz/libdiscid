@@ -41,7 +41,7 @@ void evaluate(int result) {
 	} else {
 		printf("Failed\n");
 		if (strlen(details)) {
-			printf(details);
+			printf("%s", details);
 		}
 	}
 	tests++;

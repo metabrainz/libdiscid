@@ -222,7 +222,6 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 	mb_toc->first_track_num = min_track;
 	mb_toc->last_track_num = max_track;
 
-	close(fd);
 	free(toc.buffer);
 
 	return 1;

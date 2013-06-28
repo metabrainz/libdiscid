@@ -39,10 +39,9 @@ int mb_disc_unix_open(mb_disc_private *disc, const char *device) {
 	if (fd < 0) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			 "cannot open device `%s'", device);
-		return 0;
-	} else {
-		return fd;
 	}
+	/* fd < 0 check needs to be made by caller */
+	return fd;
 }
 
 int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
@@ -82,6 +81,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	int i;
 
 	fd = mb_disc_unix_open(disc, device);
+	if (fd < 0)
+		return 0;
+
 
 	if ( !mb_disc_unix_read_toc(fd, disc, &toc) )
 		return 0;

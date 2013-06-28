@@ -3,17 +3,17 @@
 #
 #  Copyright (C) 2013 Johannes Dewender
 #  Copyright (C) 2006 Matthias Friedrich
-#  
+#
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
 #  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
-#  
+#
 #  This library is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  Lesser General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,22 +33,31 @@ pc_DATA = libdiscid.pc
 
 discid_incdir = $(includedir)/discid
 discid_inc_HEADERS = include/discid/discid.h
-noinst_HEADERS = include/discid/discid_private.h
+noinst_HEADERS = include/discid/discid_private.h src/base64.h src/sha1.h
+noinst_HEADERS += test/test.h src/unix.h src/ntddcdrm.h
 
 
 if RUN_TESTS
-TESTS = test_discid
+TESTS = test_core test_put test_read test_read_full
 endif
 
-check_PROGRAMS = test_discid
+# put tests that don't work here (so it shows up as expected failure)
+XFAIL =
+
+check_PROGRAMS = test_core test_put test_read test_read_full
 noinst_PROGRAMS = discid discisrc
 
-test_discid_SOURCES = test/test_discid.c
-test_discid_LDADD = $(top_builddir)/libdiscid.la
+test_core_SOURCES = test/test.c test/test_core.c
+test_core_LDADD = $(top_builddir)/libdiscid.la
+test_put_SOURCES = test/test.c test/test_put.c
+test_put_LDADD = $(top_builddir)/libdiscid.la
+test_read_SOURCES = test/test.c test/test_read.c
+test_read_LDADD = $(top_builddir)/libdiscid.la
+test_read_full_SOURCES = test/test.c test/test_read_full.c
+test_read_full_LDADD = $(top_builddir)/libdiscid.la
 
 discid_SOURCES = examples/discid.c
 discid_LDADD = $(top_builddir)/libdiscid.la
-
 discisrc_SOURCES = examples/discisrc.c
 discisrc_LDADD = $(top_builddir)/libdiscid.la
 
@@ -56,7 +65,6 @@ discisrc_LDADD = $(top_builddir)/libdiscid.la
 lib_LTLIBRARIES = libdiscid.la
 
 libdiscid_la_SOURCES = src/base64.c src/sha1.c src/disc.c
-libdiscid_la_SOURCES += src/base64.h src/sha1.h src/unix.h src/ntddcdrm.h
 
 # use a (well defined) version number, rather than version-info calculations
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined

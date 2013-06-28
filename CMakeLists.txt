@@ -101,12 +101,17 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include
 
 ADD_EXECUTABLE(discid examples/discid.c)
 TARGET_LINK_LIBRARIES(discid libdiscid)
-
 ADD_EXECUTABLE(discisrc examples/discisrc.c)
 TARGET_LINK_LIBRARIES(discisrc libdiscid)
 
-ADD_EXECUTABLE(test_discid test/test_discid.c)
-TARGET_LINK_LIBRARIES(test_discid libdiscid)
+ADD_EXECUTABLE(test_core EXCLUDE_FROM_ALL test/test.c test/test_core.c)
+TARGET_LINK_LIBRARIES(test_core libdiscid)
+ADD_EXECUTABLE(test_put EXCLUDE_FROM_ALL test/test.c test/test_put.c)
+TARGET_LINK_LIBRARIES(test_put libdiscid)
+ADD_EXECUTABLE(test_read EXCLUDE_FROM_ALL test/test.c test/test_read.c)
+TARGET_LINK_LIBRARIES(test_read libdiscid)
+ADD_EXECUTABLE(test_read_full EXCLUDE_FROM_ALL test/test.c test/test_read_full.c)
+TARGET_LINK_LIBRARIES(test_read_full libdiscid)
 
 INSTALL(TARGETS libdiscid DESTINATION ${LIB_INSTALL_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdiscid.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
@@ -115,7 +120,26 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/discid/discid.h DESTINATION ${
 
 ADD_CUSTOM_TARGET(docs doxygen)
 
-ADD_CUSTOM_TARGET(check ./test_discid DEPENDS test_discid)
+ADD_CUSTOM_TARGET(check
+	COMMAND echo test_core:
+	COMMAND echo ----------
+	COMMAND ./test_core
+	COMMAND echo
+	COMMAND echo
+	COMMAND echo test_put:
+	COMMAND echo ---------
+	COMMAND ./test_put
+	COMMAND echo
+	COMMAND echo
+	COMMAND echo test_read:
+	COMMAND echo ----------
+	COMMAND ./test_read || test $$? -eq 77
+	COMMAND echo
+	COMMAND echo
+	COMMAND echo test_read_full:
+	COMMAND echo ---------------
+	COMMAND ./test_read_full || test $$? -eq 77
+	DEPENDS test_core test_put test_read test_read_full)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 

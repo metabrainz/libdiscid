@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.5)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 PROJECT(libdiscid C)
@@ -29,20 +29,15 @@ ENDIF()
 SET(PROJECT_VERSION ${libdiscid_VERSION})
 
 
-SET(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
-SET(EXEC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation prefix for executables and object code libraries" FORCE)
-SET(BIN_INSTALL_DIR ${EXEC_INSTALL_PREFIX}/bin CACHE PATH "Installation prefix for user executables" FORCE)
-SET(LIB_INSTALL_DIR ${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX} CACHE PATH  "Installation prefix for object code libraries" FORCE)
-SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include CACHE PATH "Installation prefix for C header files" FORCE)
+INCLUDE(GNUInstallDirs)
+SET(BIN_INSTALL_DIR ${CMAKE_INSTALL_FULL_BINDIR} CACHE PATH "Installation prefix for user executables" FORCE)
+SET(LIB_INSTALL_DIR ${CMAKE_INSTALL_FULL_LIBDIR} CACHE PATH  "Installation prefix for object code libraries" FORCE)
+SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_FULL_INCLUDEDIR} CACHE PATH "Installation prefix for C header files" FORCE)
 
 # compatibility with automake
 SET(PACKAGE ${PROJECT_NAME})
 SET(VERSION ${PROJECT_VERSION})
 SET(PACKAGE_STRING "${PACKAGE} ${VERSION}")
-SET(prefix ${CMAKE_INSTALL_PREFIX})
-SET(exec_prefix ${EXEC_INSTALL_PREFIX})
-SET(includedir ${INCLUDE_INSTALL_DIR})
-SET(libdir ${LIB_INSTALL_DIR})
 
 CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc)
 CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc)

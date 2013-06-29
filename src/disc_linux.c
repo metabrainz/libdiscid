@@ -92,6 +92,7 @@ char *mb_disc_get_default_device_unportable(void) {
 	FILE *proc_file;
 	char *current_device;
 	char *lineptr = NULL;
+	char *saveptr = NULL;
 	size_t bufflen;
 
 	/* prefer the default device symlink to the internal names */
@@ -109,9 +110,9 @@ char *mb_disc_get_default_device_unportable(void) {
 				return MB_DEFAULT_DEVICE;
 			}
 		} while (strstr(lineptr, "drive name:") == NULL);
-		current_device = strtok(lineptr, "\t");
+		current_device = strtok_r(lineptr, "\t", &saveptr);
 		while (current_device != NULL) {
-			current_device = strtok(NULL, "\t");
+			current_device = strtok_r(NULL, "\t", &saveptr);
 			if (current_device != NULL) {
 				snprintf(default_device, MAX_DEV_LEN,
 					 "/dev/%s", current_device);

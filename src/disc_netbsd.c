@@ -68,9 +68,10 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	struct ioc_read_toc_entry rte;
 	int ret;
 
+	memset(&rte, 0, sizeof rte);
 	rte.address_format = CD_LBA_FORMAT;
 	rte.data           = &te;
-	rte.data_len       = sizeof(te);
+	rte.data_len       = sizeof te;
 	rte.starting_track = track_num;
 
 	ret = ioctl (fd, CDIOREADTOCENTRYS, &rte);

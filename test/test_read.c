@@ -37,6 +37,13 @@ int main(int argc, char *argv[]) {
 	int feature_read;
 	int sectors;
 	int *track_offsets;
+	char *device;
+
+	if (argc > 1 ) {
+		device = argv[1];
+	} else {
+		device = NULL;
+	}
 
 	d = discid_new();
 
@@ -45,7 +52,7 @@ int main(int argc, char *argv[]) {
 	evaluate(feature_read == 0 || feature_read == 1);
 
 	announce("discid_read_sparse");
-	if (!discid_read_sparse(d, NULL, 0)) {
+	if (!discid_read_sparse(d, device, 0)) {
 		printf("SKIP\n");
 
 		announce("discid_get_error_msg");

@@ -147,10 +147,10 @@ ADD_CUSTOM_TARGET(memcheck
 		./test_read > /dev/null || test $$? -eq 77
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
 		./test_read_full > /dev/null || test $$? -eq 77
-	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
-		./discid > /dev/null
-	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
-		./discisrc > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=66 --leak-check=full
+		./discid > /dev/null || test $$? -ne 66
+	COMMAND valgrind --quiet --error-exitcode=66 --leak-check=full
+		./discisrc > /dev/null || test $$? -ne 66
 	DEPENDS test_core test_put test_read test_read_full)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")

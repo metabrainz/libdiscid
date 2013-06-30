@@ -139,12 +139,18 @@ ADD_CUSTOM_TARGET(check
 	DEPENDS test_core test_put test_read test_read_full)
 
 ADD_CUSTOM_TARGET(valgrind
-	COMMAND valgrind --quiet --error-exitcode=1 ./test_core > /dev/null
-	COMMAND valgrind --quiet --error-exitcode=1 ./test_put > /dev/null
-	COMMAND valgrind --quiet --error-exitcode=1 ./test_read > /dev/null
-	COMMAND valgrind --quiet --error-exitcode=1 ./test_read_full > /dev/null
-	COMMAND valgrind --quiet --error-exitcode=1 ./discid > /dev/null
-	COMMAND valgrind --quiet --error-exitcode=1 ./discisrc > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_core > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_put > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_read > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_read_full > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./discid > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./discisrc > /dev/null
 	DEPENDS test_core test_put test_read test_read_full)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")

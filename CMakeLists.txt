@@ -138,7 +138,7 @@ ADD_CUSTOM_TARGET(check
 	COMMAND ./test_read_full || test $$? -eq 77
 	DEPENDS test_core test_put test_read test_read_full)
 
-ADD_CUSTOM_TARGET(valgrind
+ADD_CUSTOM_TARGET(memcheck
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
 		./test_core > /dev/null
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full

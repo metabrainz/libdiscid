@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 	int feature_mcn, feature_isrc;
 	char *device;
 
-	if (argc > 1 ) {
+	if (argc > 1) {
 		device = argv[1];
 	} else {
 		device = NULL;

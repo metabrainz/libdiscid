@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 	int *track_offsets;
 	char *device;
 
-	if (argc > 1 ) {
+	if (argc > 1) {
 		device = argv[1];
 	} else {
 		device = NULL;
@@ -123,8 +123,8 @@ int main(int argc, char *argv[]) {
 	announce("read/put idempotence");
 	d2 = discid_new();
 	/* create track offset array */
-	track_offsets = malloc(sizeof (int) * (last - first + 1));
-	memset(track_offsets, 0, sizeof (int) * (last - first + 1));
+	track_offsets = malloc(sizeof (int) * (last - first + 2));
+	memset(track_offsets, 0, sizeof (int) * (last - first + 2));
 	track_offsets[0] = sectors;
 	for (i=first; i<=last; i++) {
 		track_offsets[i] = discid_get_track_offset(d, i);

@@ -42,7 +42,9 @@
 
 
 #define MB_DEFAULT_DEVICE	"D:"
+#define MAX_DEV_LEN 3
 
+static char default_device[MAX_DEV_LEN] = "\0"; 
 
 static int AddressToSectors(UCHAR address[4])
 {
@@ -119,8 +121,18 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
-
 char *mb_disc_get_default_device_unportable(void) {
+	DWORD mask = GetLogicalDrives();
+	for (i = 0; i <= 25; i++) {
+		if (mask >> i & 1) {
+			sprintf_s(default_device, MAX_DEV_LEN, "%c:", i + 'A');
+			
+			if (GetDriveType(default_device) == DRIVE_CDROM) {
+				return default_device;
+			}
+		}
+	}
+
 	return MB_DEFAULT_DEVICE;
 }
 

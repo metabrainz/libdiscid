@@ -143,17 +143,20 @@ ADD_CUSTOM_TARGET(check
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 
-ADD_CUSTOM_TARGET(dist
-   COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
-   COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
-   COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
-   COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
-   COMMAND rm -rf "${libdiscid_DISTDIR}"
-)
-ADD_DEPENDENCIES(dist check)
+IF(NOT CMAKE_GENERATOR MATCHES "^Visual Studio")
+    ADD_CUSTOM_TARGET(dist
+       COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
+       COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
+       COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
+       COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
+       COMMAND rm -rf "${libdiscid_DISTDIR}"
+    )
+    ADD_DEPENDENCIES(dist check)
+ENDIF()
 
 # create binary in MinGW/MSYS
-IF(libdiscid_OS MATCHES "win32")
+IF(libdiscid_OS MATCHES "win32"
+    AND NOT CMAKE_GENERATOR MATCHES "^Visual Studio")
     ADD_CUSTOM_TARGET(distwin32
 	COMMAND mkdir "${libdiscid_DISTDIR}-win32"
 	COMMAND tar -xf "${libdiscid_DISTDIR}.tar.gz"
@@ -166,7 +169,8 @@ IF(libdiscid_OS MATCHES "win32")
     ADD_DEPENDENCIES(distwin32 dist)
 ENDIF()
 
-IF(libdiscid_OS MATCHES "win32")
+IF(libdiscid_OS MATCHES "win32"
+    AND CMAKE_GENERATOR MATCHES "^Visual Studio")
     SET(win32_build "${libdiscid_DISTDIR}\\_build_win32")
     SET(win64_build "${libdiscid_DISTDIR}\\_build_win64")
     SET(vs_build_config "Release")

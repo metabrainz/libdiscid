@@ -133,6 +133,8 @@ int main(int argc, char *argv[]) {
 	evaluate(equal_str(discid_get_id(d2), discid_get_id(d))
 			&& equal_str(discid_get_submission_url(d2),
 				discid_get_submission_url(d)));
+	free(track_offsets);
+	discid_free(d2);
 
 	announce("discid_get_error_msg");
 	evaluate(strlen(discid_get_error_msg(d)) == 0);

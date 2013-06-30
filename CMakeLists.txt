@@ -144,9 +144,9 @@ ADD_CUSTOM_TARGET(memcheck
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
 		./test_put > /dev/null
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
-		./test_read > /dev/null
+		./test_read > /dev/null || test $$? -eq 77
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
-		./test_read_full > /dev/null
+		./test_read_full > /dev/null || test $$? -eq 77
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
 		./discid > /dev/null
 	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full

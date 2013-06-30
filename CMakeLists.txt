@@ -166,6 +166,37 @@ IF(libdiscid_OS MATCHES "win32")
     ADD_DEPENDENCIES(distwin32 dist)
 ENDIF()
 
+IF(libdiscid_OS MATCHES "win32")
+    SET(win32_build "${libdiscid_DISTDIR}\\_build_win32")
+    SET(win64_build "${libdiscid_DISTDIR}\\_build_win64")
+    SET(vs_build_config "Release")
+    ADD_CUSTOM_TARGET(distwin
+        COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
+        COMMAND SET VisualStudioVersion=11.0
+        COMMAND mkdir "${win32_build}"
+        COMMAND cd "${win32_build}"
+        COMMAND cmake -G "Visual Studio 11" ..
+        COMMAND msbuild /p:Configuration=${vs_build_config} libdiscid.vcxproj
+        COMMAND cd ..\\..
+        COMMAND mkdir "${win64_build}"
+        COMMAND cd "${win64_build}"
+        COMMAND cmake -G "Visual Studio 11 Win64" ..
+        COMMAND msbuild /p:Configuration=${vs_build_config} libdiscid.vcxproj
+        COMMAND cd ..\\..
+        COMMAND mkdir "${libdiscid_DISTDIR}-win\\win32"
+        COMMAND copy "${win32_build}\\${vs_build_config}\\discid.dll" "${libdiscid_DISTDIR}-win\\win32"
+        COMMAND mkdir "${libdiscid_DISTDIR}-win\\win64"
+        COMMAND copy "${win64_build}\\${vs_build_config}\\discid.dll" "${libdiscid_DISTDIR}-win\\win64"
+        COMMAND mkdir "${libdiscid_DISTDIR}-win\\src"
+        COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}-win\\src"
+        COMMAND rd /s /q "${libdiscid_DISTDIR}-win\\src\\.git"
+        COMMAND del "${libdiscid_DISTDIR}-win\\src\\.gitignore"
+        COMMAND zip -r "${libdiscid_DISTDIR}-win.zip" "${libdiscid_DISTDIR}-win/"
+        COMMAND rd /s /q "${libdiscid_DISTDIR}"
+        COMMAND rd /s /q "${libdiscid_DISTDIR}-win"
+    )
+ENDIF()
+
 # create universal binary on Mac OS X
 IF(libdiscid_OS MATCHES "darwin")
     SET(darwin_build "${libdiscid_DISTDIR}/_build_darwin")
@@ -203,7 +234,6 @@ IF(libdiscid_OS MATCHES "darwin")
     )
     ADD_DEPENDENCIES(distmac dist)
 ENDIF()
-
 
 # Tests needed for sha1.h
 INCLUDE(TestBigEndian)

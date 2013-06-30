@@ -51,7 +51,11 @@
 #define MB_DEFAULT_DEVICE "/dev/cdrom"
 #define MAX_DEV_LEN 50
 
-static char default_device[MAX_DEV_LEN] = "\0";
+#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define LIBDISCID_TLS __thread
+#endif
+
+static LIBDISCID_TLS char default_device[MAX_DEV_LEN] = "\0";
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {

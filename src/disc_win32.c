@@ -46,7 +46,7 @@
 
 static char default_device[MAX_DEV_LEN] = "\0"; 
 
-static int AddressToSectors(UCHAR address[4])
+static int address_to_sectors(UCHAR address[4])
 {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
@@ -54,7 +54,8 @@ static int AddressToSectors(UCHAR address[4])
 static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 {
 	HANDLE hDevice;
-	char filename[128], *colon;
+	char filename[128];
+	const char* colon;
 	int len;
 
 	strcpy(filename, "\\\\.\\");
@@ -176,12 +177,12 @@ int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *
 
 	/* Get info about all tracks */
 	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
-		toc->tracks[i].address = AddressToSectors(cd.TrackData[i - 1].Address) - 150;
+		toc->tracks[i].address = address_to_sectors(cd.TrackData[i - 1].Address) - 150;
 		toc->tracks[i].control = cd.TrackData[i - 1].Control;
 	}
 
 	/* Lead-out is stored after the last track */
-	toc->tracks[0].address = AddressToSectors(cd.TrackData[toc->last_track_num].Address) - 150;
+	toc->tracks[0].address = address_to_sectors(cd.TrackData[toc->last_track_num].Address) - 150;
 	toc->tracks[0].control = cd.TrackData[toc->last_track_num].Control;
 
 	return 1;

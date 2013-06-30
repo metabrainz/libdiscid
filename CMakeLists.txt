@@ -124,21 +124,27 @@ ADD_CUSTOM_TARGET(check
 	COMMAND echo test_core:
 	COMMAND echo ----------
 	COMMAND ./test_core
-	COMMAND echo
-	COMMAND echo
+	COMMAND echo && echo
 	COMMAND echo test_put:
 	COMMAND echo ---------
 	COMMAND ./test_put
-	COMMAND echo
-	COMMAND echo
+	COMMAND echo && echo
 	COMMAND echo test_read:
 	COMMAND echo ----------
 	COMMAND ./test_read || test $$? -eq 77
-	COMMAND echo
-	COMMAND echo
+	COMMAND echo && echo
 	COMMAND echo test_read_full:
 	COMMAND echo ---------------
 	COMMAND ./test_read_full || test $$? -eq 77
+	DEPENDS test_core test_put test_read test_read_full)
+
+ADD_CUSTOM_TARGET(valgrind
+	COMMAND valgrind --quiet --error-exitcode=1 ./test_core > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 ./test_put > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 ./test_read > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 ./test_read_full > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 ./discid > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 ./discisrc > /dev/null
 	DEPENDS test_core test_put test_read test_read_full)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")

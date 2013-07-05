@@ -87,6 +87,14 @@ AC_CHECK_SIZEOF(long)
 
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION(0.18.1)
+if test "$USE_NLS" = "yes"; then
+	AX_PTHREAD([
+		AC_DEFINE(HAVE_PTHREAD, [], "pthread is available")
+		LIBS="$PTHREAD_LIBS $LIBS"
+		CFLAGS="$CLAFGS $PTHREAD_CFLAGS"
+		CC="$PTHREAD_CC"
+	])
+fi
 
 if test "$cross_compiling" = "yes" && test "$os" = "win32"; then
   AC_MSG_WARN([detected cross compilation: disabling tests!!!])

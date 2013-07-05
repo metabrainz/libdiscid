@@ -152,6 +152,25 @@ ENDIF()
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")
 MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
 
+# check if pthread is available
+IF(ENABLE_NLS)
+	SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+	IF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER MATCHES "clang")
+		# FIND_PACKAGE(Threads) prefers -lpthread over -pthread, -pthread is
+		# recommend though
+		SET(THREADS_HAVE_PTHREAD_ARG "-pthread")
+	ENDIF()
+	FIND_PACKAGE(Threads)
+	IF(CMAKE_USE_PTHREADS_INIT)
+		SET(HAVE_PTHREAD TRUE)
+		SET(libdiscid_LIBS ${LIBDISCID_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+		IF(${CMAKE_THREAD_LIBS_INIT} MATCHES "-pthread")
+			# if we have -pthread, also pass -pthread to CC
+			SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+		ENDIF()
+	ENDIF()
+ENDIF()
+
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS} ${libdiscid_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES

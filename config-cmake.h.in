@@ -12,6 +12,9 @@
 /* enable string translation (gettext) */
 #cmakedefine ENABLE_NLS
 
+/* pthread is available */
+#cmakedefine HAVE_PTHREAD
+
 /**
  * Values needed by our sha1.h
  */

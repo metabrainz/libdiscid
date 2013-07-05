@@ -43,6 +43,17 @@
 #define TRACK_NUM_IS_VALID(disc, i) \
 	( i >= disc->first_track_num && i <= disc->last_track_num )
 
+#ifdef ENABLE_NLS
+static void init_nls(void) {
+	bindtextdomain(PACKAGE, LOCALEDIR);
+}
+
+#ifdef HAVE_PTHREAD
+#include <pthread.h>
+static pthread_once_t nls_initialized = PTHREAD_ONCE_INIT;
+#endif
+#endif
+
 
 static void create_disc_id(mb_disc_private *d, char buf[]);
 static void create_freedb_disc_id(mb_disc_private *d, char buf[]);
@@ -61,7 +72,11 @@ DiscId *discid_new() {
 	 * just in case the prefix was set weird
 	 */
 #ifdef ENABLE_NLS
-	bindtextdomain(PACKAGE, LOCALEDIR);
+#ifdef HAVE_PTHREAD
+	pthread_once(&nls_initialized, init_nls);
+#else
+	init_nls();
+#endif
 #endif
 	printf(_("one two three\n"));
 	/* initializes everything to zero */

@@ -1,6 +1,15 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-unreleased:
+
+ - LIB-51: fix ISRC reading on Mac OS X again
+ - LIB-53: discid_get_submission_url() now returns the new NGS url
+           currently no unctional change, the old url was redirected
+ - LIB-50: fix segfault in mb_disc_load_toc on Solaris
+ - LIB-26: add a better test suite, including valgrind memcheck target
+ - print time information in the discid example
+
 libdiscid-0.5.1:
 
  - LIB-40: discid_get_webservice_url() (web service version 1) is deprecated
@@ -10,7 +19,7 @@ libdiscid-0.5.1:
  - LIB-44: fix invalid disc IDs on first read of multi-session discs
  - LIB-37: Autotools optimization (non-recursive build etc.)
  - LIB-42: remove Windows 9x platform code
-   renamed openbsd platform code to netbsd, still used by both.
+ - renamed openbsd platform code to netbsd, still used by both.
 
 libdiscid-0.5.0:
 

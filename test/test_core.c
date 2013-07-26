@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 	/* this doesn't test much, but shouldn't fail completely
 	 * TODO: make sure there is always something > 0 returned
 	 */
-	evaluate(strlen(discid_get_default_device()) >= 0);
+	evaluate(strlen(discid_get_default_device()) > 0);
 
 	/* TODO
 	 * test access with/without initialization doesn't fail

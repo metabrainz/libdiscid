@@ -47,6 +47,7 @@
 
 static void create_disc_id(mb_disc_private *d, char buf[]);
 static void create_freedb_disc_id(mb_disc_private *d, char buf[]);
+static void create_toc_string(mb_disc_private *d, char buf[]);
 static void create_submission_url(mb_disc_private *d, char buf[]);
 static void create_webservice_url(mb_disc_private *d, char buf[]);
 
@@ -105,6 +106,19 @@ char *discid_get_freedb_id(DiscId *d) {
 	return disc->freedb_id;
 }
 
+char *discid_get_toc_string(DiscId *d) {
+	mb_disc_private *disc = (mb_disc_private *) d;
+	assert( disc != NULL );
+	assert( disc->success );
+
+	if ( ! disc->success )
+		return NULL;
+
+	if ( strlen(disc->toc_string) == 0 )
+		create_toc_string(disc, disc->toc_string);
+
+	return disc->toc_string;
+}
 
 char *discid_get_submission_url(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
@@ -364,30 +378,23 @@ static void create_freedb_disc_id(mb_disc_private *d, char buf[]) {
 	sprintf(buf, "%08x", ((n % 0xff) << 24 | t << 8 | d->last_track_num));
 }
 
-
 /*
- * Create a submission URL based on the TOC data found in the mb_disc_private
- * object. The URL is placed in the provided string buffer.
+ * Create a string based on the TOC data found in the mb_disc_private
+ * object. The toc string is placed in the provided string buffer.
+ *
+ * Format is:
+ * toc=[first track number]+[last track number]+[disc length in sectors]+[1st track offset]+...
  */
-static void create_submission_url(mb_disc_private *d, char buf[]) {
-	char tmp[1024];
+static void create_toc_string(mb_disc_private *d, char buf[]) {
+	char tmp[16];
 	int i;
 
 	assert( d != NULL );
 
-	strcpy(buf, MB_SUBMISSION_URL);
-
-	strcat(buf, "?id=");
-	strcat(buf, discid_get_id((DiscId *) d));
-
-	sprintf(tmp, "&tracks=%d", d->last_track_num);
-	strcat(buf, tmp);
-
-	sprintf(tmp, "&toc=%d+%d+%d",
+	sprintf(buf, "toc=%d+%d+%d",
 			d->first_track_num,
 			d->last_track_num,
 			d->track_offsets[0]);
-	strcat(buf, tmp);
 
 	for (i = d->first_track_num; i <= d->last_track_num; i++) {
 		sprintf(tmp, "+%d", d->track_offsets[i]);
@@ -396,13 +403,30 @@ static void create_submission_url(mb_disc_private *d, char buf[]) {
 }
 
 /*
+ * Create a submission URL based on the TOC data found in the mb_disc_private
+ * object. The URL is placed in the provided string buffer.
+ */
+static void create_submission_url(mb_disc_private *d, char buf[]) {
+	char tmp[16];
+
+	assert( d != NULL );
+
+	strcpy(buf, MB_SUBMISSION_URL);
+
+	strcat(buf, "?id=");
+	strcat(buf, discid_get_id((DiscId *) d));
+
+	sprintf(tmp, "&tracks=%d&", d->last_track_num);
+	strcat(buf, tmp);
+
+	strcat(buf, discid_get_toc_string((DiscId *) d));
+}
+
+/*
  * Create a web service URL based on the TOC data found in the mb_disc_private
  * object. The URL is placed in the provided string buffer.
  */
 static void create_webservice_url(mb_disc_private *d, char buf[]) {
-	char tmp[1024];
-	int i;
-
 	assert( d != NULL );
 
 	strcpy(buf, MB_WEBSERVICE_URL);
@@ -410,16 +434,8 @@ static void create_webservice_url(mb_disc_private *d, char buf[]) {
 	strcat(buf, "?type=xml&discid=");
 	strcat(buf, discid_get_id((DiscId *) d));
 
-	sprintf(tmp, "&toc=%d+%d+%d",
-			d->first_track_num,
-			d->last_track_num,
-			d->track_offsets[0]);
-	strcat(buf, tmp);
-
-	for (i = d->first_track_num; i <= d->last_track_num; i++) {
-		sprintf(tmp, "+%d", d->track_offsets[i]);
-		strcat(buf, tmp);
-	}
+	strcat(buf, "&");
+	strcat(buf, discid_get_toc_string((DiscId *) d));
 }
 
 /* EOF */

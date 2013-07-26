@@ -29,8 +29,12 @@
 
 #include "discid/discid.h"
 
-/* Length of toc string, "toc=xxxxx+xxxxx+xxxxx" + 100 tracks 6 bytes each ("+xxxxx") */
-#define MB_TOC_STRING_LENGTH (20 + 100*6)
+/* Length of toc string, "xxx+xxx" + 100 tracks 7 bytes each ("+xxxxxx")
+ * The highest possible offset is 90 minutes * 60 seconds/minute * 75 frames/second = 405000.
+ * That is 6 digits plus one plus sign = 7 characters per track.
+ * So 3 + 3 (first and last) + 100*7 (disc length plus 99 tracks) = 706
+ */
+#define MB_TOC_STRING_LENGTH (3 + 3 + 100*7)
 
 /* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */
 #define MB_DISC_ID_LENGTH		32
@@ -42,7 +46,7 @@
 #define MB_ERROR_MSG_LENGTH		255
 
 /* Length of url prefixes */
-#define MB_URL_PREFIX_LENGTH    512
+#define MB_URL_PREFIX_LENGTH    300
 
 /* Maximum length of any url (including query string) */
 #define MB_MAX_URL_LENGTH		(MB_URL_PREFIX_LENGTH + MB_DISC_ID_LENGTH + MB_TOC_STRING_LENGTH)

@@ -47,7 +47,7 @@
 
 static void create_disc_id(mb_disc_private *d, char buf[]);
 static void create_freedb_disc_id(mb_disc_private *d, char buf[]);
-static void create_toc_string(mb_disc_private *d, char buf[]);
+static char *create_toc_string(mb_disc_private *d, char *sep);
 static void create_submission_url(mb_disc_private *d, char buf[]);
 static void create_webservice_url(mb_disc_private *d, char buf[]);
 
@@ -114,8 +114,13 @@ char *discid_get_toc_string(DiscId *d) {
 	if ( ! disc->success )
 		return NULL;
 
-	if ( strlen(disc->toc_string) == 0 )
-		create_toc_string(disc, disc->toc_string);
+	if ( strlen(disc->toc_string) == 0 ) {
+		char *toc = create_toc_string(disc, " ");
+		if (toc) {
+			memcpy(disc->toc_string, toc, strlen(toc) + 1);
+			free(toc);
+		}
+	}
 
 	return disc->toc_string;
 }
@@ -385,20 +390,38 @@ static void create_freedb_disc_id(mb_disc_private *d, char buf[]) {
  * Format is:
  * toc=[first track number]+[last track number]+[disc length in sectors]+[1st track offset]+...
  */
-static void create_toc_string(mb_disc_private *d, char buf[]) {
+static char *create_toc_string(mb_disc_private *d, char *sep) {
 	char tmp[16];
+	char *toc;
 	int i;
 
 	assert( d != NULL );
 
-	sprintf(buf, "toc=%d+%d+%d",
+	toc = calloc((6+strlen(sep))*101, sizeof(char));
+	if (!toc) return NULL;
+
+	sprintf(toc, "%d%s%d%s%d",
 			d->first_track_num,
+			sep,
 			d->last_track_num,
+			sep,
 			d->track_offsets[0]);
 
 	for (i = d->first_track_num; i <= d->last_track_num; i++) {
-		sprintf(tmp, "+%d", d->track_offsets[i]);
-		strcat(buf, tmp);
+		sprintf(tmp, "%s%d", sep, d->track_offsets[i]);
+		strcat(toc, tmp);
+	}
+
+	return toc;
+}
+
+/* Append &toc=... to buf, calling  create_toc_string() */
+static void cat_toc_param(mb_disc_private *d, char *buf) {
+	char *toc = create_toc_string(d, "+");
+	if (toc) {
+		strcat(buf, "&toc=");
+		strcat(buf, toc);
+		free(toc);
 	}
 }
 
@@ -416,10 +439,10 @@ static void create_submission_url(mb_disc_private *d, char buf[]) {
 	strcat(buf, "?id=");
 	strcat(buf, discid_get_id((DiscId *) d));
 
-	sprintf(tmp, "&tracks=%d&", d->last_track_num);
+	sprintf(tmp, "&tracks=%d", d->last_track_num);
 	strcat(buf, tmp);
 
-	strcat(buf, discid_get_toc_string((DiscId *) d));
+	cat_toc_param(d, buf);
 }
 
 /*
@@ -434,8 +457,7 @@ static void create_webservice_url(mb_disc_private *d, char buf[]) {
 	strcat(buf, "?type=xml&discid=");
 	strcat(buf, discid_get_id((DiscId *) d));
 
-	strcat(buf, "&");
-	strcat(buf, discid_get_toc_string((DiscId *) d));
+	cat_toc_param(d, buf);
 }
 
 /* EOF */

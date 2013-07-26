@@ -393,11 +393,20 @@ static void create_freedb_disc_id(mb_disc_private *d, char buf[]) {
 static char *create_toc_string(mb_disc_private *d, char *sep) {
 	char tmp[16];
 	char *toc;
-	int i;
+	int i, size;
 
 	assert( d != NULL );
 
-	toc = calloc((6+strlen(sep))*101, sizeof(char));
+	/* number of tracks */
+	size = 1 + d->last_track_num - d->first_track_num;
+	/* first&last track num and total length */
+	size += 3;
+	/* number + separator */
+	size *= (6 + strlen(sep));
+	/* nul */
+	size++;
+
+	toc = calloc(size, sizeof(char));
 	if (!toc) return NULL;
 
 	sprintf(toc, "%d%s%d%s%d",

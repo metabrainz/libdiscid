@@ -43,10 +43,10 @@
 #define MB_MAX_URL_LENGTH		1023
 
 /* The URL that can be used for submitting DiscIDs (no parameters yet) */
-#define MB_SUBMISSION_URL		"http://musicbrainz.org/cdtoc/attach"
+#define MB_SUBMISSION_URL		"http://mm.musicbrainz.org/bare/cdlookup.html"
 
 /* The URL that can be used for retrieving XML for a CD */
-#define MB_WEBSERVICE_URL		"http://musicbrainz.org/ws/1/release"
+#define MB_WEBSERVICE_URL		"http://mm.musicbrainz.org/ws/1/release"
 
 /* Maximum length of a Media Catalogue Number string */
 #define MCN_STR_LENGTH		13

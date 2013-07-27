@@ -1,11 +1,9 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased:
+libdiscid-0.5.2:
 
  - LIB-51: fix ISRC reading on Mac OS X again
- - LIB-53: discid_get_submission_url() now returns the new NGS url
-           currently no unctional change, the old url was redirected
  - LIB-50: fix segfault in mb_disc_load_toc on Solaris
  - LIB-26: add a better test suite, including valgrind memcheck target
  - print time information in the discid example

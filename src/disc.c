@@ -385,10 +385,11 @@ static void create_freedb_disc_id(mb_disc_private *d, char buf[]) {
 
 /*
  * Create a string based on the TOC data found in the mb_disc_private
- * object. The toc string is placed in the provided string buffer.
+ * object. The returned string is allocated, caller has to free() it.
+ * On failure, it returns NULL.
  *
  * Format is:
- * toc=[first track number]+[last track number]+[disc length in sectors]+[1st track offset]+...
+ * [1st track num][sep][last track num][sep][length in sectors][sep][1st track offset][sep]...
  */
 static char *create_toc_string(mb_disc_private *d, char *sep) {
 	char tmp[16];

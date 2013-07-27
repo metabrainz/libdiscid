@@ -273,7 +273,7 @@ LIBDISCID_API char *discid_get_id(DiscId *d);
 LIBDISCID_API char *discid_get_freedb_id(DiscId *d);
 
 /**
- * Return a string representing toc.
+ * Return a string representing CD Table Of Contents (TOC).
  *
  * The string has following values separated by space:
  * first track number
@@ -289,7 +289,7 @@ LIBDISCID_API char *discid_get_freedb_id(DiscId *d);
  * The returned string is only valid as long as the DiscId object exists.
  *
  * @param d a DiscId object created by discid_new()
- * @return a string containing an URL
+ * @return a string containing TOC information
  */
 LIBDISCID_API char *discid_get_toc_string(DiscId *d);
 

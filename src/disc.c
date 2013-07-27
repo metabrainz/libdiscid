@@ -184,8 +184,12 @@ int discid_put(DiscId *d, int first, int last, int *offsets) {
 		return 0;
 	}
 	for (i = 0; i <= last; i++) {
-		if (i > 0 && offsets[i] > disc_length) {
+		if (offsets[i] > disc_length) {
 			sprintf(disc->error_msg, "Invalid offset");
+			return 0;
+		}
+		if (i > 1 && offsets[i-1] > offsets[i]) {
+			sprintf(disc->error_msg, "Invalid order");
 			return 0;
 		}
 	}

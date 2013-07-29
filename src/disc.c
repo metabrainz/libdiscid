@@ -64,7 +64,6 @@ DiscId *discid_new() {
 
 
 void discid_free(DiscId *d) {
-	assert(d != NULL);
 	free(d);
 }
 
@@ -121,10 +120,9 @@ char *discid_get_submission_url(DiscId *d) {
 char *discid_get_webservice_url(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
-	assert(disc->success);
 
 	if (!disc->success)
-		return NULL;
+		return "";
 
 	if (strlen(disc->webservice_url) == 0)
 		create_webservice_url(disc, disc->webservice_url);

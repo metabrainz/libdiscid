@@ -6,7 +6,6 @@ libdiscid-0.5.2:
  - LIB-51: fix ISRC reading on Mac OS X again
  - LIB-50: fix segfault in mb_disc_load_toc on Solaris
  - LIB-26: add a better test suite, including valgrind memcheck target
- - LIB-48: don't return NULL when read/put wasn't called
  - print time information in the discid example
 
 libdiscid-0.5.1:

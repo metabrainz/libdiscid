@@ -79,9 +79,10 @@ char *discid_get_error_msg(DiscId *d) {
 char *discid_get_id(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
 	if (!disc->success)
-		return "";
+		return NULL;
 
 	if (strlen(disc->id) == 0)
 		create_disc_id(disc, disc->id);
@@ -93,9 +94,10 @@ char *discid_get_id(DiscId *d) {
 char *discid_get_freedb_id(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
 	if (!disc->success)
-		return "";
+		return NULL;
 
 	if (strlen(disc->freedb_id) == 0)
 		create_freedb_disc_id(disc, disc->freedb_id);
@@ -107,9 +109,10 @@ char *discid_get_freedb_id(DiscId *d) {
 char *discid_get_submission_url(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
 	if (!disc->success)
-		return "";
+		return NULL;
 
 	if (strlen(disc->submission_url) == 0)
 		create_submission_url(disc, disc->submission_url);
@@ -120,9 +123,10 @@ char *discid_get_submission_url(DiscId *d) {
 char *discid_get_webservice_url(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
 	if (!disc->success)
-		return "";
+		return NULL;
 
 	if (strlen(disc->webservice_url) == 0)
 		create_webservice_url(disc, disc->webservice_url);
@@ -189,48 +193,61 @@ char *discid_get_default_device(void) {
 int discid_get_first_track_num(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
-	return disc->first_track_num;
+	if (!disc->success)
+		return -1;
+	else
+		return disc->first_track_num;
 }
 
 
 int discid_get_last_track_num(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
-	return disc->last_track_num;
+	if (!disc->success)
+		return -1;
+	else
+		return disc->last_track_num;
 }
 
 
 int discid_get_sectors(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
-	return disc->track_offsets[0];
+	if (!disc->success)
+		return -1;
+	else
+		return disc->track_offsets[0];
 }
 
 
 int discid_get_track_offset(DiscId *d, int i) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 	assert(TRACK_NUM_IS_VALID(disc, i));
 
-	if (!TRACK_NUM_IS_VALID(disc, i))
-		return 0;
-
-	return disc->track_offsets[i];
+	if (!disc->success || !TRACK_NUM_IS_VALID(disc, i))
+		return -1;
+	else
+		return disc->track_offsets[i];
 }
 
 
 int discid_get_track_length(DiscId *d, int i) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 	assert(TRACK_NUM_IS_VALID(disc, i));
 
-	if (!TRACK_NUM_IS_VALID(disc, i))
-		return 0;
-
-	if (i < disc->last_track_num)
+	if (!disc->success || !TRACK_NUM_IS_VALID(disc, i))
+		return -1;
+	else if (i < disc->last_track_num)
 		return disc->track_offsets[i+1] - disc->track_offsets[i];
 	else
 		return disc->track_offsets[0] - disc->track_offsets[i];
@@ -239,19 +256,24 @@ int discid_get_track_length(DiscId *d, int i) {
 char *discid_get_mcn(DiscId *d) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 
-	return disc->mcn;
+	if (!disc->success)
+		return NULL;
+	else
+		return disc->mcn;
 }
 
 char* discid_get_track_isrc(DiscId *d, int i) {
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
+	assert(disc->success);
 	assert(TRACK_NUM_IS_VALID(disc, i));
 
-	if (!TRACK_NUM_IS_VALID(disc, i) || i == 0)
+	if (!disc->success || i == 0 || !TRACK_NUM_IS_VALID(disc, i))
 		return NULL;
-
-  return disc->isrc[i];
+	else
+		return disc->isrc[i];
 }
 
 int discid_has_feature(enum discid_feature feature) {

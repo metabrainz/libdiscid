@@ -74,8 +74,8 @@ int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
 	return 1;
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
-			    unsigned int features) {
+int mb_disc_unix_read(mb_disc_private *disc, const char *device,
+		      unsigned int features) {
 	mb_disc_toc toc;
 	int fd;
 	int i;

@@ -210,3 +210,8 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
 	/* On Darwin the tracks are already filled along with the header */
 	return 1;
 }
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	return mb_disc_unix_read(disc, device, features);
+}

@@ -37,10 +37,56 @@
 #include "discid/discid_private.h"
 #include "scsi.h"
 
+
 /* Send a scsi command and receive data. */
 static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	     unsigned char *data, int data_len) {
 	return mb_scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
+}
+
+/* This uses CRC-16 (CRC-CCITT) as defined for audio CDs
+ * to check the parity for 10*8 = 80 data bits
+ * using 2*8 = 16 checksum/parity bits.
+ * We feed data+parity (96 bit) to the algorithm
+ * and check for a remainder of 0.
+ */
+static int check_crc(const unsigned char data[10], const unsigned char crc[2]) {
+	/* The generator polynomial to be used:
+	 * x^16+x^12+x^5 = 10001000000100001 = 0x11021
+	 * so the degree is 16 and the generator has 17 bits */
+	const long generator = 0x11021;
+	long remainder = 0;	/* start value */
+	int data_bit = 0;
+	int byte_num;
+	unsigned char data_byte, mask;
+
+	do {
+		/* fill the remainder until the 17th bit is one */
+		while (data_bit < 96 && remainder >> 16 == 0) {
+			byte_num = data_bit >> 3;
+			if (byte_num < 10) {
+				data_byte = data[byte_num];
+			} else {
+				/* crc/parity stored inverted on disc */
+				data_byte = ~crc[byte_num-10];
+			}
+			remainder = (remainder << 1) ;
+			/* add the current bit from the current data_byte */
+			mask = 0x80 >> (data_bit % 8);
+			remainder += (data_byte & mask) != 0x0;
+			data_bit++;
+		}
+
+		/* We do a polynomial division by the generator modulo(2).
+		 * So we get the (new) remainder with XOR (^)
+		 * and don't care about the actual result of the division.
+		 */
+		if (remainder >> 16 == 1)
+			remainder = remainder ^ generator;
+
+	} while (data_bit < 96); /* while data left */
+
+	return remainder == 0;
 }
 
 static void decode_isrc(unsigned char *q_channel, char *isrc) {
@@ -49,10 +95,11 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 	int bit_pos;
 	int bit;
 	unsigned char buffer;
-	/* unsigned char crc[2]; */
+	unsigned char crc[2];
 
 	isrc_pos = 0;
-	/* q_channel[0] = 0x03 -> mode 3 -> ISRC data */
+	/* upper 4 bits of q_channel[0] are CONTROL */
+	/* lower 4 bits of q_channel[0] = ADR = 0x03 -> mode 3 -> ISRC data */
 	data_pos = 1;
 	bit_pos = 7;
 	buffer = 0;
@@ -86,10 +133,12 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 	isrc[11] = '0' + (q_channel[8] >> 4);
 	/* q_channel[8] & 0x0f are zero bits */
 	/* q_channel[9] is AFRAME */
-	/* TODO: actually use the CRC data
-	 * crc[0] = q_channel[10];
-	 * crc[1] = q_channel[11];
-	 */
+	crc[0] = q_channel[10];
+	crc[1] = q_channel[11];
+
+	if (!check_crc(q_channel, crc)) {
+		fprintf(stderr, "Warning: CRC mismatch for: %s\n", isrc);
+	}
 }
 
 

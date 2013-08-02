@@ -37,6 +37,11 @@
 #include "discid/discid_private.h"
 #include "scsi.h"
 
+#define BYTES_SECTOR 2448	/* including raw (audio) data */
+#define SUBCHANNEL_BYTES 96	/* bytes with sub-channel info (per sector) */
+#define BYTES_RAW (2448 - 96) 	/* without sub-channel */
+/* each sub-channel byte includes 1 bit for each of the subchannel types */
+#define BITS_SUBCHANNEL 96
 
 /* Send a scsi command and receive data. */
 static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
@@ -47,7 +52,7 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 /* This uses CRC-16 (CRC-CCITT) as defined for audio CDs
  * to check the parity for 10*8 = 80 data bits
  * using 2*8 = 16 checksum/parity bits.
- * We feed data+parity (96 bit) to the algorithm
+ * We feed the complete Q-channel data, data+parity (96 bits), to the algorithm
  * and check for a remainder of 0.
  */
 static int check_crc(const unsigned char data[10], const unsigned char crc[2]) {
@@ -62,7 +67,7 @@ static int check_crc(const unsigned char data[10], const unsigned char crc[2]) {
 
 	do {
 		/* fill the remainder until the 17th bit is one */
-		while (data_bit < 96 && remainder >> 16 == 0) {
+		while (data_bit < BITS_SUBCHANNEL && remainder >> 16 == 0) {
 			byte_num = data_bit >> 3;
 			if (byte_num < 10) {
 				data_byte = data[byte_num];
@@ -84,12 +89,12 @@ static int check_crc(const unsigned char data[10], const unsigned char crc[2]) {
 		if (remainder >> 16 == 1)
 			remainder = remainder ^ generator;
 
-	} while (data_bit < 96); /* while data left */
+	} while (data_bit < BITS_SUBCHANNEL); /* while data left */
 
 	return remainder == 0;
 }
 
-static void decode_isrc(unsigned char *q_channel, char *isrc) {
+static int decode_isrc(unsigned char *q_channel, char *isrc) {
 	int isrc_pos;
 	int data_pos;
 	int bit_pos;
@@ -104,17 +109,17 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 	bit_pos = 7;
 	buffer = 0;
 	/* first 5 chars of ISRC are alphanumeric and 6-bit BCD encoded */
-	for (bit = 0; bit < 5*6; bit++) {
+	for (bit = 0; bit < 5 * 6; bit++) {
 		buffer = buffer << 1;
 		if ((q_channel[data_pos] & (1 << bit_pos)) == (1 << bit_pos)) {
 			buffer++;
 		}
 		bit_pos--;
-		if ((bit + 1)%8 == 0) {
+		if ((bit + 1) % 8 == 0) {
 			bit_pos = 7;
 			data_pos++;
 		}
-		if ((bit + 1)%6 == 0) {
+		if ((bit + 1) % 6 == 0) {
 			/* 0x3f = only lowest 6 bits set */
 			isrc[isrc_pos] = '0' + (buffer & 0x3f);
 			isrc_pos++;
@@ -138,6 +143,9 @@ static void decode_isrc(unsigned char *q_channel, char *isrc) {
 
 	if (!check_crc(q_channel, crc)) {
 		fprintf(stderr, "Warning: CRC mismatch for: %s\n", isrc);
+		return 0;
+	} else {
+		return 1;
 	}
 }
 
@@ -202,11 +210,11 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	 */
 	const int SEC_NUM = 150;
 	unsigned char cmd[12];
-	unsigned char data[SEC_NUM*2448]; /* overall data */
+	unsigned char data[SEC_NUM*BYTES_SECTOR]; /* overall data */
 	unsigned char q_buffer;
 	unsigned char q_data[12]; /* sub-channel data in 1 sector */
 	char isrc[ISRC_STR_LENGTH+1];
-	unsigned long offset;
+	unsigned long disc_offset, data_offset;
 	int char_num;
 	int sector;
 	int i;
@@ -215,7 +223,7 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	memset(data, 0, sizeof data);
 	memset(isrc, 0, sizeof isrc);
 
-	offset = disc->track_offsets[track_num];
+	disc_offset = disc->track_offsets[track_num];
 
 	/* 0xbe = READ CD, implementation optional in contrast to 0x42
 	 * support given with GET CONFIGURATION (0x46)
@@ -224,10 +232,10 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	 * CD Read Feature (0x001e),
 	 */
 	cmd[0] = 0xbe;	/* READ CD (MMC) */
-	cmd[2] = offset >> 32;
-	cmd[3] = offset >> 16;
-	cmd[4] = offset >> 8;
-	cmd[5] = offset;  /* from where to start reading */
+	cmd[2] = disc_offset >> 32;
+	cmd[3] = disc_offset >> 16;
+	cmd[4] = disc_offset >> 8;
+	cmd[5] = disc_offset;  /* from where to start reading */
 	cmd[6] = SEC_NUM >> 16;
 	cmd[7] = SEC_NUM >> 8;
 	cmd[8] = SEC_NUM; /* sectors to read */
@@ -242,25 +250,31 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 		return;
 	}
 
-	/* each sector has 96 bytes for one Q-channel type
-	 * We try until we finde an ISRC Q-channel
-	 */
 	for (sector = 0; sector < SEC_NUM; sector++) {
 		char_num = 0;
 		memset(q_data, 0, sizeof q_data);
 		q_buffer = 0;
-		/* the first 2352 bytes are raw data without sub-channels
-		 * We only want the 96 bit sub-channel data
+
+		/* The first BYTES_RAW bytes have only raw data,
+		 * but the following SUBCHANNEL_BYTES
+		 * include sub-channel information.
+		 * Every one of these bytes includes one bit
+		 * for every sub-channel type.
+		 * We skip ahead to these, fetch the bits for channel Q
+		 * and check if there is ISRC information in them.
 		 */
-		for (i = 2352; i < 2448; i++) {
+		for (i = BYTES_RAW; i < BYTES_SECTOR; i++) {
 			q_buffer = q_buffer << 1;
+			data_offset = i + (sector * BYTES_SECTOR);
+
 			/* the 6th bit is the Q-channel bit
 			 * we want to collect these bits
 			 */
-			if ((data[i + (sector*2448)] & (1 << 6)) == (1 << 6)) {
+			if ((data[data_offset] & (1 << 6)) != 0x0) {
 				q_buffer++;
 			}
-			if ((i+1)%8 == 0) {
+
+			if ((i + 1) % 8 == 0) {
 				/* we have gathered one complete byte */
 				q_data[char_num] = q_buffer;
 				if (char_num == 0) {

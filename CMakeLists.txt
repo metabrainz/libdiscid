@@ -126,21 +126,33 @@ ADD_CUSTOM_TARGET(check
 	COMMAND echo test_core:
 	COMMAND echo ----------
 	COMMAND ./test_core
-	COMMAND echo
-	COMMAND echo
+	COMMAND echo && echo
 	COMMAND echo test_put:
 	COMMAND echo ---------
 	COMMAND ./test_put
-	COMMAND echo
-	COMMAND echo
+	COMMAND echo && echo
 	COMMAND echo test_read:
 	COMMAND echo ----------
 	COMMAND ./test_read || test $$? -eq 77
-	COMMAND echo
-	COMMAND echo
+	COMMAND echo && echo
 	COMMAND echo test_read_full:
 	COMMAND echo ---------------
 	COMMAND ./test_read_full || test $$? -eq 77
+	DEPENDS test_core test_put test_read test_read_full)
+
+ADD_CUSTOM_TARGET(memcheck
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_core > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_put > /dev/null
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_read > /dev/null || test $$? -eq 77
+	COMMAND valgrind --quiet --error-exitcode=1 --leak-check=full
+		./test_read_full > /dev/null || test $$? -eq 77
+	COMMAND valgrind --quiet --error-exitcode=66 --leak-check=full
+		./discid > /dev/null || test $$? -ne 66
+	COMMAND valgrind --quiet --error-exitcode=66 --leak-check=full
+		./discisrc > /dev/null || test $$? -ne 66
 	DEPENDS test_core test_put test_read test_read_full)
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")

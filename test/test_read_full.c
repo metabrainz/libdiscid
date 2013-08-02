@@ -34,6 +34,13 @@ int main(int argc, char *argv[]) {
 	char *isrc;
 	char *error_msg;
 	int feature_mcn, feature_isrc;
+	char *device;
+
+	if (argc > 1) {
+		device = argv[1];
+	} else {
+		device = NULL;
+	}
 
 	d = discid_new();
 
@@ -44,7 +51,7 @@ int main(int argc, char *argv[]) {
 			&& (feature_isrc == 0 || feature_isrc == 1));
 
 	announce("discid_read");
-	if (!discid_read(d, NULL)) {
+	if (!discid_read(d, device)) {
 		printf("SKIP\n");
 
                 announce("discid_get_error_msg");

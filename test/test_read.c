@@ -37,6 +37,13 @@ int main(int argc, char *argv[]) {
 	int feature_read;
 	int sectors;
 	int *track_offsets;
+	char *device;
+
+	if (argc > 1) {
+		device = argv[1];
+	} else {
+		device = NULL;
+	}
 
 	d = discid_new();
 
@@ -45,7 +52,7 @@ int main(int argc, char *argv[]) {
 	evaluate(feature_read == 0 || feature_read == 1);
 
 	announce("discid_read_sparse");
-	if (!discid_read_sparse(d, NULL, 0)) {
+	if (!discid_read_sparse(d, device, 0)) {
 		printf("SKIP\n");
 
 		announce("discid_get_error_msg");
@@ -116,8 +123,8 @@ int main(int argc, char *argv[]) {
 	announce("read/put idempotence");
 	d2 = discid_new();
 	/* create track offset array */
-	track_offsets = malloc(sizeof (int) * (last - first + 1));
-	memset(track_offsets, 0, sizeof (int) * (last - first + 1));
+	track_offsets = malloc(sizeof (int) * (last - first + 2));
+	memset(track_offsets, 0, sizeof (int) * (last - first + 2));
 	track_offsets[0] = sectors;
 	for (i=first; i<=last; i++) {
 		track_offsets[i] = discid_get_track_offset(d, i);
@@ -126,6 +133,8 @@ int main(int argc, char *argv[]) {
 	evaluate(equal_str(discid_get_id(d2), discid_get_id(d))
 			&& equal_str(discid_get_submission_url(d2),
 				discid_get_submission_url(d)));
+	free(track_offsets);
+	discid_free(d2);
 
 	announce("discid_get_error_msg");
 	evaluate(strlen(discid_get_error_msg(d)) == 0);

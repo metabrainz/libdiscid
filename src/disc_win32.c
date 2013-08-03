@@ -25,23 +25,30 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <windows.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <windows.h>
 
 #if defined(__CYGWIN__)
 #include <ntddcdrm.h>
+#include <ntddscsi.h>
 #elif defined(__MINGW32__)
 #include <ddk/ntddcdrm.h>
+#include <ddk/ntddscsi.h>
 #else
 #include "ntddcdrm.h"
 #endif
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "scsi.h"
 
 
 #define MB_DEFAULT_DEVICE	"D:"
+
+/* after that time a scsi command is considered timed out */
+#define DEFAULT_TIMEOUT 30	/* in seconds */
 
 
 static int AddressToSectors(UCHAR address[4])
@@ -195,12 +202,41 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
 		if (features & DISCID_FEATURE_ISRC) {
-			read_disc_isrc(hDevice, disc, i);
+			//read_disc_isrc(hDevice, disc, i);
+			mb_scsi_read_track_isrc_raw((int) hDevice, disc, i);
 		}
 	}
 
 	CloseHandle(hDevice);
 	return 1;
+}
+
+int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
+			   unsigned char *data, int data_len) {
+	HANDLE handle = (HANDLE) fd;
+	SCSI_PASS_THROUGH_DIRECT sptd;
+	DWORD bytes_returned;
+
+	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
+	sptd.DataIn = SCSI_IOCTL_DATA_IN;
+	sptd.TimeOutValue = DEFAULT_TIMEOUT;
+	sptd.DataBuffer = data;		/* a pointer */
+	sptd.DataTransferLength = data_len;
+	sptd.CdbLength = cmd_len;
+
+	/* The command is a buffer, not a pointer.
+	 * So we have to copy our buffer.
+	 * The size of this buffer is not documented in MSDN,
+	 * but in the include file defined as uchar[16].
+	 */
+	assert(cmd_len <= sizeof sptd.Cdb);
+	memcpy(sptd.Cdb, cmd, cmd_len);
+
+	/* the sptd struct is used for input and output -> listed twice
+	 * We don't use bytes_returned, but this cannot be NULL in this case */
+	return DeviceIoControl(handle, IOCTL_SCSI_PASS_THROUGH_DIRECT,
+			       &sptd, sizeof sptd, &sptd, sizeof sptd,
+			       &bytes_returned, NULL);
 }
 
 /* EOF */

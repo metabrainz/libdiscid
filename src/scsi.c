@@ -38,11 +38,20 @@
 #include "discid/discid_private.h"
 #include "scsi.h"
 
-#define BYTES_SECTOR 2448	/* including raw (audio) data */
 #define SUBCHANNEL_BYTES 96	/* bytes with sub-channel info (per sector) */
-#define BYTES_RAW (2448 - 96) 	/* without sub-channel */
 /* each sub-channel byte includes 1 bit for each of the subchannel types */
 #define BITS_SUBCHANNEL 96
+#define SECTORS_PER_ISRC 100
+
+/* Try that many ISRCs until one with a valid CRC is found.
+ * For every ISRC SUBCHANNEL_BYTES * SECTORS_PER_ISRC have to be read
+ * and all of that is always read. Only the evaluation stops at a valid ISRC
+ * So this does have a huge speed impact even when no invalid CRCs are found.
+ * (ca. 4 seconds per disc, per ISRC equivalent of data read)
+ * The upper limit seems to be 71, which leads to 683 KB transferred.
+ * (tested on Linux with 2 devices)
+ */
+#define ISRCS_TO_CHECK 2	/* tolerate 1 CRC error, alread doubles time */
 
 
 /* Send a scsi command and receive data. */
@@ -51,7 +60,7 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	return mb_scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
 }
 
-/* This uses CRC-16 (CRC-CCITT) as defined for audio CDs
+/* This uses CRC-16 (CRC-CCITT?) as defined for audio CDs
  * to check the parity for 10*8 = 80 data bits
  * using 2*8 = 16 checksum/parity bits.
  * We feed the complete Q-channel data, data+parity (96 bits), to the algorithm
@@ -207,11 +216,9 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 
 void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	/* There should be at least one ISRC in 100 sectors acc to spec.
-	 * 279 seems to be the maximum we can request without failing,
-	 * which is close to 4 seconds and contains up to 3 ISRCs.
-	 * We break when we found one with valid CRC.
+	 * We break when we found one with valid CRC in the data read.
 	 */
-	const int SECTORS_TO_CHECK = 279;
+	const int sectors_to_check = ISRCS_TO_CHECK * SECTORS_PER_ISRC;
 	int num_sectors, max_sectors;
 	int disc_offset;		/* in sectors */
 	int data_len, data_offset;	/* in bytes */
@@ -231,11 +238,11 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 
 	/* allocate memory for the amount of sectors we would like to read */
 	max_sectors = discid_get_track_length((DiscId) disc, track_num);
-	if (max_sectors > SECTORS_TO_CHECK)
-		num_sectors = SECTORS_TO_CHECK;
+	if (max_sectors > sectors_to_check)
+		num_sectors = sectors_to_check;
 	else
 		num_sectors = max_sectors;
-	data_len = num_sectors * BYTES_SECTOR;
+	data_len = num_sectors * SUBCHANNEL_BYTES;
 	data = (unsigned char *) calloc(data_len, 1);
 
 	disc_offset = disc->track_offsets[track_num];
@@ -250,13 +257,12 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	cmd[2] = disc_offset >> 24;
 	cmd[3] = disc_offset >> 16;
 	cmd[4] = disc_offset >> 8;
-	cmd[5] = disc_offset;  /* from where to start reading */
+	cmd[5] = disc_offset;	/* from where to start reading */
 	cmd[6] = num_sectors >> 16;
 	cmd[7] = num_sectors >> 8;
-	cmd[8] = num_sectors; /* sectors to read */
-	cmd[9] = 0xF8; 	/* 11111000 sync=1 all-header=11 user=1, ecc=1
-			 * no-error=00 */
-	cmd[10] = 0x01; 	/* Sub-Channel Selection raw P-W=001*/
+	cmd[8] = num_sectors;	/* sectors to read */
+	cmd[9] = 0x00;		/* read no raw (main channel) data */
+	cmd[10] = 0x01; 	/* Sub-Channel Selection: raw P-W=001*/
 	/* cmd[11] = control byte */
 
 	if (scsi_cmd(fd, cmd, sizeof cmd, data, data_len) != 0) {
@@ -270,17 +276,14 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 		memset(q_data, 0, sizeof q_data);
 		q_buffer = 0;
 
-		/* The first BYTES_RAW bytes have only raw data,
-		 * but the following SUBCHANNEL_BYTES
-		 * include sub-channel information.
-		 * Every one of these bytes includes one bit
+		/* Every one of these SUBCHANNEL_BYTES includes one bit
 		 * for every sub-channel type.
-		 * We skip ahead to these, fetch the bits for channel Q
+		 * We fetch the bits for channel Q
 		 * and check if there is ISRC information in them.
 		 */
-		for (i = BYTES_RAW; i < BYTES_SECTOR; i++) {
+		for (i = 0; i < SUBCHANNEL_BYTES; i++) {
 			q_buffer = q_buffer << 1;
-			data_offset = i + (sector * BYTES_SECTOR);
+			data_offset = i + (sector * SUBCHANNEL_BYTES);
 
 			/* the 6th bit is the Q-channel bit
 			 * we want to collect these bits

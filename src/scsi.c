@@ -41,17 +41,12 @@
 #define SUBCHANNEL_BYTES 96	/* bytes with sub-channel info (per sector) */
 /* each sub-channel byte includes 1 bit for each of the subchannel types */
 #define BITS_SUBCHANNEL 96
-#define SECTORS_PER_ISRC 100
 
-/* Try that many ISRCs until one with a valid CRC is found.
- * For every ISRC SUBCHANNEL_BYTES * SECTORS_PER_ISRC have to be read
- * and all of that is always read. Only the evaluation stops at a valid ISRC
- * So this does have a huge speed impact even when no invalid CRCs are found.
- * (ca. 4 seconds per disc, per ISRC equivalent of data read)
- * The upper limit seems to be 71, which leads to 683 KB transferred.
- * (tested on Linux with 2 devices)
- */
-#define ISRCS_TO_CHECK 2	/* tolerate 1 CRC error, alread doubles time */
+enum isrc_search {
+	NOTHING_FOUND = 0,
+	ISRC_FOUND = 1,
+	CRC_MISMATCH = 2,
+};
 
 
 /* Send a scsi command and receive data. */
@@ -159,6 +154,61 @@ static int decode_isrc(unsigned char *q_channel, char *isrc) {
 	}
 }
 
+static enum isrc_search find_isrc_in_sector(unsigned char *data, char *isrc) {
+	unsigned char q_buffer;
+	unsigned char q_data[12];	/* sub-channel data in 1 sector */
+	int char_num;
+	int i;
+
+	char_num = 0;
+	memset(q_data, 0, sizeof q_data);
+	q_buffer = 0;
+
+	/* Every one of these SUBCHANNEL_BYTES includes one bit
+	 * for every sub-channel type.
+	 * We fetch the bits for channel Q
+	 * and check if there is ISRC information in them.
+	 */
+	for (i = 0; i < SUBCHANNEL_BYTES; i++) {
+		q_buffer = q_buffer << 1;
+
+		/* the 6th bit is the Q-channel bit
+		 * we want to collect these bits
+		 */
+		if ((data[i] & (1 << 6)) != 0x0) {
+			q_buffer++;
+		}
+
+		if ((i + 1) % 8 == 0) {
+			/* we have gathered one complete byte */
+			q_data[char_num] = q_buffer;
+			if (char_num == 0) {
+				/* test if we got the right type
+				 * of q-channel (ADR = 0x03)
+				 * upper 4 bit are CONTROL
+				 * Go to next sector otherwise
+				 */
+				if ((q_buffer & 0x0F) != 0x03) {
+					break;
+				}
+			}
+			char_num++;
+			q_buffer = 0;
+		}
+	}
+	if ((q_data[0] & 0x0F) == 0x03) {
+		/* We found a Q-channel with ISRC data.
+		 * Test if the CRC matches and stop searching if so.
+		 */
+		if(decode_isrc(q_data, isrc)) {
+			return ISRC_FOUND;
+		} else {
+			return CRC_MISMATCH;
+		}
+	} else {
+		return NOTHING_FOUND;
+	}
+}
 
 void mb_scsi_stop_disc(int fd) {
 	unsigned char cmd[6];
@@ -214,115 +264,72 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 
 }
 
+/* We read sectors from a track until finding a valid ISRC.
+ * An empty ISRC is valid in that context -> leads to empty string.
+ * Up to 100 sectors have to be read for every ISRC candidate.
+ */
 void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
-	/* There should be at least one ISRC in 100 sectors acc to spec.
-	 * We break when we found one with valid CRC in the data read.
-	 */
-	const int sectors_to_check = ISRCS_TO_CHECK * SECTORS_PER_ISRC;
-	int num_sectors, max_sectors;
-	int disc_offset;		/* in sectors */
-	int data_len, data_offset;	/* in bytes */
+	int max_sectors;
+	int disc_offset;	/* in sectors */
+	int data_len;		/* in bytes */
 	unsigned char *data;	/* overall data */
 	unsigned char cmd[12];
-	unsigned char q_buffer;
-	unsigned char q_data[12]; /* sub-channel data in 1 sector */
 	char isrc[ISRC_STR_LENGTH+1];
-	int char_num;
-	int sector;
-	int i;
+	int sector = 0;
+	enum isrc_search search_result;
 	int isrc_found = 0;
 	int warning_shown = 0;
 
-	memset(cmd, 0, sizeof cmd);
-	memset(isrc, 0, sizeof isrc);
-
 	/* allocate memory for the amount of sectors we would like to read */
 	max_sectors = discid_get_track_length((DiscId) disc, track_num);
-	if (max_sectors > sectors_to_check)
-		num_sectors = sectors_to_check;
-	else
-		num_sectors = max_sectors;
-	data_len = num_sectors * SUBCHANNEL_BYTES;
+
+	data_len = SUBCHANNEL_BYTES;
 	data = (unsigned char *) calloc(data_len, 1);
 
+	/* start reading sectors at start of track */
 	disc_offset = disc->track_offsets[track_num];
 
-	/* 0xbe = READ CD, implementation optional in contrast to 0x42
-	 * support given with GET CONFIGURATION (0x46)
-	 * Support part of:
-	 * Multi-Read Feature (0x001d) and
-	 * CD Read Feature (0x001e),
-	 */
-	cmd[0] = 0xbe;	/* READ CD (MMC) */
-	cmd[2] = disc_offset >> 24;
-	cmd[3] = disc_offset >> 16;
-	cmd[4] = disc_offset >> 8;
-	cmd[5] = disc_offset;	/* from where to start reading */
-	cmd[6] = num_sectors >> 16;
-	cmd[7] = num_sectors >> 8;
-	cmd[8] = num_sectors;	/* sectors to read */
-	cmd[9] = 0x00;		/* read no raw (main channel) data */
-	cmd[10] = 0x01; 	/* Sub-Channel Selection: raw P-W=001*/
-	/* cmd[11] = control byte */
+	while (!isrc_found && sector <= max_sectors) {
+		memset(cmd, 0, sizeof cmd);
+		memset(isrc, 0, sizeof isrc);
+		memset(data, 0, data_len);
 
-	if (scsi_cmd(fd, cmd, sizeof cmd, data, data_len) != 0) {
-		fprintf(stderr, "Warning: Cannot get ISRC code for track %d\n",
-			track_num);
-		return;
-	}
-
-	for (sector = 0; sector < num_sectors; sector++) {
-		char_num = 0;
-		memset(q_data, 0, sizeof q_data);
-		q_buffer = 0;
-
-		/* Every one of these SUBCHANNEL_BYTES includes one bit
-		 * for every sub-channel type.
-		 * We fetch the bits for channel Q
-		 * and check if there is ISRC information in them.
+		/* 0xbe = READ CD, implementation optional in contrast to 0x42
+		 * support given with GET CONFIGURATION (0x46)
+		 * Support part of:
+		 * Multi-Read Feature (0x001d) and
+		 * CD Read Feature (0x001e),
 		 */
-		for (i = 0; i < SUBCHANNEL_BYTES; i++) {
-			q_buffer = q_buffer << 1;
-			data_offset = i + (sector * SUBCHANNEL_BYTES);
+		cmd[0] = 0xbe;	/* READ CD (MMC) */
+		cmd[2] = disc_offset >> 24;
+		cmd[3] = disc_offset >> 16;
+		cmd[4] = disc_offset >> 8;
+		cmd[5] = disc_offset;	/* from where to start reading */
+		/* cmd[6] and cmd[7] are unused upper bytes of sector count */
+		cmd[8] = 1;		/* sectors to read */
+		cmd[9] = 0x00;		/* read no raw (main channel) data */
+		cmd[10] = 0x01; 	/* Sub-Channel Selection: raw P-W=001*/
+		/* cmd[11] = control byte */
 
-			/* the 6th bit is the Q-channel bit
-			 * we want to collect these bits
-			 */
-			if ((data[data_offset] & (1 << 6)) != 0x0) {
-				q_buffer++;
-			}
+		if (scsi_cmd(fd, cmd, sizeof cmd, data, data_len) != 0) {
+			fprintf(stderr,
+				"Warning: Cannot get ISRC code for track %d\n",
+				track_num);
+			return;
+		}
 
-			if ((i + 1) % 8 == 0) {
-				/* we have gathered one complete byte */
-				q_data[char_num] = q_buffer;
-				if (char_num == 0) {
-					/* test if we got the right type
-					 * of q-channel (ADR = 0x03)
-					 * upper 4 bit are CONTROL
-					 * Go to next sector otherwise
-					 */
-					if ((q_buffer & 0x0F) != 0x03) {
-						break;
-					}
-				}
-				char_num++;
-				q_buffer = 0;
-			}
-		}
-		if ((q_data[0] & 0x0F) == 0x03) {
-			/* We found a Q-channel with ISRC data.
-			 * Test if the CRC matches and stop searching if so.
-			 */
-			if(decode_isrc(q_data, isrc)) {
-				isrc_found = 1;
-				break;
-			} else {
-				fprintf(stderr,
-					"Warning: CRC mismatch track %d: %s\n",
-					track_num, isrc);
-				warning_shown = 1;
-			}
-		}
+		search_result = find_isrc_in_sector(data, isrc);
+		if (search_result == ISRC_FOUND) {
+			isrc_found = 1;
+			break;
+		} else if (search_result == CRC_MISMATCH) {
+			fprintf(stderr, "Warning: CRC mismatch track %d: %s\n",
+				track_num, isrc);
+			warning_shown = 1;
+		} /* otherwise keep searching the sectors */
+
+		sector++;
+		disc_offset++;
 	}
 
 	free(data);

@@ -43,6 +43,7 @@
 /* each sub-channel byte includes 1 bit for each of the subchannel types */
 #define BITS_SUBCHANNEL 96
 
+
 /* Send a scsi command and receive data. */
 static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	     unsigned char *data, int data_len) {
@@ -66,7 +67,7 @@ static int check_crc(const unsigned char data[10], const unsigned char crc[2]) {
 	unsigned char data_byte, mask;
 
 	do {
-		/* fill the remainder until the 17th bit is one */
+		/* fill the remainder with data until the 17th bit is one */
 		while (data_bit < BITS_SUBCHANNEL && remainder >> 16 == 0) {
 			byte_num = data_bit >> 3;
 			if (byte_num < 10) {
@@ -142,7 +143,6 @@ static int decode_isrc(unsigned char *q_channel, char *isrc) {
 	crc[1] = q_channel[11];
 
 	if (!check_crc(q_channel, crc)) {
-		fprintf(stderr, "Warning: CRC mismatch for: %s\n", isrc);
 		return 0;
 	} else {
 		return 1;
@@ -205,23 +205,37 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 }
 
 void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
-	/* there should be at least one ISRC in 100 sectors per spec
-	 * We try 150 (= 2 seconds) to be sure, but break when successfull
+	/* There should be at least one ISRC in 100 sectors acc to spec.
+	 * 279 seems to be the maximum we can request without failing,
+	 * which is close to 4 seconds and contains up to 3 ISRCs.
+	 * We break when we found one with valid CRC.
 	 */
-	const int SEC_NUM = 150;
+	const int SECTORS_TO_CHECK = 279;
+	int num_sectors, max_sectors;
+	int disc_offset;		/* in sectors */
+	int data_len, data_offset;	/* in bytes */
+	unsigned char *data;	/* overall data */
 	unsigned char cmd[12];
-	unsigned char data[SEC_NUM*BYTES_SECTOR]; /* overall data */
 	unsigned char q_buffer;
 	unsigned char q_data[12]; /* sub-channel data in 1 sector */
 	char isrc[ISRC_STR_LENGTH+1];
-	unsigned long disc_offset, data_offset;
 	int char_num;
 	int sector;
 	int i;
+	int isrc_found = 0;
+	int warning_shown = 0;
 
 	memset(cmd, 0, sizeof cmd);
-	memset(data, 0, sizeof data);
 	memset(isrc, 0, sizeof isrc);
+
+	/* allocate memory for the amount of sectors we would like to read */
+	max_sectors = discid_get_track_length((DiscId) disc, track_num);
+	if (max_sectors > SECTORS_TO_CHECK)
+		num_sectors = SECTORS_TO_CHECK;
+	else
+		num_sectors = max_sectors;
+	data_len = num_sectors * BYTES_SECTOR;
+	data = (unsigned char *) calloc(data_len, 1);
 
 	disc_offset = disc->track_offsets[track_num];
 
@@ -232,25 +246,25 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	 * CD Read Feature (0x001e),
 	 */
 	cmd[0] = 0xbe;	/* READ CD (MMC) */
-	cmd[2] = disc_offset >> 32;
+	cmd[2] = disc_offset >> 24;
 	cmd[3] = disc_offset >> 16;
 	cmd[4] = disc_offset >> 8;
 	cmd[5] = disc_offset;  /* from where to start reading */
-	cmd[6] = SEC_NUM >> 16;
-	cmd[7] = SEC_NUM >> 8;
-	cmd[8] = SEC_NUM; /* sectors to read */
+	cmd[6] = num_sectors >> 16;
+	cmd[7] = num_sectors >> 8;
+	cmd[8] = num_sectors; /* sectors to read */
 	cmd[9] = 0xF8; 	/* 11111000 sync=1 all-header=11 user=1, ecc=1
 			 * no-error=00 */
 	cmd[10] = 0x01; 	/* Sub-Channel Selection raw P-W=001*/
 	/* cmd[11] = control byte */
 
-	if (scsi_cmd(fd, cmd, sizeof cmd, data, sizeof data) != 0) {
+	if (scsi_cmd(fd, cmd, sizeof cmd, data, data_len) != 0) {
 		fprintf(stderr, "Warning: Cannot get ISRC code for track %d\n",
 			track_num);
 		return;
 	}
 
-	for (sector = 0; sector < SEC_NUM; sector++) {
+	for (sector = 0; sector < num_sectors; sector++) {
 		char_num = 0;
 		memset(q_data, 0, sizeof q_data);
 		q_buffer = 0;
@@ -292,12 +306,28 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 			}
 		}
 		if ((q_data[0] & 0x0F) == 0x03) {
-			/* we found a Q-channel with ISRC data */
-			decode_isrc(q_data, isrc);
-			break;
+			/* We found a Q-channel with ISRC data.
+			 * Test if the CRC matches and stop searching if so.
+			 */
+			if(decode_isrc(q_data, isrc)) {
+				isrc_found = 1;
+				break;
+			} else {
+				fprintf(stderr,
+					"Warning: CRC mismatch track %d: %s\n",
+					track_num, isrc);
+				warning_shown = 1;
+			}
 		}
 	}
-	strncpy(disc->isrc[track_num], isrc, ISRC_STR_LENGTH);
+	if (isrc_found) {
+		if (warning_shown) {
+			fprintf(stderr,
+				"         valid ISRC for track %d: %s\n",
+				track_num, isrc);
+		}
+		strncpy(disc->isrc[track_num], isrc, ISRC_STR_LENGTH);
+	}
 }
 
 

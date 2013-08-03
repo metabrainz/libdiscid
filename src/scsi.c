@@ -28,10 +28,11 @@
  *
  * The specs can be found on the net (t10.org, needs registration)
  * The Seagate SCSI Commands Reference Manual is also an
- * excellant resource that is freely available.
+ * resource that is freely available, but only for primary commands.
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "discid/discid_private.h"
@@ -320,6 +321,9 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 			}
 		}
 	}
+
+	free(data);
+
 	if (isrc_found) {
 		if (warning_shown) {
 			fprintf(stderr,

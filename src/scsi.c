@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 #include "scsi.h"
 

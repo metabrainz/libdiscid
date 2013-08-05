@@ -47,6 +47,7 @@ XFAIL =
 check_PROGRAMS = test_core test_put test_read test_read_full
 noinst_PROGRAMS = discid discisrc
 
+# Tests
 test_core_SOURCES = test/test.c test/test_core.c
 test_core_LDADD = $(top_builddir)/libdiscid.la
 test_put_SOURCES = test/test.c test/test_put.c
@@ -56,10 +57,16 @@ test_read_LDADD = $(top_builddir)/libdiscid.la
 test_read_full_SOURCES = test/test.c test/test_read_full.c
 test_read_full_LDADD = $(top_builddir)/libdiscid.la
 
+# Examples
 discid_SOURCES = examples/discid.c
 discid_LDADD = $(top_builddir)/libdiscid.la
 discisrc_SOURCES = examples/discisrc.c
 discisrc_LDADD = $(top_builddir)/libdiscid.la
+if HAVE_MUSICBRAINZ5
+noinst_PROGRAMS += disc_metadata
+disc_metadata_SOURCES = examples/disc_metadata.c
+disc_metadata_LDADD = $(top_builddir)/libdiscid.la -lmusicbrainz5
+endif
 
 
 lib_LTLIBRARIES = libdiscid.la

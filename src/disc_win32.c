@@ -38,6 +38,7 @@
 #include <ddk/ntddscsi.h>
 #else
 #include "ntddcdrm.h"
+#include "ntddscsi.h"
 #endif
 
 #include "discid/discid.h"

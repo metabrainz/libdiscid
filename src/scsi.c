@@ -281,14 +281,12 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	int isrc_found = 0;
 	int warning_shown = 0;
 
-	/* allocate memory for the amount of sectors we would like to read */
-	max_sectors = discid_get_track_length((DiscId) disc, track_num);
-
 	data_len = SUBCHANNEL_BYTES;
 	data = (unsigned char *) calloc(data_len, 1);
 
 	/* start reading sectors at start of track */
 	disc_offset = disc->track_offsets[track_num];
+	max_sectors = mb_disc_get_track_length(disc, track_num);
 
 	while (!isrc_found && sector <= max_sectors) {
 		memset(cmd, 0, sizeof cmd);

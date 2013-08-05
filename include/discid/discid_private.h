@@ -121,4 +121,12 @@ LIBDISCID_INTERNAL int mb_disc_has_feature_unportable(enum discid_feature featur
  */
 LIBDISCID_INTERNAL int mb_disc_load_toc(mb_disc_private *disc, mb_disc_toc *toc);
 
+/*
+ * This is the code for discid_get_track_length(), implemented in disc.c.
+ * On Windows we can't use any LIBDISCID_API functions outside of disc.c,
+ * so we have this workaround for scsi.c usage
+ */
+LIBDISCID_INTERNAL int mb_disc_get_track_length(mb_disc_private *disc,
+						int track_num);
+
 #endif /* MUSICBRAINZ_DISC_ID_PRIVATE_H */

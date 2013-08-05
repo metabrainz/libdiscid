@@ -5,7 +5,7 @@
 #  MUSICBRAINZ5_LIBRARIES - The libraries needed to use libmusicbrainz5
 #  MUSICBRAINZ5_DEFINITIONS - Compiler switches required
 
-find_package(PkgConfig)
+find_package(PkgConfig QUIET)
 pkg_check_modules(PC_MUSICBRAINZ5 QUIET libmusicbrainz5)
 set(MUSICBRAINZ5_DEFINITIONS ${PC_MUSICBRAINZ5_CFLAGS_OTHER})
 

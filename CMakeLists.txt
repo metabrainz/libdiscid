@@ -91,7 +91,10 @@ MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
 
 # This is only a dependency for a libmusicbrainz example
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-FIND_PACKAGE(Musicbrainz5)
+FIND_PACKAGE(Musicbrainz5 QUIET)
+IF(NOT MUSICBRAINZ5_FOUND)
+    SET(MUSICBRAINZ5_INCLUDE_DIRS "")
+ENDIF()
 
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})

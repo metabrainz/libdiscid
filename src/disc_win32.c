@@ -124,9 +124,11 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 
 char *mb_disc_get_default_device_unportable(void) {
 	DWORD mask = GetLogicalDrives();
+	int i;
+
 	for (i = 0; i <= 25; i++) {
 		if (mask >> i & 1) {
-			sprintf_s(default_device, MAX_DEV_LEN, "%c:", i + 'A');
+			snprintf(default_device, MAX_DEV_LEN, "%c:", i + 'A');
 			
 			if (GetDriveType(default_device) == DRIVE_CDROM) {
 				return default_device;

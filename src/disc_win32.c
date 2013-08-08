@@ -220,8 +220,9 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 			   unsigned char *data, int data_len) {
 	HANDLE handle = (HANDLE) fd;
 	SCSI_PASS_THROUGH_DIRECT sptd;
-	DWORD bytes_returned;
+	DWORD bytes_returned = 0;
 	int return_value;
+	int i;
 
 	memset(&sptd, 0, sizeof sptd);
 	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
@@ -250,6 +251,23 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 		return -1;
 	} else {
 		/* success of DeviceIoControl */
+
+		/* debug out for some (potentially) abnormal cases */
+		if (return_value != 1) {
+			fprintf(stderr, "scsi cmd return value: %d\n",
+					return_value);
+		}
+		if (bytes_returned != 96) {
+			fprintf(stderr, "scsi cmd bytes returned: %d\n",
+					(int) bytes_returned);
+		}
+		for (i = 0; i < data_len; i++) {
+			if (data[i] != 0x00)
+				break;
+		}
+		if (i == data_len)
+			fprintf(stderr, "zero data returned by scsi_cmd\n");
+
 		return sptd.ScsiStatus;
 	}
 }

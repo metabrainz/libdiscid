@@ -44,7 +44,15 @@
 #define MB_DEFAULT_DEVICE	"D:"
 #define MAX_DEV_LEN 3
 
-static char default_device[MAX_DEV_LEN] = "\0"; 
+#if defined(_MSC_VER)
+#	define THREAD_LOCAL __declspec(thread)
+#elif (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define THREAD_LOCAL __thread
+#else
+#	define THREAD_LOCAL
+#endif
+
+static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "\0"; 
 
 static int address_to_sectors(UCHAR address[4])
 {

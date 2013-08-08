@@ -71,9 +71,13 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 	}
 	strncat(filename, device, len > 120 ? 120 : len);
 
-	hDevice = CreateFile(filename, GENERIC_READ,
+	/* We are not actually "writing" to the device,
+	 * but we are sending scsi commands with raw ISRCs,
+	 * which needs GENERIC_WRITE.
+	 */
+	hDevice = CreateFile(filename, GENERIC_READ | GENERIC_WRITE,
 	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                     NULL, OPEN_EXISTING, 0, NULL);
+	                     NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"couldn't open the CD audio device");
@@ -217,7 +221,9 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 	HANDLE handle = (HANDLE) fd;
 	SCSI_PASS_THROUGH_DIRECT sptd;
 	DWORD bytes_returned;
+	int return_value;
 
+	memset(&sptd, 0, sizeof sptd);
 	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
 	sptd.DataIn = SCSI_IOCTL_DATA_IN;
 	sptd.TimeOutValue = DEFAULT_TIMEOUT;
@@ -235,9 +241,17 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 
 	/* the sptd struct is used for input and output -> listed twice
 	 * We don't use bytes_returned, but this cannot be NULL in this case */
-	return DeviceIoControl(handle, IOCTL_SCSI_PASS_THROUGH_DIRECT,
+	return_value = DeviceIoControl(handle, IOCTL_SCSI_PASS_THROUGH_DIRECT,
 			       &sptd, sizeof sptd, &sptd, sizeof sptd,
 			       &bytes_returned, NULL);
+
+	if (return_value == 0) {
+		/* failure */
+		return -1;
+	} else {
+		/* success of DeviceIoControl */
+		return sptd.ScsiStatus;
+	}
 }
 
 /* EOF */

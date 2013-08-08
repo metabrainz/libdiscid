@@ -127,7 +127,7 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 	io_hdr.dxfer_len = data_len;
 	io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
 
-	if (ioctl(fd, SG_IO, &io_hdr) != 0) {
+	if (ioctl(fd, SG_IO, &io_hdr) == -1) {
 		return errno;
 	} else {
 		return io_hdr.status;	/* 0 = success */

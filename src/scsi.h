@@ -24,7 +24,9 @@
 
 /* 
  * Send a scsi command to a file descriptor (fd) and receive data.
- * This should return 1 on success and 0 on failure.
+ * This should return the scsi status, which is 0x00 on success.
+ * When the ioctl fails and no command is sent,
+ * the ioctl failure code  is returned.
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */

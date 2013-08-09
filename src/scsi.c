@@ -41,6 +41,8 @@
 #define SUBCHANNEL_BYTES 96	/* bytes with sub-channel info (per sector) */
 /* each sub-channel byte includes 1 bit for each of the subchannel types */
 #define BITS_SUBCHANNEL 96
+/* max. number of sectors per track to search for ISRCs */
+#define MAX_SECTORS_READ_PER_TRACK 150
 
 enum isrc_search {
 	NOTHING_FOUND = 0,
@@ -282,6 +284,8 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 
 	/* allocate memory for the amount of sectors we would like to read */
 	max_sectors = discid_get_track_length((DiscId) disc, track_num);
+	max_sectors = max_sectors < MAX_SECTORS_READ_PER_TRACK ?
+		max_sectors : MAX_SECTORS_READ_PER_TRACK;
 
 	data_len = SUBCHANNEL_BYTES;
 	data = (unsigned char *) calloc(data_len, 1);

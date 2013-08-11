@@ -23,11 +23,11 @@ typedef struct {
     SHA_LONG digest[5];		/* message digest */
     SHA_LONG count_lo, count_hi;	/* 64-bit bit count */
     SHA_BYTE data[SHA_BLOCKSIZE];	/* SHA data buffer */
-    int local;			/* unprocessed amount in data */
+    size_t local;			/* unprocessed amount in data */
 } SHA_INFO;
 
 LIBDISCID_INTERNAL void sha_init(SHA_INFO *);
-LIBDISCID_INTERNAL void sha_update(SHA_INFO *, SHA_BYTE *, int);
+LIBDISCID_INTERNAL void sha_update(SHA_INFO *, SHA_BYTE *, size_t);
 LIBDISCID_INTERNAL void sha_final(unsigned char [20], SHA_INFO *);
 
 LIBDISCID_INTERNAL void sha_stream(unsigned char [20], SHA_INFO *, FILE *);

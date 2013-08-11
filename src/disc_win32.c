@@ -52,8 +52,9 @@ static int AddressToSectors(UCHAR address[4])
 static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 {
 	HANDLE hDevice;
-	char filename[128], *colon;
-	int len;
+	char filename[128];
+	const char* colon;
+	size_t len;
 
 	strcpy(filename, "\\\\.\\");
 	len = strlen(device);

@@ -130,8 +130,8 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
-char *mb_disc_get_default_device_unportable(void) {
-	int i;
+char *get_nth_device_or_default(int number) {
+	int i, counter = 0;
 	char device[MAX_DEV_LEN];
 	DWORD mask = GetLogicalDrives();
 	
@@ -140,13 +140,23 @@ char *mb_disc_get_default_device_unportable(void) {
 			snprintf(device, MAX_DEV_LEN, "%c:", i + 'A');
 			
 			if (GetDriveType(device) == DRIVE_CDROM) {
-				strncpy(default_device, device, MAX_DEV_LEN);
-				return default_device;
+				counter++;
+
+				if (counter == number)
+				{
+					strncpy(default_device, device, MAX_DEV_LEN);
+					return default_device;
+				}
 			}
 		}
 	}
 
 	return MB_DEFAULT_DEVICE;
+}
+
+char *mb_disc_get_default_device_unportable(void) {
+	/* Return the first available CD drive or the default */
+	return get_nth_device_or_default(1);
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -204,7 +214,13 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
 	mb_disc_toc toc;
 	HANDLE hDevice;
-	int i;
+	int i, device_number;
+
+	device_number = (int) strtol(device, NULL, 10);
+
+	if (device_number > 0) {
+		device = get_nth_device_or_default(device_number);
+	}
 
 	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )
 		return 0;

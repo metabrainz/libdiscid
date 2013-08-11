@@ -130,7 +130,7 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
-char *get_nth_device_or_default(int number) {
+char *get_nth_device(int number) {
 	int i, counter = 0;
 	char device[MAX_DEV_LEN];
 	DWORD mask = GetLogicalDrives();
@@ -151,12 +151,18 @@ char *get_nth_device_or_default(int number) {
 		}
 	}
 
-	return MB_DEFAULT_DEVICE;
+	return NULL;
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	/* Return the first available CD drive or the default */
-	return get_nth_device_or_default(1);
+	char* device = get_nth_device(1);
+
+	if (device == NULL)
+	{
+		return MB_DEFAULT_DEVICE;
+	}
+
+	return device;
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -219,7 +225,14 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	device_number = (int) strtol(device, NULL, 10);
 
 	if (device_number > 0) {
-		device = get_nth_device_or_default(device_number);
+		device = get_nth_device(device_number);
+
+		if (device == NULL)
+		{
+			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+				"couldn't open the CD audio device");
+			return 0;
+		}
 	}
 
 	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )

@@ -79,7 +79,7 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 	                     NULL, OPEN_EXISTING, 0, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			"couldn't open the CD audio device");
+			"cannot open the CD audio device '%s'", device);
 		return 0;
 	}
 
@@ -177,28 +177,25 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 }
 
 
-int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *device)
+int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc)
 {
-	HANDLE hDevice;
 	DWORD dwReturned;
 	BOOL bResult;
 	CDROM_TOC cd;
 	int i;
 
-	hDevice = create_device_handle(disc, device);
-
-	bResult = DeviceIoControl(hDevice, IOCTL_CDROM_READ_TOC,
+	bResult = DeviceIoControl(device, IOCTL_CDROM_READ_TOC,
 	                          NULL, 0,
 	                          &cd, sizeof(cd),
 	                          &dwReturned, NULL);
 	if (bResult == FALSE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 		         "error while reading the CD TOC");
-		CloseHandle(hDevice);
+		CloseHandle(device);
 		return 0;
 	}
 
-	CloseHandle(hDevice);
+	CloseHandle(device);
 
 	toc->first_track_num = cd.FirstTrack;
 	toc->last_track_num = cd.LastTrack;
@@ -230,18 +227,20 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 		if (device == NULL)
 		{
 			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-				"couldn't open the CD audio device");
+				"cannot open the CD audio device '%i'", device_number);
 			return 0;
 		}
 	}
 
-	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )
-		return 0;
-
-	if ( !mb_disc_load_toc(disc, &toc) )
-		return 0;
-
 	hDevice = create_device_handle(disc, device);
+	if (hDevice == 0)
+		return 0;
+
+	if (!mb_disc_winnt_read_toc(hDevice, disc, &toc))
+		return 0;
+
+	if (!mb_disc_load_toc(disc, &toc))
+		return 0;
 
 	if (features & DISCID_FEATURE_MCN) {
 		read_disc_mcn(hDevice, disc);

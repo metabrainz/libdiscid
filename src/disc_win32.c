@@ -42,9 +42,19 @@
 
 
 #define MB_DEFAULT_DEVICE	"D:"
+#define MAX_DEV_LEN 3
 
+#if defined(_MSC_VER)
+#	define THREAD_LOCAL __declspec(thread)
+#elif (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define THREAD_LOCAL __thread
+#else
+#	define THREAD_LOCAL
+#endif
 
-static int AddressToSectors(UCHAR address[4])
+static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "\0"; 
+
+static int address_to_sectors(UCHAR address[4])
 {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
@@ -52,7 +62,8 @@ static int AddressToSectors(UCHAR address[4])
 static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 {
 	HANDLE hDevice;
-	char filename[128], *colon;
+	char filename[128];
+	const char* colon;
 	int len;
 
 	strcpy(filename, "\\\\.\\");
@@ -119,8 +130,22 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
-
 char *mb_disc_get_default_device_unportable(void) {
+	int i;
+	char device[MAX_DEV_LEN];
+	DWORD mask = GetLogicalDrives();
+	
+	for (i = 0; i <= 25; i++) {
+		if (mask >> i & 1) {
+			snprintf(device, MAX_DEV_LEN, "%c:", i + 'A');
+			
+			if (GetDriveType(device) == DRIVE_CDROM) {
+				strncpy(default_device, device, MAX_DEV_LEN);
+				return default_device;
+			}
+		}
+	}
+
 	return MB_DEFAULT_DEVICE;
 }
 
@@ -164,12 +189,12 @@ int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *
 
 	/* Get info about all tracks */
 	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
-		toc->tracks[i].address = AddressToSectors(cd.TrackData[i - 1].Address) - 150;
+		toc->tracks[i].address = address_to_sectors(cd.TrackData[i - 1].Address) - 150;
 		toc->tracks[i].control = cd.TrackData[i - 1].Control;
 	}
 
 	/* Lead-out is stored after the last track */
-	toc->tracks[0].address = AddressToSectors(cd.TrackData[toc->last_track_num].Address) - 150;
+	toc->tracks[0].address = address_to_sectors(cd.TrackData[toc->last_track_num].Address) - 150;
 	toc->tracks[0].control = cd.TrackData[toc->last_track_num].Control;
 
 	return 1;

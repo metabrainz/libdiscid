@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 		device = discid_get_default_device();
 	}
 
-	printf("Device used   : %s\n", device);
+	printf("Device used: %s\n", device);
 
 	if (!discid_has_feature(DISCID_FEATURE_READ)) {
 		fprintf(stderr, "Error: not implemented on platform\n");
@@ -56,20 +56,20 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (discid_has_feature(DISCID_FEATURE_MCN)) {
-		printf("MCN      : %s\n", discid_get_mcn(disc));
+		printf("MCN        : %s\n", discid_get_mcn(disc));
 	} else {
-		printf("MCN      : (not implemented)\n");
+		printf("MCN        : (not implemented)\n");
 	}
 
 	if (discid_has_feature(DISCID_FEATURE_ISRC)) {
 		for ( i = discid_get_first_track_num(disc);
 				i <= discid_get_last_track_num(disc); i++ ) {
 
-			printf("Track %-2d : %s\n", i,
+			printf("Track %-2d   : %s\n", i,
 					discid_get_track_isrc(disc, i));
 		}
 	} else {
-		printf("ISRCs    : (not implemented)\n");
+		printf("ISRCs      : (not implemented)\n");
 	}
 
 	/* another way to access the features */

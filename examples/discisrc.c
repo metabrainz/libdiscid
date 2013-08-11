@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
 		device = discid_get_default_device();
 	}
 
+	printf("Device used   : %s\n", device);
+
 	if (!discid_has_feature(DISCID_FEATURE_READ)) {
 		fprintf(stderr, "Error: not implemented on platform\n");
 		return 1;

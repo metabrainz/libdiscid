@@ -90,6 +90,8 @@ int main(int argc, char *argv[]) {
 		device = NULL;
 	}
 
+	printf("Device used   : %s\n", device != NULL ? device : discid_get_default_device());
+
 	if (discid_read_sparse(disc, device, 0) == 0) {
 		fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
 		discid_free(disc);

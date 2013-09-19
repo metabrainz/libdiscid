@@ -41,6 +41,8 @@
 #define SUBCHANNEL_BYTES 96	/* bytes with sub-channel info (per sector) */
 /* each sub-channel byte includes 1 bit for each of the subchannel types */
 #define BITS_SUBCHANNEL 96
+/* according to spec there should be at least one ISRC per 100 secotors */
+#define SECTORS_ISRC 100
 
 enum isrc_search {
 	NOTHING_FOUND = 0,
@@ -293,11 +295,10 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	/* search until a valid ISRC is found,
 	 * the end of the track is reached
 	 * or we are certain there are no ISRCs
-	 * (otherwise there would be one in the first 100 sectors,
-	 * 150 to be safe)
+	 * (otherwise there would be one in the first 100 sectors)
 	 */
 	while (!valid_isrc && sector <= max_sectors
-			&& (isrc_found || sector <= 150)) {
+			&& (isrc_found || sector <= SECTORS_ISRC + 10)) {
 		memset(cmd, 0, sizeof cmd);
 		memset(isrc, 0, sizeof isrc);
 		memset(data, 0, data_len);

@@ -25,23 +25,31 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <windows.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <windows.h>
 
 #if defined(__CYGWIN__)
 #include <ntddcdrm.h>
+#include <ntddscsi.h>
 #elif defined(__MINGW32__)
 #include <ddk/ntddcdrm.h>
+#include <ddk/ntddscsi.h>
 #else
 #include "ntddcdrm.h"
+#include "ntddscsi.h"
 #endif
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "scsi.h"
 
 
 #define MB_DEFAULT_DEVICE	"D:"
+
+/* after that time a scsi command is considered timed out */
+#define DEFAULT_TIMEOUT 30	/* in seconds */
 
 
 static int AddressToSectors(UCHAR address[4])
@@ -63,9 +71,13 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 	}
 	strncat(filename, device, len > 120 ? 120 : len);
 
-	hDevice = CreateFile(filename, GENERIC_READ,
+	/* We are not actually "writing" to the device,
+	 * but we are sending scsi commands with raw ISRCs,
+	 * which needs GENERIC_WRITE.
+	 */
+	hDevice = CreateFile(filename, GENERIC_READ | GENERIC_WRITE,
 	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                     NULL, OPEN_EXISTING, 0, NULL);
+	                     NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"couldn't open the CD audio device");
@@ -178,8 +190,10 @@ int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
 	mb_disc_toc toc;
-	HANDLE hDevice;
+	mb_scsi_handle handle;
 	int i;
+
+	memset(&handle, 0, sizeof handle);
 
 	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )
 		return 0;
@@ -187,20 +201,78 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	if ( !mb_disc_load_toc(disc, &toc) )
 		return 0;
 
-	hDevice = create_device_handle(disc, device);
+	handle.hDevice = create_device_handle(disc, device);
 
 	if (features & DISCID_FEATURE_MCN) {
-		read_disc_mcn(hDevice, disc);
+		read_disc_mcn(handle.hDevice, disc);
 	}
 
 	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
 		if (features & DISCID_FEATURE_ISRC) {
-			read_disc_isrc(hDevice, disc, i);
+			//read_disc_isrc(hDevice, disc, i);
+			mb_scsi_read_track_isrc_raw(handle, disc, i);
 		}
 	}
 
-	CloseHandle(hDevice);
+	CloseHandle(handle.hDevice);
 	return 1;
+}
+
+int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+			   unsigned char *cmd, int cmd_len,
+			   unsigned char *data, int data_len) {
+	SCSI_PASS_THROUGH_DIRECT sptd;
+	DWORD bytes_returned = 0;
+	int return_value;
+	int i;
+
+	memset(&sptd, 0, sizeof sptd);
+	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
+	sptd.DataIn = SCSI_IOCTL_DATA_IN;
+	sptd.TimeOutValue = DEFAULT_TIMEOUT;
+	sptd.DataBuffer = data;		/* a pointer */
+	sptd.DataTransferLength = data_len;
+	sptd.CdbLength = cmd_len;
+
+	/* The command is a buffer, not a pointer.
+	 * So we have to copy our buffer.
+	 * The size of this buffer is not documented in MSDN,
+	 * but in the include file defined as uchar[16].
+	 */
+	assert(cmd_len <= sizeof sptd.Cdb);
+	memcpy(sptd.Cdb, cmd, cmd_len);
+
+	/* the sptd struct is used for input and output -> listed twice
+	 * We don't use bytes_returned, but this cannot be NULL in this case */
+	return_value = DeviceIoControl(handle.hDevice,
+				IOCTL_SCSI_PASS_THROUGH_DIRECT,
+				&sptd, sizeof sptd, &sptd, sizeof sptd,
+				&bytes_returned, NULL);
+
+	if (return_value == 0) {
+		/* failure */
+		return -1;
+	} else {
+		/* success of DeviceIoControl */
+
+		/* debug out for some (potentially) abnormal cases */
+		if (return_value != 1) {
+			fprintf(stderr, "scsi cmd return value: %d\n",
+					return_value);
+		}
+		if (bytes_returned != data_len) {
+			fprintf(stderr, "scsi cmd bytes returned: %d\n",
+					(int) bytes_returned);
+		}
+		for (i = 0; i < data_len; i++) {
+			if (data[i] != 0x00)
+				break;
+		}
+		if (i == data_len)
+			fprintf(stderr, "zero data returned by scsi_cmd\n");
+
+		return sptd.ScsiStatus;
+	}
 }
 
 /* EOF */

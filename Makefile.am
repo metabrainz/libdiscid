@@ -96,7 +96,7 @@ if OS_SOLARIS
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_solaris.c
 endif
 if OS_WIN32
-libdiscid_la_SOURCES += src/toc.c src/disc_win32.c versioninfo.rc
+libdiscid_la_SOURCES += src/toc.c src/scsi.c src/disc_win32.c versioninfo.rc
 endif
 
 

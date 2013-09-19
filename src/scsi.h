@@ -22,14 +22,24 @@
 
 #include "discid/discid_private.h"
 
+#ifndef HANDLE
+#define HANDLE void *
+#endif
+
+typedef struct {
+	int fd;		/* Linux	*/
+	HANDLE hDevice;	/* Windows 	*/
+} mb_scsi_handle;
+
 /* 
- * Send a scsi command to a file descriptor (fd) and receive data.
+ * Send a scsi command to a device and receive data.
  * This should return 1 on success and 0 on failure.
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-LIBDISCID_INTERNAL int mb_scsi_cmd_unportable(int fd, unsigned char *cmd,
-				int cmd_len, unsigned char *data, int data_len);
+LIBDISCID_INTERNAL int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+				unsigned char *cmd, int cmd_len,
+				unsigned char *data, int data_len);
 
 
 
@@ -41,16 +51,17 @@ LIBDISCID_INTERNAL int mb_scsi_cmd_unportable(int fd, unsigned char *cmd,
 /* 
  * read an ISRC using the READ SUB-CHANNEL command (0x42)
  */
-LIBDISCID_INTERNAL void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc,
+LIBDISCID_INTERNAL void mb_scsi_read_track_isrc(mb_scsi_handle handle,
+						mb_disc_private *disc,
 						int track_num);
 
 /* 
  * parsing the sub-channel and an ISRC using the READ command (0xbe)
  */
-LIBDISCID_INTERNAL void mb_scsi_read_track_isrc_raw(int fd,
+LIBDISCID_INTERNAL void mb_scsi_read_track_isrc_raw(mb_scsi_handle handle,
 					mb_disc_private *disc, int track_num);
 
 /*
  * stop the CD drive -> stop disc spinning
  */
-LIBDISCID_INTERNAL void mb_scsi_stop_disc(int fd);
+LIBDISCID_INTERNAL void mb_scsi_stop_disc(mb_scsi_handle handle);

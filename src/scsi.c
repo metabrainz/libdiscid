@@ -31,10 +31,14 @@
  * resource that is freely available, but only for primary commands.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "discid/discid.h"
 #include "discid/discid_private.h"
 #include "scsi.h"
 
@@ -283,14 +287,12 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	int valid_isrc = 0;
 	int warning_shown = 0;
 
-	/* allocate memory for the amount of sectors we would like to read */
-	max_sectors = discid_get_track_length((DiscId) disc, track_num);
-
 	data_len = SUBCHANNEL_BYTES;
 	data = (unsigned char *) calloc(data_len, 1);
 
 	/* start reading sectors at start of track */
 	disc_offset = disc->track_offsets[track_num];
+	max_sectors = mb_disc_get_track_length(disc, track_num);
 
 	/* search until a valid ISRC is found,
 	 * the end of the track is reached

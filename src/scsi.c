@@ -44,7 +44,7 @@
 
 enum isrc_search {
 	NOTHING_FOUND = 0,
-	ISRC_FOUND = 1,
+	VALID_ISRC = 1,
 	CRC_MISMATCH = 2,
 };
 
@@ -201,7 +201,7 @@ static enum isrc_search find_isrc_in_sector(unsigned char *data, char *isrc) {
 		 * Test if the CRC matches and stop searching if so.
 		 */
 		if(decode_isrc(q_data, isrc)) {
-			return ISRC_FOUND;
+			return VALID_ISRC;
 		} else {
 			return CRC_MISMATCH;
 		}
@@ -278,6 +278,7 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	int sector = 0;
 	enum isrc_search search_result;
 	int isrc_found = 0;
+	int valid_isrc = 0;
 	int warning_shown = 0;
 
 	/* allocate memory for the amount of sectors we would like to read */
@@ -289,7 +290,14 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 	/* start reading sectors at start of track */
 	disc_offset = disc->track_offsets[track_num];
 
-	while (!isrc_found && sector <= max_sectors) {
+	/* search until a valid ISRC is found,
+	 * the end of the track is reached
+	 * or we are certain there are no ISRCs
+	 * (otherwise there would be one in the first 100 sectors,
+	 * 150 to be safe)
+	 */
+	while (!valid_isrc && sector <= max_sectors
+			&& (isrc_found || sector <= 150)) {
 		memset(cmd, 0, sizeof cmd);
 		memset(isrc, 0, sizeof isrc);
 		memset(data, 0, data_len);
@@ -319,10 +327,12 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 		}
 
 		search_result = find_isrc_in_sector(data, isrc);
-		if (search_result == ISRC_FOUND) {
+		if (search_result == VALID_ISRC) {
 			isrc_found = 1;
+			valid_isrc = 1;
 			break;
 		} else if (search_result == CRC_MISMATCH) {
+			isrc_found = 1; /* invalid, but present, try more */
 			fprintf(stderr, "Warning: CRC mismatch track %d: %s\n",
 				track_num, isrc);
 			warning_shown = 1;

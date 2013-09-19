@@ -190,8 +190,10 @@ int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
 	mb_disc_toc toc;
-	HANDLE hDevice;
+	mb_scsi_handle handle;
 	int i;
+
+	memset(&handle, 0, sizeof handle);
 
 	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )
 		return 0;
@@ -199,26 +201,26 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	if ( !mb_disc_load_toc(disc, &toc) )
 		return 0;
 
-	hDevice = create_device_handle(disc, device);
+	handle.hDevice = create_device_handle(disc, device);
 
 	if (features & DISCID_FEATURE_MCN) {
-		read_disc_mcn(hDevice, disc);
+		read_disc_mcn(handle.hDevice, disc);
 	}
 
 	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
 		if (features & DISCID_FEATURE_ISRC) {
 			//read_disc_isrc(hDevice, disc, i);
-			mb_scsi_read_track_isrc_raw((int) hDevice, disc, i);
+			mb_scsi_read_track_isrc_raw(handle, disc, i);
 		}
 	}
 
-	CloseHandle(hDevice);
+	CloseHandle(handle.hDevice);
 	return 1;
 }
 
-int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
+int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+			   unsigned char *cmd, int cmd_len,
 			   unsigned char *data, int data_len) {
-	HANDLE handle = (HANDLE) fd;
 	SCSI_PASS_THROUGH_DIRECT sptd;
 	DWORD bytes_returned = 0;
 	int return_value;
@@ -242,9 +244,10 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 
 	/* the sptd struct is used for input and output -> listed twice
 	 * We don't use bytes_returned, but this cannot be NULL in this case */
-	return_value = DeviceIoControl(handle, IOCTL_SCSI_PASS_THROUGH_DIRECT,
-			       &sptd, sizeof sptd, &sptd, sizeof sptd,
-			       &bytes_returned, NULL);
+	return_value = DeviceIoControl(handle.hDevice,
+				IOCTL_SCSI_PASS_THROUGH_DIRECT,
+				&sptd, sizeof sptd, &sptd, sizeof sptd,
+				&bytes_returned, NULL);
 
 	if (return_value == 0) {
 		/* failure */

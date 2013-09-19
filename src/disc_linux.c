@@ -106,7 +106,8 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
 }
 
 /* Send a scsi command and receive data. */
-int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
+int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+			unsigned char *cmd, int cmd_len,
 			unsigned char *data, int data_len) {
 	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
@@ -127,7 +128,7 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 	io_hdr.dxfer_len = data_len;
 	io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
 
-	if (ioctl(fd, SG_IO, &io_hdr) != 0) {
+	if (ioctl(handle.fd, SG_IO, &io_hdr) != 0) {
 		return errno;
 	} else {
 		return io_hdr.status;	/* 0 = success */
@@ -135,9 +136,12 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 }
 
 void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
+	mb_scsi_handle handle;
+	memset(&handle, 0, sizeof handle);
+	handle.fd = fd;
 	// TODO: test if raw actually is available
-	//mb_scsi_read_track_isrc(fd, disc, track_numi);
-	mb_scsi_read_track_isrc_raw(fd, disc, track_num);
+	//mb_scsi_read_track_isrc(handle, disc, track_numi);
+	mb_scsi_read_track_isrc_raw(handle, disc, track_num);
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {

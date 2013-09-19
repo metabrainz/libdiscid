@@ -54,9 +54,9 @@ enum isrc_search {
 
 
 /* Send a scsi command and receive data. */
-static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
+static int scsi_cmd(mb_scsi_handle handle, unsigned char *cmd, int cmd_len,
 	     unsigned char *data, int data_len) {
-	return mb_scsi_cmd_unportable(fd, cmd, cmd_len, data, data_len);
+	return mb_scsi_cmd_unportable(handle, cmd, cmd_len, data, data_len);
 }
 
 /* This uses CRC-16 (CRC-CCITT?) as defined for audio CDs
@@ -214,7 +214,7 @@ static enum isrc_search find_isrc_in_sector(unsigned char *data, char *isrc) {
 	}
 }
 
-void mb_scsi_stop_disc(int fd) {
+void mb_scsi_stop_disc(mb_scsi_handle handle) {
 	unsigned char cmd[6];
 
 	memset(cmd, 0, sizeof cmd);
@@ -225,12 +225,13 @@ void mb_scsi_stop_disc(int fd) {
 	cmd[4] = 0;		/* stop */
 	/* cmd 5 = control byte */
 
-	if (scsi_cmd(fd, cmd, sizeof cmd, NULL, 0) != 0) {
+	if (scsi_cmd(handle, cmd, sizeof cmd, NULL, 0) != 0) {
 		fprintf(stderr, "Warning: Cannot stop device");
 	}
 }
 
-void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
+void mb_scsi_read_track_isrc(mb_scsi_handle handle, mb_disc_private *disc,
+			     int track_num) {
 	int i;
 	unsigned char cmd[10];
 	unsigned char data[24];
@@ -250,7 +251,7 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
 	cmd[8] = sizeof data;  /* transfer length in bytes (4 header, 20 data)*/
 	/* cmd[9] = control byte */
 
-	if (scsi_cmd(fd, cmd, sizeof cmd, data, sizeof data) != 0) {
+	if (scsi_cmd(handle, cmd, sizeof cmd, data, sizeof data) != 0) {
 		fprintf(stderr, "Warning: Cannot get ISRC code for track %d\n",
 			track_num);
 		return;
@@ -272,7 +273,8 @@ void mb_scsi_read_track_isrc(int fd, mb_disc_private *disc, int track_num) {
  * An empty ISRC is valid in that context -> leads to empty string.
  * Up to 100 sectors have to be read for every ISRC candidate.
  */
-void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
+void mb_scsi_read_track_isrc_raw(mb_scsi_handle handle, mb_disc_private *disc,
+				 int track_num) {
 	int max_sectors;
 	int disc_offset;	/* in sectors */
 	int data_len;		/* in bytes */
@@ -313,7 +315,7 @@ void mb_scsi_read_track_isrc_raw(int fd, mb_disc_private *disc, int track_num) {
 		cmd[10] = 0x01; 	/* Sub-Channel Selection: raw P-W=001*/
 		/* cmd[11] = control byte */
 
-		if (scsi_cmd(fd, cmd, sizeof cmd, data, data_len) != 0) {
+		if (scsi_cmd(handle, cmd, sizeof cmd, data, data_len) != 0) {
 			fprintf(stderr,
 				"Warning: Cannot get ISRC code for track %d\n",
 				track_num);

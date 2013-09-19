@@ -257,7 +257,7 @@ int mb_scsi_cmd_unportable(int fd, unsigned char *cmd, int cmd_len,
 			fprintf(stderr, "scsi cmd return value: %d\n",
 					return_value);
 		}
-		if (bytes_returned != 96) {
+		if (bytes_returned != data_len) {
 			fprintf(stderr, "scsi cmd bytes returned: %d\n",
 					(int) bytes_returned);
 		}

@@ -158,17 +158,38 @@ int discid_read_sparse(DiscId *d, const char *device, unsigned int features) {
 }
 
 int discid_put(DiscId *d, int first, int last, int *offsets) {
+	int i, disc_length;
 	mb_disc_private *disc = (mb_disc_private *) d;
 	assert(disc != NULL);
 
 	/* Necessary, because the disc handle could have been used before. */
 	memset(disc, 0, sizeof(mb_disc_private));
 
-	if (first > last || first < 1 || first > 99 || last < 1
-			|| last > 99 || offsets==NULL) {
+	/* extensive checking of given parameters */
+	if (first > last || first < 1
+			|| first > 99 || last < 1 || last > 99) {
 
-		sprintf(disc->error_msg, "Illegal parameters");
+		sprintf(disc->error_msg, "Illegal track limits");
 		return 0;
+	}
+	if (offsets == NULL) {
+		sprintf(disc->error_msg, "No offsets given");
+		return 0;
+	}
+	disc_length = offsets[0];
+	if (disc_length > MAX_DISC_LENGTH) {
+		sprintf(disc->error_msg, "Disc too long");
+		return 0;
+	}
+	for (i = 0; i <= last; i++) {
+		if (offsets[i] > disc_length) {
+			sprintf(disc->error_msg, "Invalid offset");
+			return 0;
+		}
+		if (i > 1 && offsets[i-1] > offsets[i]) {
+			sprintf(disc->error_msg, "Invalid order");
+			return 0;
+		}
 	}
 
 	disc->first_track_num = first;

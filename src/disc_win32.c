@@ -226,7 +226,6 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 	SCSI_PASS_THROUGH_DIRECT sptd;
 	DWORD bytes_returned = 0;
 	int return_value;
-	int i;
 
 	memset(&sptd, 0, sizeof sptd);
 	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
@@ -253,7 +252,7 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 
 	if (return_value == 0) {
 		/* failure */
-		fprintf(stderr, "DeviceIoControl error: %d\n", GetLastError());
+		fprintf(stderr, "DeviceIoControl error: %ld\n", GetLastError());
 		return IO_ERROR;
 	} else {
 		/* success of DeviceIoControl */

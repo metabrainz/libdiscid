@@ -32,8 +32,8 @@ typedef struct {
 } mb_scsi_handle;
 
 typedef struct {
-	int raw_isrc;
-	int subchannel;
+	int raw_isrc;	/* needed for read_track_isrc_raw */
+	int isrc;	/* needed for read_track_isrc */
 	int cd_text;
 } mb_scsi_features;
 

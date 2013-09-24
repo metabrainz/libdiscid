@@ -353,7 +353,7 @@ mb_scsi_features mb_scsi_get_features(mb_scsi_handle handle) {
 				features.cd_text = 1;
 			}
 		} else if (feature_code == CD_AUDIO_EXTERNAL_PLAY) {
-			features.subchannel = 1;
+			features.isrc = 1;
 		}
 
 		offset += 4 + data[offset+3];

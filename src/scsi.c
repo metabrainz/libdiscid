@@ -56,8 +56,9 @@ enum isrc_search {
 
 
 /* Send a scsi command and receive data. */
-static int scsi_cmd(mb_scsi_handle handle, unsigned char *cmd, int cmd_len,
-	     unsigned char *data, int data_len) {
+static mb_scsi_status scsi_cmd(mb_scsi_handle handle,
+			       unsigned char *cmd, int cmd_len,
+			       unsigned char *data, int data_len) {
 	return mb_scsi_cmd_unportable(handle, cmd, cmd_len, data, data_len);
 }
 

@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <linux/cdrom.h>
+#include <scsi/scsi.h>
 #include <scsi/sg.h>
 
 
@@ -106,11 +107,12 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
 }
 
 /* Send a scsi command and receive data. */
-int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 			unsigned char *cmd, int cmd_len,
 			unsigned char *data, int data_len) {
 	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
+	int return_value;
 
 	memset(&io_hdr, 0, sizeof io_hdr);
 
@@ -128,10 +130,32 @@ int mb_scsi_cmd_unportable(mb_scsi_handle handle,
 	io_hdr.dxfer_len = data_len;
 	io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
 
-	if (ioctl(handle.fd, SG_IO, &io_hdr) == -1) {
-		return errno;
+	return_value = ioctl(handle.fd, SG_IO, &io_hdr);
+
+	if (return_value == -1) {
+		/* failure */
+		fprintf(stderr, "ioctl error: %d\n", errno);
+		return IO_ERROR;
 	} else {
-		return io_hdr.status;	/* 0 = success */
+		/* check for potenticall informative success codes
+		 * 1 seems to be what is mostly returned */
+		if (return_value != 0) {
+			fprintf(stderr, "ioctl return value: %d\n",
+					return_value);
+			/* no error, but possibly informative */
+		}
+
+		/* check scsi status */
+		if (io_hdr.masked_status != GOOD) {
+			fprintf(stderr, "scsi status: %d\n", io_hdr.status);
+			return STATUS_ERROR;
+		} else if (data_len > 0 && io_hdr.resid == data_len) {
+			/* not receiving data, when requested */
+			fprintf(stderr, "data requested, but none returned\n");
+			return NO_DATA_RETURNED;
+		} else {
+			return SUCCESS;
+		}
 	}
 }
 

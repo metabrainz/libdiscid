@@ -51,6 +51,8 @@
 /* after that time a scsi command is considered timed out */
 #define DEFAULT_TIMEOUT 30	/* in seconds */
 
+#define GOOD 0x00	/* scsi status code for success */
+
 
 static int AddressToSectors(UCHAR address[4])
 {
@@ -218,7 +220,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	return 1;
 }
 
-int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 			   unsigned char *cmd, int cmd_len,
 			   unsigned char *data, int data_len) {
 	SCSI_PASS_THROUGH_DIRECT sptd;
@@ -251,27 +253,30 @@ int mb_scsi_cmd_unportable(mb_scsi_handle handle,
 
 	if (return_value == 0) {
 		/* failure */
-		return -1;
+		fprintf(stderr, "DeviceIoControl error: %d\n", GetLastError());
+		return IO_ERROR;
 	} else {
 		/* success of DeviceIoControl */
 
-		/* debug out for some (potentially) abnormal cases */
+		/* check for potentially informative success codes
+		 * 1 seems to be what is mostly returned */
 		if (return_value != 1) {
-			fprintf(stderr, "scsi cmd return value: %d\n",
+			fprintf(stderr, "DeviceIoControl return value: %d\n",
 					return_value);
+			/* no actual error, but possibly informative */
 		}
-		if (bytes_returned != data_len) {
-			fprintf(stderr, "scsi cmd bytes returned: %d\n",
-					(int) bytes_returned);
-		}
-		for (i = 0; i < data_len; i++) {
-			if (data[i] != 0x00)
-				break;
-		}
-		if (i == data_len)
-			fprintf(stderr, "zero data returned by scsi_cmd\n");
 
-		return sptd.ScsiStatus;
+		/* check scsi status */
+		if (sptd.ScsiStatus != GOOD) {
+			fprintf(stderr, "scsi status: %d\n", sptd.ScsiStatus);
+			return STATUS_ERROR;
+		} else if (data_len > 0 && bytes_returned == 0) {
+			/* not receiving data, when requested */
+			fprintf(stderr, "data requested, but none returned\n");
+			return NO_DATA_RETURNED;
+		} else {
+			return SUCCESS;
+		}
 	}
 }
 

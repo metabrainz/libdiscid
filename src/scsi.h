@@ -31,15 +31,20 @@ typedef struct {
 	HANDLE hDevice;	/* Windows 	*/
 } mb_scsi_handle;
 
+typedef enum {
+	SUCCESS,
+	GNERIC_ERROR,
+	IO_ERROR,
+	STATUS_ERROR,
+	NO_DATA_RETURNED,
+} mb_scsi_status;
+
 /* 
  * Send a scsi command to a device and receive data.
- * This should return the scsi status, which is 0x00 on success.
- * When the ioctl fails and no command is sent,
- * the ioctl failure code  is returned.
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-LIBDISCID_INTERNAL int mb_scsi_cmd_unportable(mb_scsi_handle handle,
+LIBDISCID_INTERNAL mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 				unsigned char *cmd, int cmd_len,
 				unsigned char *data, int data_len);
 

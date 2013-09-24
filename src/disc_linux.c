@@ -43,8 +43,14 @@
 #include "unix.h"
 
 
-#define MB_DEFAULT_DEVICE	"/dev/cdrom"
+#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#  define THREAD_LOCAL __thread
+#else
+#  define THREAD_LOCAL
+#endif
 
+
+#define MB_DEFAULT_DEVICE	"/dev/cdrom"
 
 /* timeout better shouldn't happen for scsi commands -> device is reset */
 #define DEFAULT_TIMEOUT 30000	/* in ms */
@@ -52,6 +58,9 @@
 #ifndef SG_MAX_SENSE
 #define SG_MAX_SENSE 16
 #endif
+
+
+THREAD_LOCAL int feature_warning_printed = 0;
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
@@ -161,11 +170,19 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 
 void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 	mb_scsi_handle handle;
+	mb_scsi_features features;
 	memset(&handle, 0, sizeof handle);
 	handle.fd = fd;
-	// TODO: test if raw actually is available
-	//mb_scsi_read_track_isrc(handle, disc, track_num);
-	mb_scsi_read_track_isrc_raw(handle, disc, track_num);
+	features = mb_scsi_get_features(handle);
+	if (features.raw_isrc) {
+		mb_scsi_read_track_isrc_raw(handle, disc, track_num);
+	} else {
+		if (!feature_warning_printed) {
+			fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");
+			feature_warning_printed = 1;
+		}
+		mb_scsi_read_track_isrc(handle, disc, track_num);
+	}
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {

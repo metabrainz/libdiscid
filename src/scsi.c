@@ -48,6 +48,19 @@
 /* according to spec there should be at least one ISRC per 100 secotors */
 #define SECTORS_ISRC 100
 
+#define FEATURE_BYTES 4000	/* bytes to allocate for feature list */
+
+/* scsi profiles */
+#define CD_ROM_PROFILE	0x0008
+#define CD_R_PROFILE	0x0009
+#define CD_RW_PROFILE	0x000a
+
+/* scsi features */
+#define PROFILE_LIST	0x0000
+#define MULTI_READ	0x001d
+#define CD_READ		0x001e
+#define CD_AUDIO_EXTERNAL_PLAY 0x0103
+
 enum isrc_search {
 	NOTHING_FOUND = 0,
 	VALID_ISRC = 1,
@@ -228,7 +241,7 @@ void mb_scsi_stop_disc(mb_scsi_handle handle) {
 	cmd[4] = 0;		/* stop */
 	/* cmd 5 = control byte */
 
-	if (scsi_cmd(handle, cmd, sizeof cmd, NULL, 0) != 0) {
+	if (scsi_cmd(handle, cmd, sizeof cmd, NULL, 0) != SUCCESS) {
 		fprintf(stderr, "Warning: Cannot stop device");
 	}
 }
@@ -254,7 +267,7 @@ void mb_scsi_read_track_isrc(mb_scsi_handle handle, mb_disc_private *disc,
 	cmd[8] = sizeof data;  /* transfer length in bytes (4 header, 20 data)*/
 	/* cmd[9] = control byte */
 
-	if (scsi_cmd(handle, cmd, sizeof cmd, data, sizeof data) != 0) {
+	if (scsi_cmd(handle, cmd, sizeof cmd, data, sizeof data) != SUCCESS) {
 		fprintf(stderr, "Warning: Cannot get ISRC code for track %d\n",
 			track_num);
 		return;
@@ -270,6 +283,83 @@ void mb_scsi_read_track_isrc(mb_scsi_handle handle, mb_disc_private *disc,
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 
+}
+
+mb_scsi_features mb_scsi_get_features(mb_scsi_handle handle) {
+	mb_scsi_features features;
+	unsigned char cmd[10];
+	unsigned char data[FEATURE_BYTES];
+	int data_length, current_profile, feature_code, profile_code;
+	int num_features = 0;
+	int offset = 0;
+	int profile_offset = 0;
+
+	memset(&features, 0, sizeof features);
+	memset(cmd, 0, sizeof cmd);
+	memset(data, 0, sizeof data);
+
+	cmd[0] = 0x46;		/* GET CONFIGURATION (MMC) */
+	cmd[1] = 1;		/* all currently available features */
+	/* 2-3 = starting feature number, just leave empty = 0 */
+	/* 4-6 reserved */
+	cmd[7] = sizeof data >> 8;
+	cmd[8] = (char) sizeof data;
+	/* cmd[9] is control */
+
+	if (scsi_cmd(handle, cmd, sizeof cmd, data, sizeof data) != SUCCESS) {
+		fprintf(stderr, "Warning: could not fetch features\n");
+		return features; /* empty at this stage */
+	}
+
+	data_length = (data[0] << 24) + (data[1] << 16) + (data[2] << 8)
+			+ data[3];
+	if (data_length > sizeof data) {
+		fprintf(stderr, "Warning: not all features returned\n");
+	}
+
+	current_profile = (data[6] << 8) + data[7];
+	if (current_profile == CD_ROM_PROFILE) {
+		features.raw_isrc = 1;
+	} else if (current_profile == CD_R_PROFILE) {
+		features.raw_isrc = 1;
+	} else if (current_profile == CD_RW_PROFILE) {
+		features.raw_isrc = 1;
+	}
+
+	offset = 8;
+	while (offset < data_length) {
+		num_features++;
+		feature_code = (data[offset] << 8) + data[offset+1];
+
+		if (feature_code == PROFILE_LIST) {
+			profile_offset = offset + 4;
+			while ((profile_offset - offset) < data[offset+3]) {
+				profile_code = (data[profile_offset] << 8 )
+						+ data[profile_offset+1];
+				if (profile_code == CD_ROM_PROFILE) {
+					features.raw_isrc = 1;
+				} else if (profile_code == CD_R_PROFILE) {
+					features.raw_isrc = 1;
+				} else if (profile_code == CD_RW_PROFILE) {
+					features.raw_isrc = 1;
+				}
+				profile_offset += 4;
+			}
+		} else if (feature_code == MULTI_READ) {
+			features.raw_isrc = 1;
+		} else if (feature_code == CD_READ) {
+			features.raw_isrc = 1;
+			if (data[offset+4] & 0x01) {
+				features.cd_text = 1;
+			}
+		} else if (feature_code == CD_AUDIO_EXTERNAL_PLAY) {
+			features.subchannel = 1;
+		}
+
+		offset += 4 + data[offset+3];
+	}
+
+	return features;
 }
 
 /* We read sectors from a track until finding a valid ISRC.

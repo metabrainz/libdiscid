@@ -193,6 +193,8 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
 	mb_disc_toc toc;
 	mb_scsi_handle handle;
+	mb_scsi_features scsi_features;
+	int feature_warning_printed = 0;
 	int i;
 
 	memset(&handle, 0, sizeof handle);
@@ -211,8 +213,22 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
 		if (features & DISCID_FEATURE_ISRC) {
-			//read_disc_isrc(hDevice, disc, i);
-			mb_scsi_read_track_isrc_raw(handle, disc, i);
+			scsi_features = mb_scsi_get_features(handle);
+			if (scsi_features.raw_isrc) {
+				mb_scsi_read_track_isrc_raw(handle, disc, i);
+			} else {
+				if (!feature_warning_printed) {
+					fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");
+					feature_warning_printed = 1;
+				}
+				if (scsi_features.subchannel) {
+					mb_scsi_read_track_isrc(handle, disc,
+								i);
+				} else {
+					fprintf(stderr, "WARNING: can't read subchannel data!");
+					read_disc_isrc(handle.hDevice, disc, i);
+				}
+			}
 		}
 	}
 

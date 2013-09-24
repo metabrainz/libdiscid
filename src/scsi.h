@@ -31,6 +31,12 @@ typedef struct {
 	HANDLE hDevice;	/* Windows 	*/
 } mb_scsi_handle;
 
+typedef struct {
+	int raw_isrc;
+	int subchannel;
+	int cd_text;
+} mb_scsi_features;
+
 typedef enum {
 	SUCCESS,
 	GNERIC_ERROR,
@@ -39,7 +45,7 @@ typedef enum {
 	NO_DATA_RETURNED,
 } mb_scsi_status;
 
-/* 
+/*
  * Send a scsi command to a device and receive data.
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
@@ -55,14 +61,19 @@ LIBDISCID_INTERNAL mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
  * and can be used after scsi_cmd_unportable is implemented on the plaform.
  */
 
-/* 
+/*
+ * gets a structure with currently available features
+ */
+LIBDISCID_INTERNAL mb_scsi_features mb_scsi_get_features(mb_scsi_handle handle);
+
+/*
  * read an ISRC using the READ SUB-CHANNEL command (0x42)
  */
 LIBDISCID_INTERNAL void mb_scsi_read_track_isrc(mb_scsi_handle handle,
 						mb_disc_private *disc,
 						int track_num);
 
-/* 
+/*
  * parsing the sub-channel and an ISRC using the READ command (0xbe)
  */
 LIBDISCID_INTERNAL void mb_scsi_read_track_isrc_raw(mb_scsi_handle handle,

@@ -289,6 +289,7 @@ void mb_scsi_read_track_isrc_raw(mb_scsi_handle handle, mb_disc_private *disc,
 	int isrc_found = 0;
 	int valid_isrc = 0;
 	int warning_shown = 0;
+	int retval;
 
 	data_len = SUBCHANNEL_BYTES;
 	data = (unsigned char *) calloc(data_len, 1);
@@ -325,10 +326,10 @@ void mb_scsi_read_track_isrc_raw(mb_scsi_handle handle, mb_disc_private *disc,
 		cmd[10] = 0x01; 	/* Sub-Channel Selection: raw P-W=001*/
 		/* cmd[11] = control byte */
 
-		if (scsi_cmd(handle, cmd, sizeof cmd, data, data_len) != 0) {
-			fprintf(stderr,
-				"Warning: Cannot get ISRC code for track %d\n",
-				track_num);
+		retval = scsi_cmd(handle, cmd, sizeof cmd, data, data_len);
+		if (retval != SUCCESS) {
+			fprintf(stderr, "Warning: raw ISRCs failed for track %d, trying normal read\n", track_num);
+			mb_scsi_read_track_isrc(handle, disc, track_num);
 			return;
 		}
 

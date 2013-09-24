@@ -164,7 +164,7 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 	memset(&handle, 0, sizeof handle);
 	handle.fd = fd;
 	// TODO: test if raw actually is available
-	//mb_scsi_read_track_isrc(handle, disc, track_numi);
+	//mb_scsi_read_track_isrc(handle, disc, track_num);
 	mb_scsi_read_track_isrc_raw(handle, disc, track_num);
 }
 

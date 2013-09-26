@@ -40,8 +40,6 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#define MB_DEFAULT_DEVICE	"/dev/cdrom"
-
 
 /* timeout better shouldn't happen for scsi commands -> device is reset */
 #define DEFAULT_TIMEOUT 30000	/* in ms */
@@ -49,6 +47,17 @@
 #ifndef SG_MAX_SENSE
 #define SG_MAX_SENSE 16
 #endif
+
+#define MB_DEFAULT_DEVICE "/dev/cdrom"
+#define MAX_DEV_LEN 50
+
+#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define THREAD_LOCAL __thread
+#else
+#	define THREAD_LOCAL
+#endif
+
+static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "\0";
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
@@ -86,7 +95,48 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+	FILE *proc_file;
+	char *current_device;
+	char *lineptr = NULL;
+	char *saveptr = NULL;
+	size_t bufflen;
+
+	/* prefer the default device symlink to the internal names */
+	if (mb_disc_unix_exists(MB_DEFAULT_DEVICE)) {
+		return MB_DEFAULT_DEVICE;
+	}
+
+	proc_file = fopen("/proc/sys/dev/cdrom/info", "r");
+	if (proc_file != NULL) {
+		do {
+			if (getline(&lineptr, &bufflen, proc_file) < 0) {
+				/* no devices detected at all
+				 * get one for the error message later on
+				 */
+				return MB_DEFAULT_DEVICE;
+			}
+		} while (strstr(lineptr, "drive name:") == NULL);
+		current_device = strtok_r(lineptr, "\t", &saveptr);
+		while (current_device != NULL) {
+			current_device = strtok_r(NULL, "\t", &saveptr);
+			if (current_device != NULL) {
+				snprintf(default_device, MAX_DEV_LEN,
+					 "/dev/%s", current_device);
+			}
+		}
+		/* trim the trailing \n */
+		default_device[strlen(default_device)-1] = '\0';
+
+		free(lineptr);
+		fclose(proc_file);
+	}
+
+	if (strlen(default_device) > 0) {
+		return default_device;
+	} else {
+		/* This probably won't happen. No drives -> no /proc info */
+		return MB_DEFAULT_DEVICE;
+	}
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)

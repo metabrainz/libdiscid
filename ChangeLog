@@ -1,10 +1,14 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased:
+libdiscid-0.6.0:
 
- - LIB-53: discid_get_submission_url() now returns the new NGS url
+ - LIB-41: add discid_get_troc_string() for fuzzy toc lookup
+ - LIB-45: add libmusicbrainz example with fuzzy toc lookup
+ - LIB-43: windows: the default drive is the first cd drive letter
+ - LIB-53: discid_get_submission_url() returns the new NGS url
            currently no functional change, the old url was redirected
+ - the discisrc example prints the name of the device used
 
 libdiscid-0.5.2:
 

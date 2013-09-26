@@ -8,6 +8,7 @@ libdiscid-0.6.0:
  - LIB-43: windows: the default drive is the first cd drive letter
  - LIB-53: discid_get_submission_url() returns the new NGS url
            currently no functional change, the old url was redirected
+ - LIB-52: more validation for parameters of discid_put()
  - the discisrc example prints the name of the device used
 
 libdiscid-0.5.2:

@@ -88,15 +88,6 @@ int main(int argc, char *argv[]) {
 		evaluate(strlen(discid_get_error_msg(d)) > 0);
 	}
 
-	announce("empty values");
-	evaluate(strlen(discid_get_id(d)) == 0
-			&& strlen(discid_get_freedb_id(d)) == 0
-			&& strlen(discid_get_submission_url(d)) == 0
-			&& strlen(discid_get_mcn(d)) == 0
-			&& discid_get_first_track_num(d) == 0
-			&& discid_get_last_track_num(d) == 0
-			&& discid_get_sectors(d) == 0);
-
 	announce("discid_free");
 	discid_free(d);
 	evaluate(1); /* only segfaults etc. would "show" */

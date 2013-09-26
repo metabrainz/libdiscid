@@ -24,6 +24,11 @@
 
 
 /*
+ * required functions
+ * ------------------
+ */
+
+/*
  * Read the TOC header from disc
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
@@ -35,7 +40,8 @@ LIBDISCID_INTERNAL int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc);
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-LIBDISCID_INTERNAL int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track);
+LIBDISCID_INTERNAL int mb_disc_unix_read_toc_entry(int fd, int track_num,
+						   mb_disc_toc_track *track);
 
 /*
  * Read the MCN from the disc
@@ -49,14 +55,33 @@ LIBDISCID_INTERNAL void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc);
  *
  * THIS FUNCTION HAS TO BE IMPLEMENTED FOR THE PLATFORM
  */
-LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num);
+LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc,
+					       int track_num);
+
+
+/*
+ * provided functions
+ * ------------------
+ */
 
 /*
  * This function is implemented in unix.c and can be used
  * after the above functions are implemented on the platform.
  * Returns 1 on success and 0 on failure.
  */
-LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc);
+LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc,
+					     mb_disc_toc *toc);
+
+/*
+ * utility function to find an existing device from a candidate list
+ */
+LIBDISCID_INTERNAL int mb_disc_unix_exists(const char *device);
+
+/*
+ * utility function to find an existing device from a candidate list
+ */
+LIBDISCID_INTERNAL char *mb_disc_unix_find_device(char *candidates[],
+						  int num_candidates);
 
 /*
  * utility function to try opening the device with open()
@@ -64,4 +89,5 @@ LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_d
  * On failure a negative integer is returned and error_msg filled
  * with an appropriate string.
  */
-LIBDISCID_INTERNAL int mb_disc_unix_open(mb_disc_private *disc, const char *device);
+LIBDISCID_INTERNAL int mb_disc_unix_open(mb_disc_private *disc,
+					 const char *device);

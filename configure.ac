@@ -100,6 +100,11 @@ fi
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
+# for libmusicbrainz5 example:
+#AC_SEARCH_LIBS([mb5_query_query], [musicbrainz5], [have_mb5=yes], [have_mb5=no])
+AC_CHECK_HEADER([musicbrainz5/mb5_c.h], [have_mb5=yes])
+AM_CONDITIONAL([HAVE_MUSICBRAINZ5], [test x${have_mb5} = xyes])
+
 AC_OUTPUT([
   Makefile libdiscid.pc versioninfo.rc Doxyfile include/discid/discid.h
 ])

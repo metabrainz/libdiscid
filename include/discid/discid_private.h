@@ -29,6 +29,12 @@
 
 #include "discid/discid.h"
 
+/* Length of toc string, "xxx+xxx" + 100 tracks 7 bytes each ("+xxxxxx")
+ * The highest possible offset is 90 minutes * 60 seconds/minute * 75 frames/second = 405000.
+ * That is 6 digits plus one plus sign = 7 characters per track.
+ * So 3 + 3 (first and last) + 100*7 (disc length plus 99 tracks) = 706
+ */
+#define MB_TOC_STRING_LENGTH (3 + 3 + 100*7)
 
 /* Length of a MusicBrainz DiscID in bytes (without a trailing '\0'-byte). */
 #define MB_DISC_ID_LENGTH		32
@@ -39,8 +45,11 @@
 /* The maximum permitted length for an error message (without the '\0'-byte). */
 #define MB_ERROR_MSG_LENGTH		255
 
-/* URL prefix + 100 tracks, 5 bytes each + 32 bytes discid */
-#define MB_MAX_URL_LENGTH		1023
+/* Length of url prefixes */
+#define MB_URL_PREFIX_LENGTH    300
+
+/* Maximum length of any url (including query string) */
+#define MB_MAX_URL_LENGTH		(MB_URL_PREFIX_LENGTH + MB_DISC_ID_LENGTH + MB_TOC_STRING_LENGTH)
 
 /* The URL that can be used for submitting DiscIDs (no parameters yet) */
 #define MB_SUBMISSION_URL		"http://musicbrainz.org/cdtoc/attach"
@@ -69,6 +78,7 @@ typedef struct {
 	char freedb_id[FREEDB_DISC_ID_LENGTH+1];
 	char submission_url[MB_MAX_URL_LENGTH+1];
 	char webservice_url[MB_MAX_URL_LENGTH+1];
+	char toc_string[MB_TOC_STRING_LENGTH+1];
 	char error_msg[MB_ERROR_MSG_LENGTH+1];
 	char isrc[100][ISRC_STR_LENGTH+1];
 	char mcn[MCN_STR_LENGTH+1];

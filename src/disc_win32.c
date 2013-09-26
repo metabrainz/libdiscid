@@ -64,7 +64,7 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 	HANDLE hDevice;
 	char filename[128];
 	const char* colon;
-	int len;
+	size_t len;
 
 	strcpy(filename, "\\\\.\\");
 	len = strlen(device);

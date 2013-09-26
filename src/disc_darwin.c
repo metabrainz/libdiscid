@@ -2,6 +2,7 @@
 
    MusicBrainz -- The Internet music metadatabase
 
+   Copyright (C) 2013 Johannes Dewender
    Copyright (C) 2006 Robert Kaye
    Copyright (C) 1999 Marc E E van Woerkom
    
@@ -24,93 +25,95 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <assert.h>
 #include <paths.h>
-#include <IOKit/IOKitLib.h>
-#include <IOKit/IOBSD.h>
-#include <IOKit/storage/IOCDMedia.h>
-#include <IOKit/storage/IOMedia.h>
-#include <IOKit/storage/IOCDTypes.h>
-#include <IOKit/storage/IOCDMediaBSDClient.h>
-#include <IOKit/storage/IOMediaBSDClient.h>
+#include <sys/ioctl.h>
+#include <sys/param.h>
 
 #include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/IOBSD.h>
+#include <IOKit/storage/IOCDBlockStorageDevice.h>
+#include <IOKit/storage/IOCDMediaBSDClient.h>
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
 #include "unix.h"
 
+#define MB_DEFAULT_DEVICE "1"	/* first disc drive (empty or not) */
 #define TOC_BUFFER_LEN 2048
-#define MAXPATHLEN     1024
 
-static char defaultDevice[MAXPATHLEN] = "\0";
 
-static kern_return_t find_ejectable_cd_media( io_iterator_t *mediaIterator )
+static int find_cd_block_devices(io_iterator_t *device_iterator)
 {
-    mach_port_t         masterPort;
-    kern_return_t       kernResult;
-    CFMutableDictionaryRef   classesToMatch;
+	mach_port_t master_port;
+	CFMutableDictionaryRef matching_dictionary;
 
-    kernResult = IOMasterPort( MACH_PORT_NULL, &masterPort );
-    if ( kernResult != KERN_SUCCESS )
-        return kernResult;
+	if (IOMasterPort(MACH_PORT_NULL, &master_port) != KERN_SUCCESS)
+		return 0;
 
-    // CD media are instances of class kIOCDMediaClass.
-    classesToMatch = IOServiceMatching( kIOCDMediaClass );
-    if ( classesToMatch != NULL )
-    {
-        // Each IOMedia object has a property with key kIOMediaEjectableKey
-        // which is true if the media is indeed ejectable. So add this
-        // property to the CFDictionary for matching.
-        CFDictionarySetValue( classesToMatch, CFSTR( kIOMediaEjectableKey ), kCFBooleanTrue );
-    }
+	matching_dictionary = IOServiceMatching(kIOCDBlockStorageDeviceClass);
 
-    return IOServiceGetMatchingServices( masterPort, classesToMatch, mediaIterator );
+	if (IOServiceGetMatchingServices(master_port, matching_dictionary,
+					 device_iterator) != KERN_SUCCESS)
+		return 0;
+	else
+		return 1;
 }
 
-static kern_return_t get_device_file_path( io_iterator_t mediaIterator, char *deviceFilePath, CFIndex maxPathSize )
+static int get_device_from_entry(io_registry_entry_t entry,
+				 char *device_path, int max_len)
 {
-    io_object_t nextMedia;
-    kern_return_t kernResult = KERN_FAILURE;
- 
-    *deviceFilePath = '\0';
-    nextMedia = IOIteratorNext( mediaIterator );
-    if ( nextMedia )
-    {
-        CFTypeRef   deviceFilePathAsCFString;
-        deviceFilePathAsCFString = IORegistryEntryCreateCFProperty(
-                                nextMedia, CFSTR( kIOBSDNameKey ),
-                                kCFAllocatorDefault, 0 );
+	int return_value = 0;
+	size_t dev_path_len;;
+        CFStringRef cf_device_name;;
+	*device_path = '\0';
 
-       *deviceFilePath = '\0';
-        if ( deviceFilePathAsCFString )
-        {
-            size_t devPathLength;
-            strcpy( deviceFilePath, _PATH_DEV );
-            // Add "r" before the BSD node name from the I/O Registry
-            // to specify the raw disk node. The raw disk node receives
-            // I/O requests directly and does not go through the
-            // buffer cache.
-            strcat( deviceFilePath, "r");
-            devPathLength = strlen( deviceFilePath );
-            if ( CFStringGetCString( deviceFilePathAsCFString,
-                                     deviceFilePath + devPathLength,
-                                     maxPathSize - devPathLength,
-                                     kCFStringEncodingASCII ) )
-                kernResult = KERN_SUCCESS;
+        cf_device_name = IORegistryEntrySearchCFProperty(entry,
+			kIOServicePlane, CFSTR(kIOBSDNameKey),
+			kCFAllocatorDefault, kIORegistryIterateRecursively);
 
-            CFRelease( deviceFilePathAsCFString );
-        }
-    }
-    IOObjectRelease( nextMedia );
+	if (cf_device_name) {
+		strcpy(device_path, _PATH_DEV);
+		/* Add "r" before the device name to use the raw disk node
+		 * without the buffering cache. */
+		strcat(device_path, "r");
+		dev_path_len = strlen(device_path);
+		if (CFStringGetCString(cf_device_name,
+			   device_path + dev_path_len,
+			   max_len - dev_path_len - 1,
+			   kCFStringEncodingASCII))
+			return_value = 1;
 
-    return kernResult;
+		CFRelease(cf_device_name);
+	}
+	return return_value;
+}
+
+static int get_device_from_number(int device_number,
+				  char * buffer, int buffer_len) {
+	int return_value = 0;
+	int index = 0;
+	io_iterator_t device_iterator;
+	io_object_t device_object = IO_OBJECT_NULL;
+
+	if (!find_cd_block_devices(&device_iterator))
+		return 0;
+
+	while (index < device_number
+			&& (device_object = IOIteratorNext(device_iterator)))
+		index++;
+
+	if (index != device_number) {
+		return_value = 0;
+	} else {
+		return_value = get_device_from_entry(device_object,
+						     buffer, buffer_len);
+	}
+
+	IOObjectRelease(device_object);
+	IOObjectRelease(device_iterator);
+
+	return return_value;
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
@@ -150,23 +153,9 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	}
 }
 
-
 char *mb_disc_get_default_device_unportable(void) 
 {
-    kern_return_t kernResult;
-    io_iterator_t mediaIterator;
-
-    *defaultDevice = 0;
-
-    kernResult = find_ejectable_cd_media( &mediaIterator );
-    if ( kernResult != KERN_SUCCESS )
-        return "";
-
-    kernResult = get_device_file_path( mediaIterator, defaultDevice, MAXPATHLEN - 1);
-    if ( kernResult != KERN_SUCCESS )
-        return "";
-
-    return defaultDevice;
+	return MB_DEFAULT_DEVICE;
 }
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
@@ -230,4 +219,24 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *mb_toc) {
 int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *toc) {
 	/* On Darwin the tracks are already filled along with the header */
 	return 1;
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	int device_number;
+	char device_name[MAXPATHLEN] = "\0";
+
+	device_number = (int) strtol(device, NULL, 10);
+	if (device_number > 0) {
+		if (!get_device_from_number(device_number,
+					    device_name, MAXPATHLEN)) {
+			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 	 "no disc in drive number: %d", device_number);
+			return 0;
+		} else {
+			return mb_disc_unix_read(disc, device_name, features);
+		}
+	} else {
+		return mb_disc_unix_read(disc, device, features);
+	}
 }

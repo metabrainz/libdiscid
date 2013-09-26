@@ -76,6 +76,9 @@ int main(int argc, char *argv[]) {
 	announce("discid_get_freedb_id");
 	evaluate(equal_int(strlen(discid_get_freedb_id(d)), 8));
 
+	announce("discid_get_toc_string");
+	evaluate(strlen(discid_get_toc_string(d)) > 0);
+
 	announce("discid_get_submission_url");
 	evaluate(strlen(discid_get_submission_url(d)) > 0);
 

@@ -63,6 +63,11 @@
 /* Maximum length of a ISRC code string */
 #define ISRC_STR_LENGTH		12
 
+/* Maximum disc length in frames/sectors
+ * This is already not according to spec, but many players might still work
+ * Spec is 79:59.75 = 360000 + lead-in + lead-out */
+#define MAX_DISC_LENGTH		(90 * 60 * 75)
+
 /*
  * This data structure represents an audio disc.
  *

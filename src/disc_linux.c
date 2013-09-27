@@ -235,4 +235,9 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	}
 }
 
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	return mb_disc_unix_read(disc, device, features);
+}
+
 /* EOF */

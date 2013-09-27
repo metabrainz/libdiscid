@@ -66,7 +66,17 @@ LIBDISCID_INTERNAL void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc,
 
 /*
  * This function is implemented in unix.c and can be used
+ * for most platforms to implement mb_disc_read_unportable
  * after the above functions are implemented on the platform.
+ * Returns 1 on success and 0 on failure.
+ */
+LIBDISCID_INTERNAL int mb_disc_unix_read(mb_disc_private *disc,
+				const char *device, unsigned int features);
+
+/*
+ * This function is implemented in unix.c and can be used
+ * after the above functions are implemented on the platform.
+ * This uses mb_disc_unix_read_toc_* and adds some error checking.
  * Returns 1 on success and 0 on failure.
  */
 LIBDISCID_INTERNAL int mb_disc_unix_read_toc(int fd, mb_disc_private *disc,

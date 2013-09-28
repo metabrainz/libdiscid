@@ -144,7 +144,7 @@ int get_nth_device(int number, char* device, int device_length) {
 
 				if (counter == number)
 				{
-					strncpy(tmpDevice, device, MAX_DEV_LEN);
+					strncpy(device, tmpDevice, device_length);
 					return TRUE;
 				}
 			}

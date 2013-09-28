@@ -227,7 +227,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 		if (device == NULL)
 		{
 			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-				"cannot open the CD audio device '%i'", device_number);
+				"cannot find the CD audio device '%i'", device_number);
 			return 0;
 		}
 	}

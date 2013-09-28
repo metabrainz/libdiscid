@@ -130,39 +130,37 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
-char *get_nth_device(int number) {
+int get_nth_device(int number, char* device, int device_length) {
 	int i, counter = 0;
-	char device[MAX_DEV_LEN];
+	char tmpDevice[MAX_DEV_LEN];
 	DWORD mask = GetLogicalDrives();
 	
 	for (i = 0; i <= 25; i++) {
 		if (mask >> i & 1) {
-			snprintf(device, MAX_DEV_LEN, "%c:", i + 'A');
+			snprintf(tmpDevice, MAX_DEV_LEN, "%c:", i + 'A');
 			
-			if (GetDriveType(device) == DRIVE_CDROM) {
+			if (GetDriveType(tmpDevice) == DRIVE_CDROM) {
 				counter++;
 
 				if (counter == number)
 				{
-					strncpy(default_device, device, MAX_DEV_LEN);
-					return default_device;
+					strncpy(tmpDevice, device, MAX_DEV_LEN);
+					return TRUE;
 				}
 			}
 		}
 	}
 
-	return NULL;
+	return FALSE;
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	char* device = get_nth_device(1);
-
-	if (device == NULL)
+	if (!get_nth_device(1, default_device, MAX_DEV_LEN))
 	{
 		return MB_DEFAULT_DEVICE;
 	}
 
-	return device;
+	return default_device;
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -175,7 +173,6 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 			return 0;
 	}
 }
-
 
 int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc)
 {
@@ -216,20 +213,20 @@ int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *to
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
 	mb_disc_toc toc;
+	char tmpDevice[MAX_DEV_LEN];
 	HANDLE hDevice;
 	int i, device_number;
 
 	device_number = (int) strtol(device, NULL, 10);
 
 	if (device_number > 0) {
-		device = get_nth_device(device_number);
-
-		if (device == NULL)
-		{
+		if (!get_nth_device(device_number, tmpDevice, MAX_DEV_LEN)) {
 			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 				"cannot find the CD audio device '%i'", device_number);
 			return 0;
 		}
+
+		device = tmpDevice;
 	}
 
 	hDevice = create_device_handle(disc, device);

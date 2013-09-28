@@ -57,8 +57,59 @@
 #	define THREAD_LOCAL
 #endif
 
-static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "\0";
+static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "";
 
+
+static char *get_device(int number) {
+	FILE *proc_file;
+	char *current_device;
+	char *lineptr = NULL;
+	char *saveptr = NULL;
+	size_t bufflen;
+	int i, count, counter;
+
+	proc_file = fopen("/proc/sys/dev/cdrom/info", "r");
+	if (proc_file != NULL) {
+		/* skip to line containing device names */
+		do {
+			if (getline(&lineptr, &bufflen, proc_file) < 0) {
+				/* no devices detected at all
+				 * get one for the error message later on
+				 */
+				return NULL;
+			}
+		} while (strstr(lineptr, "drive name:") == NULL);
+
+		/* count number of devices = number of tabs - 1*/
+		count = -1;
+		for (i = 0; i < strlen(lineptr); i++) {
+			if (lineptr[i] == '\t') count++;
+		}
+
+		/* go through devices, they are in reverse order */
+		current_device = strtok_r(lineptr, "\t", &saveptr);
+		/* skip column title */
+		current_device = strtok_r(NULL, "\t", &saveptr);
+		counter = count;
+		while (current_device != NULL && counter >= number) {
+			if (counter == number) {
+				snprintf(default_device, MAX_DEV_LEN,
+					 "/dev/%s", current_device);
+			}
+			/* go to next in list */
+			current_device = strtok_r(NULL, "\t", &saveptr);
+			counter--;
+		}
+
+		/* trim the trailing \n for the last entry = first device */
+		if (default_device[strlen(default_device)-1] == '\n') {
+			default_device[strlen(default_device)-1] = '\0';
+		}
+		free(lineptr);
+		fclose(proc_file);
+	}
+	return default_device;
+}
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 	struct cdrom_tochdr th;
@@ -95,47 +146,19 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	FILE *proc_file;
-	char *current_device;
-	char *lineptr = NULL;
-	char *saveptr = NULL;
-	size_t bufflen;
+	char *device;
 
 	/* prefer the default device symlink to the internal names */
 	if (mb_disc_unix_exists(MB_DEFAULT_DEVICE)) {
 		return MB_DEFAULT_DEVICE;
-	}
-
-	proc_file = fopen("/proc/sys/dev/cdrom/info", "r");
-	if (proc_file != NULL) {
-		do {
-			if (getline(&lineptr, &bufflen, proc_file) < 0) {
-				/* no devices detected at all
-				 * get one for the error message later on
-				 */
-				return MB_DEFAULT_DEVICE;
-			}
-		} while (strstr(lineptr, "drive name:") == NULL);
-		current_device = strtok_r(lineptr, "\t", &saveptr);
-		while (current_device != NULL) {
-			current_device = strtok_r(NULL, "\t", &saveptr);
-			if (current_device != NULL) {
-				snprintf(default_device, MAX_DEV_LEN,
-					 "/dev/%s", current_device);
-			}
-		}
-		/* trim the trailing \n */
-		default_device[strlen(default_device)-1] = '\0';
-
-		free(lineptr);
-		fclose(proc_file);
-	}
-
-	if (strlen(default_device) > 0) {
-		return default_device;
 	} else {
-		/* This probably won't happen. No drives -> no /proc info */
-		return MB_DEFAULT_DEVICE;
+		device = get_device(1);
+		if (strlen(device) > 0) {
+			/* device is just a pointer to default_device */
+			return device;
+		} else {
+			return MB_DEFAULT_DEVICE;
+		}
 	}
 }
 
@@ -237,6 +260,19 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
+	int device_number;
+
+	device_number = (int) strtol(device, NULL, 10);
+	if (device_number > 0) {
+		device = get_device(device_number);
+		if (strlen(device) == 0) {
+			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+				 "cannot find cd device with the number '%d'",
+				 device_number);
+			return 0;
+		}
+	}
+
 	return mb_disc_unix_read(disc, device, features);
 }
 

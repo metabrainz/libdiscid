@@ -74,9 +74,6 @@ static int get_device(int number, char *device, int device_len) {
 		/* skip to line containing device names */
 		do {
 			if (getline(&lineptr, &bufflen, proc_file) < 0) {
-				/* no devices detected at all
-				 * get one for the error message later on
-				 */
 				return 0;
 			}
 		} while (strstr(lineptr, "drive name:") == NULL);

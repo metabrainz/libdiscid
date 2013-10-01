@@ -217,7 +217,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");
 		}
 		if (!scsi_features.isrc) {
-			fprintf(stderr, "WARNING: can't read subchannel data!");
+			fprintf(stderr, "WARNING: can't read subchannel data!\n");
 		}
 
 		/* read ISRCs with the best method available */

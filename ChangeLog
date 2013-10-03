@@ -1,6 +1,10 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.6.1:
+
+ - LIB-59: windows: fix bug preventing ISRC reads
+
 libdiscid-0.6.0:
 
  - LIB-41: add discid_get_troc_string() for fuzzy toc lookup

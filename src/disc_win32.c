@@ -130,7 +130,7 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
-int get_nth_device(int number, char* device, int device_length) {
+static int get_nth_device(int number, char* device, int device_length) {
 	int i, counter = 0;
 	char tmpDevice[MAX_DEV_LEN];
 	DWORD mask = GetLogicalDrives();
@@ -174,7 +174,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	}
 }
 
-int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc)
+static int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc)
 {
 	DWORD dwReturned;
 	BOOL bResult;

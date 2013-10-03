@@ -26,7 +26,7 @@
 
 
 char *mb_disc_get_default_device_unportable(void) {
-	return "";
+	return "/dev/null";
 }
 
 

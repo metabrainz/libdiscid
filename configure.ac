@@ -7,8 +7,8 @@ dnl Process this file with autoconf to produce a configure script.
 # MINOR is increased when features are added to the API
 # PATCH is increase for all other releases
 define(MAJOR, 0)
-define(MINOR, 5)
-define(PATCH, 1)
+define(MINOR, 6)
+define(PATCH, 0)
 # currently the sole purpose of the project is the library,
 # so we use the library version also as project version
 AC_INIT(libdiscid, MAJOR.MINOR.PATCH)

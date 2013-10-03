@@ -39,11 +39,11 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#if __FreeBSD__ >= 9
-	#define MB_DEFAULT_DEVICE		"/dev/cd0"
-#else
-	#define MB_DEFAULT_DEVICE		"/dev/acd0"
-#endif
+
+#define NUM_CANDIDATES 2
+
+/* starting with FreeBSD 9 /dev/cd0 is always used, /dev/acd0 is deprecated */
+static char *device_candidates[NUM_CANDIDATES] = {"/dev/cd0", "/dev/acd0"};
 
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
@@ -95,7 +95,7 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+	return mb_disc_unix_find_device(device_candidates, NUM_CANDIDATES);
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -105,6 +105,11 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 		default:
 			return 0;
 	}
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	return mb_disc_unix_read(disc, device, features);
 }
 
 /* EOF */

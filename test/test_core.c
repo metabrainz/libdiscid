@@ -66,11 +66,8 @@ int main(int argc, char *argv[]) {
 			+ discid_has_feature(DISCID_FEATURE_MCN)
 			+ discid_has_feature(DISCID_FEATURE_ISRC));
 
-	/* this doesn't test much, but shouldn't fail completely
-	 * TODO: make sure there is always something > 0 returned
 	announce("discid_get_default_device");
 	evaluate(strlen(discid_get_default_device()) > 0);
-	 */
 
 	announce("discid_new");
 	d = discid_new();
@@ -87,15 +84,6 @@ int main(int argc, char *argv[]) {
 	} else {
 		evaluate(strlen(discid_get_error_msg(d)) > 0);
 	}
-
-	announce("empty values");
-	evaluate(strlen(discid_get_id(d)) == 0
-			&& strlen(discid_get_freedb_id(d)) == 0
-			&& strlen(discid_get_submission_url(d)) == 0
-			&& strlen(discid_get_mcn(d)) == 0
-			&& discid_get_first_track_num(d) == 0
-			&& discid_get_last_track_num(d) == 0
-			&& discid_get_sectors(d) == 0);
 
 	announce("discid_free");
 	discid_free(d);

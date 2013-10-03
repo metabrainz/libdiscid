@@ -272,6 +272,26 @@ LIBDISCID_API char *discid_get_id(DiscId *d);
  */
 LIBDISCID_API char *discid_get_freedb_id(DiscId *d);
 
+/**
+ * Return a string representing CD Table Of Contents (TOC).
+ *
+ * The string has following values separated by space:
+ * first track number
+ * last track number
+ * total length in sectors
+ * offset of 1st track
+ * offset of 2nd track
+ * ...
+ *
+ * Example:
+ * 1 7 164900 150 22460 50197 80614 100828 133318 144712
+ *
+ * The returned string is only valid as long as the DiscId object exists.
+ *
+ * @param d a DiscId object created by discid_new()
+ * @return a string containing TOC information
+ */
+LIBDISCID_API char *discid_get_toc_string(DiscId *d);
 
 /**
  * Return an URL for submitting the DiscID to MusicBrainz.
@@ -304,7 +324,14 @@ LIBDISCID_API char *discid_get_submission_url(DiscId *d);
 LIBDISCID_API LIBDISCID_DEPRECATED char *discid_get_webservice_url(DiscId *d);
 
 /**
- * Return the name of the default disc drive for this operating system.
+ * Return the name of the default disc drive for this machine.
+ * This isn't constant, but possibly depends on the drives currently
+ * attached, depending on the platform.
+ * For this reason you should call this once and save it
+ * when you want to make sure to use the same drive for
+ * multiple operations.
+ *
+ * The returned string is thread local and owned by libdiscid internally.
  *
  * @return a string containing an operating system dependent device identifier
  */

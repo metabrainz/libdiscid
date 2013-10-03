@@ -47,14 +47,24 @@
 
 
 #define MB_DEFAULT_DEVICE	"D:"
+#define MAX_DEV_LEN 3
 
 /* after that time a scsi command is considered timed out */
 #define DEFAULT_TIMEOUT 30	/* in seconds */
 
 #define GOOD 0x00	/* scsi status code for success */
 
+#if defined(_MSC_VER)
+#	define THREAD_LOCAL __declspec(thread)
+#elif (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#	define THREAD_LOCAL __thread
+#else
+#	define THREAD_LOCAL
+#endif
 
-static int AddressToSectors(UCHAR address[4])
+static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "\0";
+
+static int address_to_sectors(UCHAR address[4])
 {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
@@ -62,8 +72,9 @@ static int AddressToSectors(UCHAR address[4])
 static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 {
 	HANDLE hDevice;
-	char filename[128], *colon;
-	int len;
+	char filename[128];
+	const char* colon;
+	size_t len;
 
 	strcpy(filename, "\\\\.\\");
 	len = strlen(device);
@@ -82,7 +93,7 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 	                     NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-			"couldn't open the CD audio device");
+			"cannot open the CD audio device '%s'", device);
 		return 0;
 	}
 
@@ -133,9 +144,37 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
 	}
 }
 
+int get_nth_device(int number, char* device, int device_length) {
+	int i, counter = 0;
+	char tmpDevice[MAX_DEV_LEN];
+	DWORD mask = GetLogicalDrives();
+
+	for (i = 0; i <= 25; i++) {
+		if (mask >> i & 1) {
+			snprintf(tmpDevice, MAX_DEV_LEN, "%c:", i + 'A');
+
+			if (GetDriveType(tmpDevice) == DRIVE_CDROM) {
+				counter++;
+
+				if (counter == number)
+				{
+					strncpy(device, tmpDevice, device_length);
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	return FALSE;
+}
 
 char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+	if (!get_nth_device(1, default_device, MAX_DEV_LEN))
+	{
+		return MB_DEFAULT_DEVICE;
+	}
+
+	return default_device;
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -149,41 +188,37 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	}
 }
 
-
-int mb_disc_winnt_read_toc(mb_disc_private *disc, mb_disc_toc *toc, const char *device)
+int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc)
 {
-	HANDLE hDevice;
 	DWORD dwReturned;
 	BOOL bResult;
 	CDROM_TOC cd;
 	int i;
 
-	hDevice = create_device_handle(disc, device);
-
-	bResult = DeviceIoControl(hDevice, IOCTL_CDROM_READ_TOC,
+	bResult = DeviceIoControl(device, IOCTL_CDROM_READ_TOC,
 	                          NULL, 0,
 	                          &cd, sizeof(cd),
 	                          &dwReturned, NULL);
 	if (bResult == FALSE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 		         "error while reading the CD TOC");
-		CloseHandle(hDevice);
+		CloseHandle(device);
 		return 0;
 	}
 
-	CloseHandle(hDevice);
+	CloseHandle(device);
 
 	toc->first_track_num = cd.FirstTrack;
 	toc->last_track_num = cd.LastTrack;
 
 	/* Get info about all tracks */
 	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
-		toc->tracks[i].address = AddressToSectors(cd.TrackData[i - 1].Address) - 150;
+		toc->tracks[i].address = address_to_sectors(cd.TrackData[i - 1].Address) - 150;
 		toc->tracks[i].control = cd.TrackData[i - 1].Control;
 	}
 
 	/* Lead-out is stored after the last track */
-	toc->tracks[0].address = AddressToSectors(cd.TrackData[toc->last_track_num].Address) - 150;
+	toc->tracks[0].address = address_to_sectors(cd.TrackData[toc->last_track_num].Address) - 150;
 	toc->tracks[0].control = cd.TrackData[toc->last_track_num].Control;
 
 	return 1;
@@ -194,17 +229,32 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	mb_disc_toc toc;
 	mb_scsi_handle handle;
 	mb_scsi_features scsi_features;
-	int i;
+	char tmpDevice[MAX_DEV_LEN];
+	int i, device_number;
 
 	memset(&handle, 0, sizeof handle);
 
-	if ( !mb_disc_winnt_read_toc(disc, &toc, device) )
-		return 0;
+	device_number = (int) strtol(device, NULL, 10);
 
-	if ( !mb_disc_load_toc(disc, &toc) )
-		return 0;
+	if (device_number > 0) {
+		if (!get_nth_device(device_number, tmpDevice, MAX_DEV_LEN)) {
+			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+				"cannot find the CD audio device '%i'", device_number);
+			return 0;
+		}
+
+		device = tmpDevice;
+	}
 
 	handle.hDevice = create_device_handle(disc, device);
+	if (handle.hDevice == 0)
+		return 0;
+
+	if (!mb_disc_winnt_read_toc(handle.hDevice, disc, &toc))
+		return 0;
+
+	if (!mb_disc_load_toc(disc, &toc))
+		return 0;
 
 	if (features & DISCID_FEATURE_MCN) {
 		read_disc_mcn(handle.hDevice, disc);

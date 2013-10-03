@@ -42,13 +42,16 @@ The following people have contributed to libdiscid:
    Philipp Wolfer <ph.wolfer at gmail dot com>
     - Implemented MCN reading on Linux
     - Implemented read_sparse()
+    - Better Windows default drive detection
     - Various fixes and refactoring
 
    Sebastian Ramacher <sramacher at debian dot org>
     - Hiding of internal symbols on Linux/Unix, deprecation of symbols
+    - Several thread related and stability fixes
 
    Christophe Fergeau <cfergeau@redhat.com>
     - Autotools build restructuring
 
    Laurent Monin <zas@norz.org>
+    - Implemented TOC string API
     - Times for discid example

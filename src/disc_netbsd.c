@@ -37,15 +37,14 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#if (defined(__NetBSD__) && (defined(__i386__) || defined(__x86_64__)))
-	#define MB_DEFAULT_DEVICE   "/dev/rcd0d"
-#else
-	#define MB_DEFAULT_DEVICE   "/dev/rcd0c"
-#endif
+#define NUM_CANDIDATES 2
+
+/* rcd0c = OpenBSD (+ NetBSD?), rcd0d = x86 NetBSD */
+static char *device_candidates[NUM_CANDIDATES] = {"/dev/rcd0c", "/dev/rcd0d"};
 
 
 char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+	return mb_disc_unix_find_device(device_candidates, NUM_CANDIDATES);
 }
 
 
@@ -100,4 +99,9 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 		default:
 			return 0;
 	}
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	return mb_disc_unix_read(disc, device, features);
 }

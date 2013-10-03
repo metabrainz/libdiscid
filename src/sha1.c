@@ -201,9 +201,9 @@ void sha_init(SHA_INFO *sha_info)
 
 /* update the SHA digest */
 
-void sha_update(SHA_INFO *sha_info, SHA_BYTE *buffer, int count)
+void sha_update(SHA_INFO *sha_info, SHA_BYTE *buffer, size_t count)
 {
-    int i;
+    size_t i;
     SHA_LONG clo;
 
     clo = T32(sha_info->count_lo + ((SHA_LONG) count << 3));
@@ -293,7 +293,7 @@ void sha_final(unsigned char digest[20], SHA_INFO *sha_info)
 
 void sha_stream(unsigned char digest[20], SHA_INFO *sha_info, FILE *fin)
 {
-    int i;
+    size_t i;
     SHA_BYTE data[BLOCK_SIZE];
 
     sha_init(sha_info);

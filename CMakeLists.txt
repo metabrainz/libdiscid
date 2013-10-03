@@ -10,8 +10,8 @@ PROJECT(libdiscid C)
 # MINOR is increased when features are added to the API
 # PATCH is increase for all other releases
 SET(libdiscid_MAJOR 0)
-SET(libdiscid_MINOR 5)
-SET(libdiscid_PATCH 1)
+SET(libdiscid_MINOR 6)
+SET(libdiscid_PATCH 0)
 
 
 SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})
@@ -91,6 +91,13 @@ ENDIF()
 STRING(REPLACE ";" " " libdiscid_OSDEP_STR "${libdiscid_OSDEP_SRCS}")
 MESSAGE(STATUS "Using discid implementation ${libdiscid_OSDEP_STR}")
 
+# This is only a dependency for a libmusicbrainz example
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+FIND_PACKAGE(Musicbrainz5 QUIET)
+IF(NOT MUSICBRAINZ5_FOUND)
+    SET(MUSICBRAINZ5_INCLUDE_DIRS "")
+ENDIF()
+
 ADD_LIBRARY(libdiscid SHARED ${libdiscid_OSDEP_SRCS} ${libdiscid_RCS} src/base64.c src/disc.c src/sha1.c)
 TARGET_LINK_LIBRARIES(libdiscid ${libdiscid_OSDEP_LIBS})
 SET_TARGET_PROPERTIES(libdiscid PROPERTIES
@@ -99,12 +106,17 @@ SET_TARGET_PROPERTIES(libdiscid PROPERTIES
     SOVERSION ${libdiscid_SOVERSION}
 )
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_BINARY_DIR}/include)
+	${CMAKE_CURRENT_BINARY_DIR}/include ${MUSICBRAINZ5_INCLUDE_DIRS})
 
 ADD_EXECUTABLE(discid examples/discid.c)
 TARGET_LINK_LIBRARIES(discid libdiscid)
 ADD_EXECUTABLE(discisrc examples/discisrc.c)
 TARGET_LINK_LIBRARIES(discisrc libdiscid)
+IF(MUSICBRAINZ5_FOUND)
+    ADD_EXECUTABLE(disc_metadata examples/disc_metadata.c)
+    TARGET_LINK_LIBRARIES(disc_metadata libdiscid
+                          ${MUSICBRAINZ5_LIBRARIES} stdc++)
+ENDIF()
 
 ADD_EXECUTABLE(test_core EXCLUDE_FROM_ALL test/test.c test/test_core.c)
 TARGET_LINK_LIBRARIES(test_core libdiscid)

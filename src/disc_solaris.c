@@ -39,8 +39,10 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
-#define MB_DEFAULT_DEVICE	"/vol/dev/aliases/cdrom0"
+#define NUM_CANDIDATES 2
 
+static char *device_candidates[NUM_CANDIDATES] = {"/vol/dev/aliases/cdrom0",
+					         "/volumes/dev/aliases/cdrom0"};
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 	struct cdrom_tochdr th;
@@ -86,7 +88,7 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	return MB_DEFAULT_DEVICE;
+	return mb_disc_unix_find_device(device_candidates, NUM_CANDIDATES);
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
@@ -96,6 +98,11 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 		default:
 			return 0;
 	}
+}
+
+int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
+			    unsigned int features) {
+	return mb_disc_unix_read(disc, device, features);
 }
 
 /* EOF */

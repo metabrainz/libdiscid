@@ -69,6 +69,9 @@ int main(int argc, char *argv[]) {
 	announce("discid_get_id");
 	evaluate(equal_int(strlen(discid_get_id(d)), 28));
 
+	announce("discid_get_toc_string");
+	evaluate(strlen(discid_get_toc_string(d)) > 0);
+
 	announce("discid_get_submission_url");
 	evaluate(strlen(discid_get_submission_url(d)) > 0);
 

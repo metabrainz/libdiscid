@@ -27,10 +27,39 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "discid/discid_private.h"
 #include "unix.h"
 
+
+int mb_disc_unix_exists(const char *device) {
+	int fd;
+	fd = open(device, O_RDONLY | O_NONBLOCK);
+	if (fd < 0) {
+		/* we only check for existance, access should fail later on */
+		if (errno == ENOENT) {
+			return 0;
+		} else {
+			return 1;
+		}
+	} else {
+		close(fd);
+		return 1;
+	}
+}
+
+char *mb_disc_unix_find_device(char *candidates[], int num_candidates) {
+	int i;
+
+	for (i = 0; i < num_candidates; i++) {
+		if (mb_disc_unix_exists(candidates[i])) {
+			return candidates[i];
+		}
+	}
+	/* use the first name for the error message later on */
+	return candidates[0];
+}
 
 int mb_disc_unix_open(mb_disc_private *disc, const char *device) {
 	int fd;
@@ -74,8 +103,8 @@ int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
 	return 1;
 }
 
-int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
-			    unsigned int features) {
+int mb_disc_unix_read(mb_disc_private *disc, const char *device,
+		      unsigned int features) {
 	mb_disc_toc toc;
 	int fd;
 	int i;

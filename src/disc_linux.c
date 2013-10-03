@@ -163,8 +163,7 @@ char *mb_disc_get_default_device_unportable(void) {
 	}
 }
 
-void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc)
-{
+void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 	struct cdrom_mcn mcn;
 	memset(&mcn, 0, sizeof mcn);
 

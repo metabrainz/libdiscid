@@ -11,7 +11,7 @@ PROJECT(libdiscid C)
 # PATCH is increase for all other releases
 SET(libdiscid_MAJOR 0)
 SET(libdiscid_MINOR 6)
-SET(libdiscid_PATCH 0)
+SET(libdiscid_PATCH 1)
 
 
 SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})

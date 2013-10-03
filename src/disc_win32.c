@@ -54,13 +54,11 @@
 
 static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "\0";
 
-static int address_to_sectors(UCHAR address[4])
-{
+static int address_to_sectors(UCHAR address[4]) {
 	return address[1] * 4500 + address[2] * 75 + address[3];
 }
 
-static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
-{
+static HANDLE create_device_handle(mb_disc_private *disc, const char *device) {
 	HANDLE hDevice;
 	char filename[128];
 	const char* colon;
@@ -86,8 +84,7 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device)
 	return hDevice;
 }
 
-static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc)
-{
+static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc) {
 	DWORD dwReturned;
 	BOOL bResult;
 	CDROM_SUB_Q_DATA_FORMAT format;
@@ -101,15 +98,13 @@ static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc)
                               &dwReturned, NULL);
 	if (bResult == FALSE) {
 		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
-	}
-	else {
+	} else {
 		strncpy(disc->mcn, (char *) data.MediaCatalog.MediaCatalog,
 			MCN_STR_LENGTH);
 	}
 }
 
-static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
-{
+static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track) {
 	DWORD dwReturned;
 	BOOL bResult;
 	CDROM_SUB_Q_DATA_FORMAT format;
@@ -123,8 +118,7 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track)
                               &dwReturned, NULL);
 	if (bResult == FALSE) {
 		fprintf(stderr, "Warning: Unable to read the international standard recording code (ISRC) for track %i\n", track);
-	}
-	else {
+	} else {
 		strncpy(disc->isrc[track], (char *) data.TrackIsrc.TrackIsrc,
 			ISRC_STR_LENGTH);
 	}
@@ -138,12 +132,9 @@ static int get_nth_device(int number, char* device, int device_length) {
 	for (i = 0; i <= 25; i++) {
 		if (mask >> i & 1) {
 			snprintf(tmpDevice, MAX_DEV_LEN, "%c:", i + 'A');
-
 			if (GetDriveType(tmpDevice) == DRIVE_CDROM) {
 				counter++;
-
-				if (counter == number)
-				{
+				if (counter == number) {
 					strncpy(device, tmpDevice, device_length);
 					return TRUE;
 				}
@@ -155,8 +146,7 @@ static int get_nth_device(int number, char* device, int device_length) {
 }
 
 char *mb_disc_get_default_device_unportable(void) {
-	if (!get_nth_device(1, default_device, MAX_DEV_LEN))
-	{
+	if (!get_nth_device(1, default_device, MAX_DEV_LEN)) {
 		return MB_DEFAULT_DEVICE;
 	}
 
@@ -174,8 +164,7 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	}
 }
 
-static int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc)
-{
+static int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *toc) {
 	DWORD dwReturned;
 	BOOL bResult;
 	CDROM_TOC cd;
@@ -222,7 +211,6 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 				"cannot find the CD audio device '%i'", device_number);
 			return 0;
 		}
-
 		device = tmpDevice;
 	}
 

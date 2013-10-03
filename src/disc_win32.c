@@ -188,11 +188,8 @@ int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_toc *to
 	if (bResult == FALSE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 		         "error while reading the CD TOC");
-		CloseHandle(device);
 		return 0;
 	}
-
-	CloseHandle(device);
 
 	toc->first_track_num = cd.FirstTrack;
 	toc->last_track_num = cd.LastTrack;
@@ -233,11 +230,15 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 	if (hDevice == 0)
 		return 0;
 
-	if (!mb_disc_winnt_read_toc(hDevice, disc, &toc))
+	if (!mb_disc_winnt_read_toc(hDevice, disc, &toc)) {
+		CloseHandle(hDevice);
 		return 0;
+	}
 
-	if (!mb_disc_load_toc(disc, &toc))
+	if (!mb_disc_load_toc(disc, &toc)) {
+		CloseHandle(hDevice);
 		return 0;
+	}
 
 	if (features & DISCID_FEATURE_MCN) {
 		read_disc_mcn(hDevice, disc);

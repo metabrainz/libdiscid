@@ -324,7 +324,14 @@ LIBDISCID_API char *discid_get_submission_url(DiscId *d);
 LIBDISCID_API LIBDISCID_DEPRECATED char *discid_get_webservice_url(DiscId *d);
 
 /**
- * Return the name of the default disc drive for this operating system.
+ * Return the name of the default disc drive for this machine.
+ * This isn't constant, but possibly depends on the drives currently
+ * attached, depending on the platform.
+ * For this reason you should call this once and save it
+ * when you want to make sure to use the same drive for
+ * multiple operations.
+ *
+ * The returned string is thread local and owned by libdiscid internally.
  *
  * @return a string containing an operating system dependent device identifier
  */

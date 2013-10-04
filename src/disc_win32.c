@@ -329,25 +329,23 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 	int buffer_len;
 	int control_return, return_value;
 
+	/* make data_len a multiple of 512 */
+	while (data_len % 512 != 0) data_len++;
+
 	/* handle adapter alignment */
-	if (handle.alignment_mask == 0) {
-		buffer = (PVOID) data;
-		buffer_len = data_len;
-	} else {
-		full_mask = (ULONG_PTR) handle.alignment_mask;
-		buffer_len = data_len + handle.alignment_mask;
-		buffer = (PVOID) malloc(buffer_len);
-		saved_buffer = buffer;	/* so we can free everything later */
-		/* actually align the buffer */
-		buffer = (PVOID) (((ULONG_PTR)buffer + full_mask) & ~full_mask);
-	}
+	full_mask = (ULONG_PTR) handle.alignment_mask;
+	buffer_len = data_len + handle.alignment_mask;
+	buffer = (PVOID) malloc(buffer_len);
+	saved_buffer = buffer;	/* so we can free everything later */
+	/* actually align the buffer */
+	buffer = (PVOID) (((ULONG_PTR)buffer + full_mask) & ~full_mask);
 
 	memset(&sptd, 0, sizeof sptd);
 	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
 	sptd.DataIn = SCSI_IOCTL_DATA_IN;
 	sptd.TimeOutValue = DEFAULT_TIMEOUT;
 	sptd.DataBuffer = buffer;		/* a pointer */
-	sptd.DataTransferLength = buffer_len;
+	sptd.DataTransferLength = data_len;
 	sptd.CdbLength = cmd_len;
 
 	/* The command is a buffer, not a pointer.
@@ -394,11 +392,9 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 		}
 	}
 
-	if (handle.alignment_mask != 0) {
-		/* copy from aligned buffer and free complete allocated space */
-		memcpy(data, buffer, data_len);
-		free(saved_buffer);
-	}
+	/* copy from aligned buffer and free complete allocated space */
+	memcpy(data, buffer, data_len);
+	free(saved_buffer);
 	return return_value;
 }
 

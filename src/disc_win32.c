@@ -100,22 +100,38 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device) {
 
 static mb_scsi_handle get_device_info(mb_scsi_handle handle) {
 	STORAGE_PROPERTY_QUERY query;
+	STORAGE_DESCRIPTOR_HEADER *header;
 	STORAGE_ADAPTER_DESCRIPTOR *adapter_descriptor;
 	DWORD bytes_returned = 0;
 	int retval, descriptor_len;
 
-	/* We only need the header of the descriptor.
+	query.QueryType = PropertyStandardQuery;
+	query.PropertyId = StorageAdapterProperty;
+
+	/* We need to fetch the header of the descriptor first.
 	 * The full length varies depending on the actual adapter
 	 * and could be extracted from the header.
 	 */
 	descriptor_len = sizeof(STORAGE_DESCRIPTOR_HEADER);
-	adapter_descriptor = malloc(descriptor_len);
+	header = malloc(descriptor_len);
+	retval = DeviceIoControl(handle.hDevice,
+				 IOCTL_STORAGE_QUERY_PROPERTY,
+				 &query, sizeof query,
+				 header, descriptor_len,
+				 &bytes_returned, NULL);
+	if (retval == 0) {
+		fprintf(stderr, "couldn't get storage header\n");
+		return handle;
+	}
 
+	descriptor_len = header->Size;
+	adapter_descriptor = malloc(descriptor_len);
 	retval = DeviceIoControl(handle.hDevice,
 				 IOCTL_STORAGE_QUERY_PROPERTY,
 				 &query, sizeof query,
 				 adapter_descriptor, descriptor_len,
 				 &bytes_returned, NULL);
+
 	if (retval == 0) {
 		fprintf(stderr, "couldn't get device properties\n");
 	} else {

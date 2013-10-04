@@ -40,7 +40,7 @@ typedef struct {
 
 typedef enum {
 	SUCCESS,
-	GNERIC_ERROR,
+	GENERIC_ERROR,
 	IO_ERROR,
 	STATUS_ERROR,
 	NO_DATA_RETURNED,

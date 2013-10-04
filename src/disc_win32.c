@@ -308,14 +308,30 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 			   unsigned char *data, int data_len) {
 	SCSI_PASS_THROUGH_DIRECT sptd;
 	DWORD bytes_returned = 0;
-	int return_value;
+	ULONG_PTR full_mask;
+	PVOID buffer, saved_buffer;
+	int buffer_len;
+	int control_return, return_value;
+
+	/* handle adapter alignment */
+	if (handle.alignment_mask == 0) {
+		buffer = (PVOID) data;
+		buffer_len = data_len;
+	} else {
+		full_mask = (ULONG_PTR) handle.alignment_mask;
+		buffer_len = data_len + handle.alignment_mask;
+		buffer = (PVOID) malloc(buffer_len);
+		saved_buffer = buffer;	/* so we can free everything later */
+		/* actually align the buffer */
+		buffer = (PVOID) (((ULONG_PTR)buffer + full_mask) & ~full_mask);
+	}
 
 	memset(&sptd, 0, sizeof sptd);
 	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
 	sptd.DataIn = SCSI_IOCTL_DATA_IN;
 	sptd.TimeOutValue = DEFAULT_TIMEOUT;
-	sptd.DataBuffer = data;		/* a pointer */
-	sptd.DataTransferLength = data_len;
+	sptd.DataBuffer = buffer;		/* a pointer */
+	sptd.DataTransferLength = buffer_len;
 	sptd.CdbLength = cmd_len;
 
 	/* The command is a buffer, not a pointer.
@@ -328,21 +344,22 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 
 	/* the sptd struct is used for input and output -> listed twice
 	 * We don't use bytes_returned, but this cannot be NULL in this case */
-	return_value = DeviceIoControl(handle.hDevice,
+	control_return = DeviceIoControl(handle.hDevice,
 				IOCTL_SCSI_PASS_THROUGH_DIRECT,
 				&sptd, sizeof sptd, &sptd, sizeof sptd,
 				&bytes_returned, NULL);
 
-	if (return_value == 0) {
+	return_value = GENERIC_ERROR;	/* default value */
+	if (!control_return) {
 		/* failure */
 		fprintf(stderr, "DeviceIoControl error: %ld\n", GetLastError());
-		return IO_ERROR;
+		return_value = IO_ERROR;
 	} else {
 		/* success of DeviceIoControl */
 
 		/* check for potentially informative success codes
 		 * 1 seems to be what is mostly returned */
-		if (return_value != 1) {
+		if (control_return != 1) {
 			fprintf(stderr, "DeviceIoControl return value: %d\n",
 					return_value);
 			/* no actual error, but possibly informative */
@@ -351,15 +368,22 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 		/* check scsi status */
 		if (sptd.ScsiStatus != GOOD) {
 			fprintf(stderr, "scsi status: %d\n", sptd.ScsiStatus);
-			return STATUS_ERROR;
+			return_value = STATUS_ERROR;
 		} else if (data_len > 0 && bytes_returned == 0) {
 			/* not receiving data, when requested */
 			fprintf(stderr, "data requested, but none returned\n");
-			return NO_DATA_RETURNED;
+			return_value = NO_DATA_RETURNED;
 		} else {
-			return SUCCESS;
+			return_value = SUCCESS;
 		}
 	}
+
+	if (handle.alignment_mask != 0) {
+		/* copy from aligned buffer and free complete allocated space */
+		memcpy(data, buffer, data_len);
+		free(saved_buffer);
+	}
+	return return_value;
 }
 
 /* EOF */

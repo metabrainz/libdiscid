@@ -98,6 +98,49 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device) {
 	return hDevice;
 }
 
+static mb_scsi_handle get_device_info(mb_scsi_handle handle) {
+	STORAGE_PROPERTY_QUERY query;
+	STORAGE_DESCRIPTOR_HEADER *header;
+	STORAGE_ADAPTER_DESCRIPTOR *adapter_descriptor;
+	DWORD bytes_returned = 0;
+	int retval, descriptor_len;
+
+	query.QueryType = PropertyStandardQuery;
+	query.PropertyId = StorageAdapterProperty;
+
+	/* We need to fetch the header of the descriptor first.
+	 * The full length varies depending on the actual adapter
+	 * and could be extracted from the header.
+	 */
+	descriptor_len = sizeof(STORAGE_DESCRIPTOR_HEADER);
+	header = malloc(descriptor_len);
+	retval = DeviceIoControl(handle.hDevice,
+				 IOCTL_STORAGE_QUERY_PROPERTY,
+				 &query, sizeof query,
+				 header, descriptor_len,
+				 &bytes_returned, NULL);
+	if (retval == 0) {
+		fprintf(stderr, "couldn't get storage header\n");
+		return handle;
+	}
+
+	descriptor_len = header->Size;
+	adapter_descriptor = malloc(descriptor_len);
+	retval = DeviceIoControl(handle.hDevice,
+				 IOCTL_STORAGE_QUERY_PROPERTY,
+				 &query, sizeof query,
+				 adapter_descriptor, descriptor_len,
+				 &bytes_returned, NULL);
+
+	if (retval == 0) {
+		fprintf(stderr, "couldn't get device properties\n");
+	} else {
+		handle.alignment_mask = adapter_descriptor->AlignmentMask;
+		fprintf(stderr, "alignment mask: %ld\n", handle.alignment_mask);
+	}
+	return handle;
+}
+
 static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc) {
 	DWORD dwReturned;
 	BOOL bResult;
@@ -251,6 +294,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 	if (features & DISCID_FEATURE_ISRC) {
 		/* test for scsi features */
+		handle = get_device_info(handle);
 		scsi_features = mb_scsi_get_features(handle);
 		if (!scsi_features.raw_isrc) {
 			fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");
@@ -280,13 +324,27 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 			   unsigned char *data, int data_len) {
 	SCSI_PASS_THROUGH_DIRECT sptd;
 	DWORD bytes_returned = 0;
-	int return_value;
+	ULONG_PTR full_mask;
+	PVOID buffer, saved_buffer;
+	int buffer_len;
+	int control_return, return_value;
+
+	/* make data_len a multiple of 512 */
+	while (data_len % 512 != 0) data_len++;
+
+	/* handle adapter alignment */
+	full_mask = (ULONG_PTR) handle.alignment_mask;
+	buffer_len = data_len + handle.alignment_mask;
+	buffer = (PVOID) malloc(buffer_len);
+	saved_buffer = buffer;	/* so we can free everything later */
+	/* actually align the buffer */
+	buffer = (PVOID) (((ULONG_PTR)buffer + full_mask) & ~full_mask);
 
 	memset(&sptd, 0, sizeof sptd);
 	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
 	sptd.DataIn = SCSI_IOCTL_DATA_IN;
 	sptd.TimeOutValue = DEFAULT_TIMEOUT;
-	sptd.DataBuffer = data;		/* a pointer */
+	sptd.DataBuffer = buffer;		/* a pointer */
 	sptd.DataTransferLength = data_len;
 	sptd.CdbLength = cmd_len;
 
@@ -300,21 +358,22 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 
 	/* the sptd struct is used for input and output -> listed twice
 	 * We don't use bytes_returned, but this cannot be NULL in this case */
-	return_value = DeviceIoControl(handle.hDevice,
+	control_return = DeviceIoControl(handle.hDevice,
 				IOCTL_SCSI_PASS_THROUGH_DIRECT,
 				&sptd, sizeof sptd, &sptd, sizeof sptd,
 				&bytes_returned, NULL);
 
-	if (return_value == 0) {
+	return_value = GENERIC_ERROR;	/* default value */
+	if (!control_return) {
 		/* failure */
 		fprintf(stderr, "DeviceIoControl error: %ld\n", GetLastError());
-		return IO_ERROR;
+		return_value = IO_ERROR;
 	} else {
 		/* success of DeviceIoControl */
 
 		/* check for potentially informative success codes
 		 * 1 seems to be what is mostly returned */
-		if (return_value != 1) {
+		if (control_return != 1) {
 			fprintf(stderr, "DeviceIoControl return value: %d\n",
 					return_value);
 			/* no actual error, but possibly informative */
@@ -323,15 +382,20 @@ mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
 		/* check scsi status */
 		if (sptd.ScsiStatus != GOOD) {
 			fprintf(stderr, "scsi status: %d\n", sptd.ScsiStatus);
-			return STATUS_ERROR;
+			return_value = STATUS_ERROR;
 		} else if (data_len > 0 && bytes_returned == 0) {
 			/* not receiving data, when requested */
 			fprintf(stderr, "data requested, but none returned\n");
-			return NO_DATA_RETURNED;
+			return_value = NO_DATA_RETURNED;
 		} else {
-			return SUCCESS;
+			return_value = SUCCESS;
 		}
 	}
+
+	/* copy from aligned buffer and free complete allocated space */
+	memcpy(data, buffer, data_len);
+	free(saved_buffer);
+	return return_value;
 }
 
 /* EOF */

@@ -29,6 +29,7 @@
 typedef struct {
 	int fd;		/* Linux	*/
 	HANDLE hDevice;	/* Windows 	*/
+	unsigned long alignment_mask; 	/* windows, depends on adapater */
 } mb_scsi_handle;
 
 typedef struct {

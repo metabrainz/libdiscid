@@ -98,6 +98,33 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device) {
 	return hDevice;
 }
 
+static mb_scsi_handle get_device_info(mb_scsi_handle handle) {
+	STORAGE_PROPERTY_QUERY query;
+	STORAGE_ADAPTER_DESCRIPTOR *adapter_descriptor;
+	DWORD bytes_returned = 0;
+	int retval, descriptor_len;
+
+	/* We only need the header of the descriptor.
+	 * The full length varies depending on the actual adapter
+	 * and could be extracted from the header.
+	 */
+	descriptor_len = sizeof(STORAGE_DESCRIPTOR_HEADER);
+	adapter_descriptor = malloc(descriptor_len);
+
+	retval = DeviceIoControl(handle.hDevice,
+				 IOCTL_STORAGE_QUERY_PROPERTY,
+				 &query, sizeof query,
+				 adapter_descriptor, descriptor_len,
+				 &bytes_returned, NULL);
+	if (retval == 0) {
+		fprintf(stderr, "couldn't get device properties\n");
+	} else {
+		handle.alignment_mask = adapter_descriptor->AlignmentMask;
+		fprintf(stderr, "alignment mask: %ld\n", handle.alignment_mask);
+	}
+	return handle;
+}
+
 static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc) {
 	DWORD dwReturned;
 	BOOL bResult;
@@ -251,6 +278,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 	if (features & DISCID_FEATURE_ISRC) {
 		/* test for scsi features */
+		handle = get_device_info(handle);
 		scsi_features = mb_scsi_get_features(handle);
 		if (!scsi_features.raw_isrc) {
 			fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");

@@ -13,10 +13,12 @@ define(PATCH, 1)
 # so we use the library version also as project version
 AC_INIT(libdiscid, MAJOR.MINOR.PATCH)
 
-AC_CONFIG_SRCDIR(src/disc.c)
+AC_CONFIG_SRCDIR([src/disc.c])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_AUX_DIR([build-aux])	# where to put config.guess etc.
+AC_CONFIG_MACRO_DIR([m4])	# currently not used
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
-AC_CONFIG_HEADERS(config.h)
 
 libdiscid_MAJOR=MAJOR
 libdiscid_MINOR=MINOR

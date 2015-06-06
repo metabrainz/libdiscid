@@ -1,6 +1,11 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-unreleased:
+
+ - LIB-60: fix make check for default device on generic/unknown platform
+ - make Doxygen output reproducible (no timestamps)
+
 libdiscid-0.6.1:
 
  - LIB-59: windows: fix bug preventing ISRC reads

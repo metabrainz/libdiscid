@@ -24,7 +24,6 @@ EXTRA_DIST = libdiscid.pc.in Doxyfile.in CMakeLists.txt config-cmake.h.in
 # not deleted automatically, in contrast to the .lo
 CLEANFILES = versioninfo.o
 
-ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = $(WARN_CFLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
@@ -125,6 +124,3 @@ docs:
 git-clean: maintainer-clean
 	rm -rf configure config.h.in Makefile.in
 	rm -rf aclocal.m4 build-aux/
-	rm -rf m4/libtool.m4 m4/lt~obsolete.m4 m4/ltoptions.m4
-	rm -rf m4/ltsugar.m4 m4/ltversion.m4
-#	rm -rf m4/	# potentially dangerous

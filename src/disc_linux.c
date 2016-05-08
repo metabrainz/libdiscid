@@ -101,8 +101,8 @@ static int get_device(int number, char *device, int device_len) {
 		}
 
 		/* trim the trailing \n for the last entry = first device */
-		if (default_device[strlen(default_device)-1] == '\n') {
-			default_device[strlen(default_device)-1] = '\0';
+		if (return_value && device[strlen(device)-1] == '\n') {
+			device[strlen(device)-1] = '\0';
 		}
 		free(lineptr);
 		fclose(proc_file);

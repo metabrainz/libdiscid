@@ -100,17 +100,12 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 	if ( ioctl(fd, CDIOCREADSUBCHANNEL, &rsc) < 0 )
 		perror ("Warning: Unable to read the disc's media catalog number");
 	else {
-
-		assert( rsc.address_format                 == CD_LBA_FORMAT );
-		assert( rsc.data_format                    == CD_MEDIA_CATALOG );
-		assert( sci.what.media_catalog.data_format == CD_MEDIA_CATALOG );
-
 		if (sci.what.media_catalog.mc_valid)
-		  strncpy( disc->mcn, (const char *) sci.what.media_catalog.mc_number,
-			   MCN_STR_LENGTH );
+			strncpy( disc->mcn,
+				 (const char *) sci.what.media_catalog.mc_number,
+				 MCN_STR_LENGTH );
 		else
-		  strncpy( disc->mcn, "*invalid*", MCN_STR_LENGTH );
-
+			strncpy( disc->mcn, "*invalid*", MCN_STR_LENGTH );
 	}  
 }
 
@@ -129,18 +124,12 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 	if ( ioctl(fd, CDIOCREADSUBCHANNEL, &rsc) < 0 )
 		perror ("Warning: Unable to read track info (ISRC)");
 	else {
-
-		assert( rsc.address_format               == CD_LBA_FORMAT );
-		assert( rsc.data_format                  == CD_TRACK_INFO );
-		assert( sci.what.track_info.data_format  == CD_TRACK_INFO );
-		assert( sci.what.track_info.track_number == track_num );
-
 		if (sci.what.track_info.ti_valid)
-		  strncpy( disc->isrc[track_num], (const char *) sci.what.track_info.ti_number,
-			   ISRC_STR_LENGTH );
+			strncpy( disc->isrc[track_num],
+				 (const char *) sci.what.track_info.ti_number,
+				 ISRC_STR_LENGTH );
 		else
-		  strncpy( disc->isrc[track_num], "*invalid*", ISRC_STR_LENGTH );
-
+			strncpy( disc->isrc[track_num], "*invalid*", ISRC_STR_LENGTH );
 	}  
 }
 

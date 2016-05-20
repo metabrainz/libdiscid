@@ -87,11 +87,61 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
-	return;
+	struct cd_sub_channel_info sci;
+	struct ioc_read_subchannel rsc;
+
+	memset(&sci, 0, sizeof sci);
+	memset(&rsc, 0, sizeof rsc);
+	rsc.address_format = CD_LBA_FORMAT; /* not technically relevant */
+	rsc.data_format    = CD_MEDIA_CATALOG;
+	rsc.data_len       = sizeof sci;
+	rsc.data           = &sci;
+
+	if ( ioctl(fd, CDIOCREADSUBCHANNEL, &rsc) < 0 )
+		perror ("Warning: Unable to read the disc's media catalog number");
+	else {
+
+		assert( rsc.address_format                 == CD_LBA_FORMAT );
+		assert( rsc.data_format                    == CD_MEDIA_CATALOG );
+		assert( sci.what.media_catalog.data_format == CD_MEDIA_CATALOG );
+
+		if (sci.what.media_catalog.mc_valid)
+		  strncpy( disc->mcn, (const char *) sci.what.media_catalog.mc_number,
+			   MCN_STR_LENGTH );
+		else
+		  strncpy( disc->mcn, "*invalid*", MCN_STR_LENGTH );
+
+	}  
 }
 
 void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
-	return;
+	struct cd_sub_channel_info sci;
+	struct ioc_read_subchannel rsc;
+
+	memset(&sci, 0, sizeof sci);
+	memset(&rsc, 0, sizeof rsc);
+	rsc.address_format = CD_LBA_FORMAT; /* not technically relevant */
+	rsc.data_format    = CD_TRACK_INFO;
+	rsc.track          = track_num;
+	rsc.data_len       = sizeof sci;
+	rsc.data           = &sci;
+
+	if ( ioctl(fd, CDIOCREADSUBCHANNEL, &rsc) < 0 )
+		perror ("Warning: Unable to read track info (ISRC)");
+	else {
+
+		assert( rsc.address_format               == CD_LBA_FORMAT );
+		assert( rsc.data_format                  == CD_TRACK_INFO );
+		assert( sci.what.track_info.data_format  == CD_TRACK_INFO );
+		assert( sci.what.track_info.track_number == track_num );
+
+		if (sci.what.track_info.ti_valid)
+		  strncpy( disc->isrc[track_num], (const char *) sci.what.track_info.ti_number,
+			   ISRC_STR_LENGTH );
+		else
+		  strncpy( disc->isrc[track_num], "*invalid*", ISRC_STR_LENGTH );
+
+	}  
 }
 
 char *mb_disc_get_default_device_unportable(void) {
@@ -101,6 +151,8 @@ char *mb_disc_get_default_device_unportable(void) {
 int mb_disc_has_feature_unportable(enum discid_feature feature) {
 	switch(feature) {
 		case DISCID_FEATURE_READ:
+		case DISCID_FEATURE_MCN:
+		case DISCID_FEATURE_ISRC:
 			return 1;
 		default:
 			return 0;

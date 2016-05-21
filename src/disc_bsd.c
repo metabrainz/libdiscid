@@ -210,7 +210,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 char *mb_disc_get_default_device_unportable(void) {
 	static char result[MAX_DEV_LEN + 1];
-	return get_device(0, result, sizeof result) ? result : NULL;
+	return get_device(1, result, sizeof result) ? result : NULL;
 }
 
 /* EOF */

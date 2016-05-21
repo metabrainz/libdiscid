@@ -52,9 +52,57 @@ static int get_device(int n, char* device_name, size_t device_name_length) {
 	return mb_disc_unix_exists(device_name);
 }
 
-/* not actually used for *BSD, but needed by unix.c */
-int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) { return 0; }
-int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track) { return 0; }
+int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
+	struct ioc_toc_header th;
+	struct cd_toc_entry te[100];
+	struct ioc_read_toc_entry rte;
+	int i;
+
+	memset(&th, 0, sizeof th);
+	if (ioctl(fd, CDIOREADTOCHEADER, &th) < 0)
+		return 0; /* error */
+
+	toc->first_track_num = th.starting_track;
+	toc->last_track_num  = th.ending_track;
+
+	if (toc->last_track_num == 0)
+		return 1; /* no entries to read */
+
+	memset(&te,  0, sizeof  te);
+	memset(&rte, 0, sizeof rte);
+	rte.address_format = CD_LBA_FORMAT;
+	rte.data           = &te[0];
+	rte.data_len       = sizeof te;
+	rte.starting_track = toc->first_track_num;
+
+	if (ioctl(fd, CDIOREADTOCENTRYS, &rte) < 0)
+		return 0; /* error */
+
+	for (i = toc->first_track_num; i <= toc->last_track_num; ++i) {
+		assert(te[i - toc->first_track_num].track == i);
+#if defined(__FreeBSD__) /* LBA address is in network byte order */
+		toc->tracks[i].address = ntohl(te[i - toc->first_track_num].addr.lba);
+#else
+		toc->tracks[i].address = te[i - toc->first_track_num].addr.lba;
+#endif
+		toc->tracks[i].control = te[i - toc->first_track_num].control;
+	}
+	/* leadout - track number 170 (0xAA) */
+	assert(te[i - toc->first_track_num].track == 0xAA);
+#if defined(__FreeBSD__) /* LBA address is in network byte order */
+	toc->tracks[0].address = ntohl(te[i - toc->first_track_num].addr.lba);
+#else
+	toc->tracks[0].address = te[i - toc->first_track_num].addr.lba;
+#endif
+	toc->tracks[0].control = te[i - toc->first_track_num].control;
+
+	return 1;
+}
+
+int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track) {
+	/* All TOC entries were already read by mb_disc_unix_read_toc_header() */
+	return 1;
+}
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 	struct cd_sub_channel_info sci;
@@ -116,10 +164,8 @@ int mb_disc_has_feature_unportable(enum discid_feature feature) {
 
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
-	mb_disc_toc toc;
 	char device_name[MAX_DEV_LEN] = "";
 	int device_number;
-	int fd;
 
 	device_number = (int) strtol(device, NULL, 10);
 
@@ -133,89 +179,7 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 		device = device_name;
 	}
 
-	fd = mb_disc_unix_open(disc, device);
-	if (fd < 0)
-		return 0;
-
-	{
-		struct ioc_toc_header th;
-
-		if (ioctl(fd, CDIOREADTOCHEADER, &th) < 0) {
-			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-				 "cannot read table of contents");
-			close(fd);
-			return 0; /* error */
-		}
-
-		toc.first_track_num = th.starting_track;
-		toc.last_track_num  = th.ending_track;
-
-		if (toc.last_track_num == 0) {
-			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-				 "this disc has no tracks");
-			close(fd);
-			return 0;
-		}
-	}
-	{
-		struct cd_toc_entry te[100];
-		struct ioc_read_toc_entry rte;
-		int i;
-
-		memset(&te,  0, sizeof  te);
-		memset(&rte, 0, sizeof rte);
-		rte.address_format = CD_LBA_FORMAT;
-		rte.data           = &te[0];
-		rte.data_len       = sizeof te;
-		rte.starting_track = toc.first_track_num;
-
-		if (ioctl(fd, CDIOREADTOCENTRYS, &rte) < 0) {
-			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
-				 "cannot read table of contents");
-			close(fd);
-			return 0; /* error */
-		}
-
-		for (i = toc.first_track_num; i <= toc.last_track_num; ++i) {
-			assert (te[i - toc.first_track_num].track == i);
-#if defined(__FreeBSD__) /* LBA address is in network byte order */
-			toc.tracks[i].address = ntohl(te[i - toc.first_track_num].addr.lba);
-#else
-			toc.tracks[i].address = te[i - toc.first_track_num].addr.lba;
-#endif
-			toc.tracks[i].control = te[i - toc.first_track_num].control;
-		}
-		/* leadout - track number 170 (0xAA) */
-		assert (te[i - toc.first_track_num].track == 0xAA);
-#if defined(__FreeBSD__) /* LBA address is in network byte order */
-		toc.tracks[0].address = ntohl(te[i - toc.first_track_num].addr.lba);
-#else
-		toc.tracks[0].address = te[i - toc.first_track_num].addr.lba;
-#endif
-		toc.tracks[0].control = te[i - toc.first_track_num].control;
-	}
-
-	if ( !mb_disc_load_toc(disc, &toc) )
-		return 0;
-
-	/* Read in the media catalog number */
-	if ((features & DISCID_FEATURE_MCN) != 0
-		&& mb_disc_has_feature_unportable(DISCID_FEATURE_MCN)) {
-		mb_disc_unix_read_mcn(fd, disc);
-	}
-
-	/* Read the ISRC for the track */
-	if ((features & DISCID_FEATURE_ISRC) != 0
-		&& mb_disc_has_feature_unportable(DISCID_FEATURE_ISRC)) {
-		int i;
-		for (i = disc->first_track_num; i <= disc->last_track_num; ++i) {
-			mb_disc_unix_read_isrc(fd, disc, i);
-		}
-	}
-
-	close(fd);
-
-	return 1;
+	return mb_disc_unix_read(disc, device, features);
 }
 
 char *mb_disc_get_default_device_unportable(void) {

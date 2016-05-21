@@ -68,13 +68,15 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 	if (toc->last_track_num == 0)
 		return 1; /* no entries to read */
 
+	/* Read all the TOC entries in one icotl() call */
+
 	memset(&te,  0, sizeof  te);
 	memset(&rte, 0, sizeof rte);
 	rte.address_format = CD_LBA_FORMAT;
 	rte.data           = &te[0];
 	rte.data_len       = sizeof te;
 	rte.starting_track = toc->first_track_num;
-
+	
 	if (ioctl(fd, CDIOREADTOCENTRYS, &rte) < 0)
 		return 0; /* error */
 
@@ -184,7 +186,9 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 char *mb_disc_get_default_device_unportable(void) {
 	static char result[MAX_DEV_LEN + 1];
-	return get_device(1, result, sizeof result) ? result : NULL;
+	/* No error check here, so we always return the appropriate device for cd0 */
+	get_device(1, result, sizeof result);
+	return result;
 }
 
 /* EOF */

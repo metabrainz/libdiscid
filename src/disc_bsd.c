@@ -25,8 +25,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/ioctl.h>
+#include <sys/types.h>
 #include <sys/cdio.h>
+#include <sys/ioctl.h>
 
 #include "discid/discid_private.h"
 #include "unix.h"

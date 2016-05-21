@@ -24,6 +24,7 @@
 --------------------------------------------------------------------------- */
 
 #include <string.h>
+#include <sys/types.h>
 #include <sys/cdio.h>
 #include <sys/ioctl.h>
 

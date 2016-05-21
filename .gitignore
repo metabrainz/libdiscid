@@ -48,6 +48,7 @@ test_discid
 discisrc
 /discid
 examples/discid
+disc_metadata
 *.exe
 *.dll
 *.lo

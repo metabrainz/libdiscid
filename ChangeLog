@@ -5,6 +5,7 @@ libdiscid-unreleased:
 
  - LIB-60: fix make check for default device on generic/unknown platform
  - make Doxygen output reproducible (no timestamps)
+ - remove newline for Linux device "1" from proc
 
 libdiscid-0.6.1:
 

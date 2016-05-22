@@ -55,3 +55,6 @@ The following people have contributed to libdiscid:
    Laurent Monin <zas@norz.org>
     - Implemented TOC string API
     - Times for discid example
+
+   Tim Van Holder <tim.vanholder at gmail dot com>
+    - fixes for get_device on Linux

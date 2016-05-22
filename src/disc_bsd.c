@@ -32,8 +32,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#if !defined(__FreeBSD__)
-#include <util.h>
+#if defined(__FreeBSD__)
+#include <netinet/in.h> /* for ntohl() */
+#else
+#include <util.h> /* for getrawpartition() */
 #endif
 
 #include "discid/discid_private.h"
@@ -176,12 +178,20 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 
 		for (i = toc.first_track_num; i <= toc.last_track_num; ++i) {
 			assert (te[i - toc.first_track_num].track == i);
+#if defined(__FreeBSD__) /* LBA address is in network byte order */
+			toc.tracks[i].address = ntohl(te[i - toc.first_track_num].addr.lba);
+#else
 			toc.tracks[i].address = te[i - toc.first_track_num].addr.lba;
+#endif
 			toc.tracks[i].control = te[i - toc.first_track_num].control;
 		}
 		/* leadout - track number 170 (0xAA) */
 		assert (te[i - toc.first_track_num].track == 0xAA);
+#if defined(__FreeBSD__) /* LBA address is in network byte order */
+		toc.tracks[0].address = ntohl(te[i - toc.first_track_num].addr.lba);
+#else
 		toc.tracks[0].address = te[i - toc.first_track_num].addr.lba;
+#endif
 		toc.tracks[0].control = te[i - toc.first_track_num].control;
 	}
 

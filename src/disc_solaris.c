@@ -70,13 +70,13 @@ int mb_disc_unix_read_toc_entry(int fd, int track_num, mb_disc_toc_track *track)
 	ret = ioctl(fd, CDROMREADTOCENTRY, &te);
 
 	if ( ret < 0 )
-		return ret; /* error */
+		return 0; /* error */
 
 	assert( te.cdte_format == CDROM_LBA );
 	track->address = te.cdte_addr.lba;
 	track->control = te.cdte_ctrl;
 
-	return ret;
+	return 1;
 }
 
 void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {

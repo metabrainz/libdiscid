@@ -80,7 +80,6 @@ int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
 	if ( !mb_disc_unix_read_toc_header(fd, toc) ) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"cannot read table of contents");
-		close(fd);
 		return 0;
 	}
 
@@ -88,7 +87,6 @@ int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
 	if ( toc->last_track_num == 0 ) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"this disc has no tracks");
-		close(fd);
 		return 0;
 	}
 
@@ -96,9 +94,17 @@ int mb_disc_unix_read_toc(int fd, mb_disc_private *disc, mb_disc_toc *toc) {
 	 * Read the TOC entry for every track.
 	 */
 	for (i = toc->first_track_num; i <= toc->last_track_num; i++) {
-		mb_disc_unix_read_toc_entry(fd, i, &toc->tracks[i]);
+		if ( !mb_disc_unix_read_toc_entry(fd, i, &toc->tracks[i]) ) {
+			snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+				 "cannot read TOC entry for track %d", i);
+			return 0;
+		}
 	}
-	mb_disc_unix_read_toc_entry(fd, 0xAA, &toc->tracks[0]);
+	if ( !mb_disc_unix_read_toc_entry(fd, 0xAA, &toc->tracks[0]) ) {
+		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
+			 "cannot read TOC entry for lead-out");
+		return 0;
+	}
 
 	return 1;
 }
@@ -114,11 +120,15 @@ int mb_disc_unix_read(mb_disc_private *disc, const char *device,
 		return 0;
 
 
-	if ( !mb_disc_unix_read_toc(fd, disc, &toc) )
+	if ( !mb_disc_unix_read_toc(fd, disc, &toc) ) {
+		close(fd);
 		return 0;
+	}
 
-	if ( !mb_disc_load_toc(disc, &toc) )
+	if ( !mb_disc_load_toc(disc, &toc) ) {
+		close(fd);
 		return 0;
+	}
 
 	/* Read in the media catalog number */
 	if (features & DISCID_FEATURE_MCN

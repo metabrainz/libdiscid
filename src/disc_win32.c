@@ -21,8 +21,10 @@
 ----------------------------------------------------------------------------*/
 
 #ifdef _MSC_VER
-#define snprintf _snprintf
-#define _CRT_SECURE_NO_WARNINGS
+	#define _CRT_SECURE_NO_WARNINGS
+	#if (_MSC_VER < 1900)
+		#define snprintf _snprintf
+	#endif
 #endif
 
 #include <windows.h>

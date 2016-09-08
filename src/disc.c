@@ -287,10 +287,8 @@ int discid_get_track_length(DiscId *d, int i) {
 
 	if (!disc->success || !TRACK_NUM_IS_VALID(disc, i))
 		return -1;
-	else if (i < disc->last_track_num)
-		return disc->track_offsets[i+1] - disc->track_offsets[i];
 	else
-		return disc->track_offsets[0] - disc->track_offsets[i];
+		return mb_disc_get_track_length(disc, i);
 }
 
 char *discid_get_mcn(DiscId *d) {
@@ -355,6 +353,16 @@ char *discid_get_version_string(void) {
  * Private utilities, not exported.
  *
  ****************************************************************************/
+
+/* This is used in scsi.c, which can't use discid_get_track_length
+ * on Windows due to declspec(dllexport)
+ */
+int mb_disc_get_track_length(mb_disc_private *disc, int i) {
+	if (i < disc->last_track_num)
+		return disc->track_offsets[i+1] - disc->track_offsets[i];
+	else
+		return disc->track_offsets[0] - disc->track_offsets[i];
+}
 
 /*
  * Create a DiscID based on the TOC data found in the DiscId object.

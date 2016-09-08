@@ -1,0 +1,20 @@
+Libdiscid supports many platforms and the disc access code
+for every platform is different.
+Since you need physical machines with a CD drive to test a platform,
+we do need your help!
+
+The platform specific code is in the src/disc_*.c files.
+These have to implement the *_unportable functions given
+in include/discid/discid_private.h
+The main function being mb_disc_read_unportable,
+where the mb_disc_private struct is filled with data.
+Parts of the data are optional features that don't need to be
+implemented (ISRC, MCN). The TOC always has to be read.
+
+You are free on how to implement the features defined in discid.h,
+but it might help for many advanced features
+when mb_scsi_cmd_unportable is implemented on the platform.
+After this is done, the scsi functions available in src/scsi.h
+can be used.
+These functions are implemented as scsi commands,
+which in itself should be platform independent.

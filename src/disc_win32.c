@@ -27,24 +27,34 @@
 	#endif
 #endif
 
-#include <windows.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <windows.h>
 
 #if defined(__CYGWIN__)
 #include <ntddcdrm.h>
+#include <ntddscsi.h>
 #elif defined(__MINGW32__)
 #include <ddk/ntddcdrm.h>
+#include <ddk/ntddscsi.h>
 #else
 #include "ntddcdrm.h"
+#include "ntddscsi.h"
 #endif
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "scsi.h"
 
 
 #define MB_DEFAULT_DEVICE	"D:"
 #define MAX_DEV_LEN 3
+
+/* after that time a scsi command is considered timed out */
+#define DEFAULT_TIMEOUT 30	/* in seconds */
+
+#define GOOD 0x00	/* scsi status code for success */
 
 #if defined(_MSC_VER)
 #	define THREAD_LOCAL __declspec(thread)
@@ -74,9 +84,13 @@ static HANDLE create_device_handle(mb_disc_private *disc, const char *device) {
 	}
 	strncat(filename, device, len > 120 ? 120 : len);
 
-	hDevice = CreateFile(filename, GENERIC_READ,
+	/* We are not actually "writing" to the device,
+	 * but we are sending scsi commands with raw ISRCs,
+	 * which needs GENERIC_WRITE.
+	 */
+	hDevice = CreateFile(filename, GENERIC_READ | GENERIC_WRITE,
 	                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                     NULL, OPEN_EXISTING, 0, NULL);
+	                     NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		snprintf(disc->error_msg, MB_ERROR_MSG_LENGTH,
 			"cannot open the CD audio device '%s'", device);
@@ -201,9 +215,12 @@ static int mb_disc_winnt_read_toc(HANDLE device, mb_disc_private *disc, mb_disc_
 int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 			    unsigned int features) {
 	mb_disc_toc toc;
+	mb_scsi_handle handle;
+	mb_scsi_features scsi_features;
 	char tmpDevice[MAX_DEV_LEN];
-	HANDLE hDevice;
 	int i, device_number;
+
+	memset(&handle, 0, sizeof handle);
 
 	device_number = (int) strtol(device, NULL, 10);
 
@@ -216,32 +233,107 @@ int mb_disc_read_unportable(mb_disc_private *disc, const char *device,
 		device = tmpDevice;
 	}
 
-	hDevice = create_device_handle(disc, device);
-	if (hDevice == 0)
+	handle.hDevice = create_device_handle(disc, device);
+	if (handle.hDevice == 0)
 		return 0;
 
-	if (!mb_disc_winnt_read_toc(hDevice, disc, &toc)) {
-		CloseHandle(hDevice);
+	if (!mb_disc_winnt_read_toc(handle.hDevice, disc, &toc)) {
+		CloseHandle(handle.hDevice);
 		return 0;
 	}
 
 	if (!mb_disc_load_toc(disc, &toc)) {
-		CloseHandle(hDevice);
+		CloseHandle(handle.hDevice);
 		return 0;
 	}
 
 	if (features & DISCID_FEATURE_MCN) {
-		read_disc_mcn(hDevice, disc);
+		read_disc_mcn(handle.hDevice, disc);
 	}
 
-	for (i = disc->first_track_num; i <= disc->last_track_num; i++) {
-		if (features & DISCID_FEATURE_ISRC) {
-			read_disc_isrc(hDevice, disc, i);
+	if (features & DISCID_FEATURE_ISRC) {
+		/* test for scsi features */
+		scsi_features = mb_scsi_get_features(handle);
+		if (!scsi_features.raw_isrc) {
+			fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");
+		}
+		if (!scsi_features.isrc) {
+			fprintf(stderr, "WARNING: can't read subchannel data!\n");
+		}
+
+		/* read ISRCs with the best method available */
+		for (i = disc->first_track_num; i <= disc->last_track_num;i++) {
+			if (scsi_features.raw_isrc) {
+				mb_scsi_read_track_isrc_raw(handle, disc, i);
+			} else if (scsi_features.isrc) {
+				mb_scsi_read_track_isrc(handle, disc, i);
+			} else {
+				read_disc_isrc(handle.hDevice, disc, i);
+			}
 		}
 	}
 
-	CloseHandle(hDevice);
+	CloseHandle(handle.hDevice);
 	return 1;
+}
+
+mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
+			   unsigned char *cmd, int cmd_len,
+			   unsigned char *data, int data_len) {
+	SCSI_PASS_THROUGH_DIRECT sptd;
+	DWORD bytes_returned = 0;
+	int return_value;
+
+	memset(&sptd, 0, sizeof sptd);
+	sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
+	sptd.DataIn = SCSI_IOCTL_DATA_IN;
+	sptd.TimeOutValue = DEFAULT_TIMEOUT;
+	sptd.DataBuffer = data;		/* a pointer */
+	sptd.DataTransferLength = data_len;
+	sptd.CdbLength = cmd_len;
+
+	/* The command is a buffer, not a pointer.
+	 * So we have to copy our buffer.
+	 * The size of this buffer is not documented in MSDN,
+	 * but in the include file defined as uchar[16].
+	 */
+	assert(cmd_len <= sizeof sptd.Cdb);
+	memcpy(sptd.Cdb, cmd, cmd_len);
+
+	/* the sptd struct is used for input and output -> listed twice
+	 * We don't use bytes_returned, but this cannot be NULL in this case */
+	return_value = DeviceIoControl(handle.hDevice,
+				IOCTL_SCSI_PASS_THROUGH_DIRECT,
+				&sptd, sizeof sptd, &sptd, sizeof sptd,
+				&bytes_returned, NULL);
+
+	if (return_value == 0) {
+		/* failure */
+		fprintf(stderr, "DeviceIoControl error: %ld\n", GetLastError());
+		return IO_ERROR;
+	} else {
+		/* success of DeviceIoControl */
+
+		/* check for potentially informative success codes
+		 * 1 seems to be what is mostly returned */
+		if (return_value != 1) {
+			fprintf(stderr, "DeviceIoControl return value: %d\n",
+					return_value);
+			/* no actual error, but possibly informative */
+		}
+
+		/* check scsi status */
+		if (sptd.ScsiStatus != GOOD) {
+			fprintf(stderr, "scsi status: %d\n", sptd.ScsiStatus);
+			return STATUS_ERROR;
+		} else if (data_len > 0 && bytes_returned == 0) {
+			/* not receiving data, when requested */
+			fprintf(stderr, "data requested, but none returned\n");
+			return NO_DATA_RETURNED;
+		} else {
+			return SUCCESS;
+		}
+	}
 }
 
 /* EOF */

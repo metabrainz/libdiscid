@@ -33,13 +33,17 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <linux/cdrom.h>
+#include <scsi/scsi.h>
 #include <scsi/sg.h>
 
 
 #include "discid/discid.h"
 #include "discid/discid_private.h"
+#include "scsi.h"
 #include "unix.h"
 
+
+#define MB_DEFAULT_DEVICE	"/dev/cdrom"
 
 /* timeout better shouldn't happen for scsi commands -> device is reset */
 #define DEFAULT_TIMEOUT 30000	/* in ms */
@@ -58,6 +62,7 @@
 #endif
 
 static THREAD_LOCAL char default_device[MAX_DEV_LEN] = "";
+static THREAD_LOCAL int feature_warning_printed = 0;
 
 
 static int get_device(int number, char *device, int device_len) {
@@ -109,6 +114,7 @@ static int get_device(int number, char *device, int device_len) {
 	}
 	return return_value;
 }
+
 
 int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 	struct cdrom_tochdr th;
@@ -171,10 +177,12 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 }
 
 /* Send a scsi command and receive data. */
-static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
-		    unsigned char *data, int data_len) {
+mb_scsi_status mb_scsi_cmd_unportable(mb_scsi_handle handle,
+			unsigned char *cmd, int cmd_len,
+			unsigned char *data, int data_len) {
 	unsigned char sense_buffer[SG_MAX_SENSE]; /* for "error situations" */
 	sg_io_hdr_t io_hdr;
+	int return_value;
 
 	memset(&io_hdr, 0, sizeof io_hdr);
 
@@ -192,53 +200,50 @@ static int scsi_cmd(int fd, unsigned char *cmd, int cmd_len,
 	io_hdr.dxfer_len = data_len;
 	io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
 
-	if (ioctl(fd, SG_IO, &io_hdr) != 0) {
-		return errno;
+	return_value = ioctl(handle.fd, SG_IO, &io_hdr);
+
+	if (return_value == -1) {
+		/* failure */
+		fprintf(stderr, "ioctl error: %d\n", errno);
+		return IO_ERROR;
 	} else {
-		return io_hdr.status;	/* 0 = success */
+		/* check for potenticall informative success codes
+		 * 1 seems to be what is mostly returned */
+		if (return_value != 0) {
+			fprintf(stderr, "ioctl return value: %d\n",
+					return_value);
+			/* no error, but possibly informative */
+		}
+
+		/* check scsi status */
+		if (io_hdr.masked_status != GOOD) {
+			fprintf(stderr, "scsi status: %d\n", io_hdr.status);
+			return STATUS_ERROR;
+		} else if (data_len > 0 && io_hdr.resid == data_len) {
+			/* not receiving data, when requested */
+			fprintf(stderr, "data requested, but none returned\n");
+			return NO_DATA_RETURNED;
+		} else {
+			return SUCCESS;
+		}
 	}
 }
 
 void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
-	int i;
-	unsigned char cmd[10];
-	unsigned char data[24];
-	char buffer[ISRC_STR_LENGTH+1];
-
-	memset(cmd, 0, sizeof cmd);
-	memset(data, 0, sizeof data);
-	memset(buffer, 0, sizeof buffer);
-
-	/* data read from the last appropriate sector encountered
-	 * by a current or previous media access operation.
-	 * The Logical Unit accesses the media when there is/was no access.
-	 * TODO: force access at a specific block? -> no duplicate ISRCs?
-	 */
-	cmd[0] = 0x42;		/* READ SUB-CHANNEL */
-	/* cmd[1] reserved / MSF bit (unused) */
-	cmd[2] = 1 << 6;	/* 6th bit set (SUBQ) -> get sub-channel data */
-	cmd[3] = 0x03;		/* get ISRC (ADR 3, Q sub-channel Mode-3) */
-	/* 4+5 reserved */
-	cmd[6] = track_num;
-	/* cmd[7] = upper byte of the transfer length */
-	cmd[8] = sizeof data;  /* transfer length in bytes (4 header, 20 data)*/
-	/* cmd[9] = control byte */
-
-	if (scsi_cmd(fd, cmd, sizeof cmd, data, sizeof data) != 0) {
-		fprintf(stderr, "Warning: Cannot get ISRC code for track %d\n",
-			track_num);
-		return;
-	}
-
-	/* data[1:4] = sub-q channel data header (audio status, data length) */
-	if (data[8] & (1 << 7)) { /* TCVAL is set -> ISRCs valid */
-		for (i = 0; i < ISRC_STR_LENGTH; i++) {
-			buffer[i] = data[9 + i];
+	mb_scsi_handle handle;
+	mb_scsi_features features;
+	memset(&handle, 0, sizeof handle);
+	handle.fd = fd;
+	features = mb_scsi_get_features(handle);
+	if (features.raw_isrc) {
+		mb_scsi_read_track_isrc_raw(handle, disc, track_num);
+	} else {
+		if (!feature_warning_printed) {
+			fprintf(stderr, "Warning: raw ISRCs not available, using ISRCs given by subchannel read\n");
+			feature_warning_printed = 1;
 		}
-		buffer[ISRC_STR_LENGTH] = 0;
-		strncpy(disc->isrc[track_num], buffer, ISRC_STR_LENGTH);
+		mb_scsi_read_track_isrc(handle, disc, track_num);
 	}
-	/* data[21:23] = zero, AFRAME, reserved */
 }
 
 int mb_disc_has_feature_unportable(enum discid_feature feature) {

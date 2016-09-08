@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 	evaluate(strlen(discid_get_error_msg(d)) == 0);
 
 	discid_free(d);
-	
+
 	return !test_result();
 }
 

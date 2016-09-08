@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 	announce("discid_free");
 	discid_free(d);
 	evaluate(1); /* only segfaults etc. would "show" */
-	
+
 	return !test_result();
 }
 

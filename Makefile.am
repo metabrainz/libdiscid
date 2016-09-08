@@ -34,7 +34,7 @@ pc_DATA = libdiscid.pc
 discid_incdir = $(includedir)/discid
 discid_inc_HEADERS = include/discid/discid.h
 noinst_HEADERS = include/discid/discid_private.h src/base64.h src/sha1.h
-noinst_HEADERS += test/test.h src/unix.h src/ntddcdrm.h
+noinst_HEADERS += test/test.h src/scsi.h src/unix.h src/ntddcdrm.h
 
 
 if RUN_TESTS
@@ -91,7 +91,7 @@ if OS_GENERIC
 libdiscid_la_SOURCES += src/disc_generic.c
 endif
 if OS_LINUX
-libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_linux.c
+libdiscid_la_SOURCES += src/toc.c src/scsi.c src/unix.c src/disc_linux.c
 endif
 if OS_NETBSD
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_netbsd.c
@@ -103,7 +103,7 @@ if OS_SOLARIS
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_solaris.c
 endif
 if OS_WIN32
-libdiscid_la_SOURCES += src/toc.c src/disc_win32.c versioninfo.rc
+libdiscid_la_SOURCES += src/toc.c src/scsi.c src/disc_win32.c versioninfo.rc
 endif
 
 

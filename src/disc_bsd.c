@@ -125,7 +125,7 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 				 (const char *) sci.what.media_catalog.mc_number,
 				 MCN_STR_LENGTH );
 		else
-			strncpy( disc->mcn, "*invalid*", MCN_STR_LENGTH );
+			memset( disc->mcn, 0, MCN_STR_LENGTH );
 	}
 }
 
@@ -149,7 +149,7 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 				 (const char *) sci.what.track_info.ti_number,
 				 ISRC_STR_LENGTH );
 		else
-			strncpy( disc->isrc[track_num], "*invalid*", ISRC_STR_LENGTH );
+			memset( disc->isrc[track_num], 0, ISRC_STR_LENGTH );
 	}
 }
 

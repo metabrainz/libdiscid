@@ -1,7 +1,7 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased:
+libdiscid-0.6.2:
 
  - ISRC and MCN support on BSD
  - LIB-60: fix make check for default device on generic/unknown platform

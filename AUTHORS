@@ -57,4 +57,5 @@ The following people have contributed to libdiscid:
     - Times for discid example
 
    Tim Van Holder <tim.vanholder at gmail dot com>
+    - ISRC and MCN support for BSD
     - fixes for get_device on Linux

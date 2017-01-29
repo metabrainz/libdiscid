@@ -84,17 +84,18 @@ if OS_DARWIN
 libdiscid_la_LDFLAGS += -framework CoreFoundation -framework IOKit
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_darwin.c
 endif
+if OS_NETBSD
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_bsd.c
+libdiscid_la_LIBADD += -lutil
+endif
 if OS_FREEBSD
-libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_freebsd.c
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_bsd.c
 endif
 if OS_GENERIC
 libdiscid_la_SOURCES += src/disc_generic.c
 endif
 if OS_LINUX
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_linux.c
-endif
-if OS_NETBSD
-libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_netbsd.c
 endif
 #if OS_QNX
 #libdiscid_la_LIBADD += -lsocket

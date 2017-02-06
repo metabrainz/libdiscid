@@ -1,6 +1,10 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-unreleased:
+
+ - LIB-66: fix for Debian kFreeBSD
+
 libdiscid-0.6.2:
 
  - ISRC and MCN support on BSD

@@ -32,7 +32,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #include <netinet/in.h> /* for ntohl() */
 #else
 #include <util.h> /* for getrawpartition() */
@@ -44,10 +44,12 @@
 #define MAX_DEV_LEN 15
 
 static int get_device(int n, char* device_name, size_t device_name_length) {
-#if !defined(__FreeBSD__) /* /dev/rcdNX, where X is the letter for the raw partition */
-	snprintf(device_name, device_name_length, "/dev/rcd%d%c", n - 1, 'a' + getrawpartition());
-#else /* on FreeBSD it's just /dev/cdN */
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+	/* on FreeBSD it's just /dev/cdN */
 	snprintf(device_name, device_name_length, "/dev/cd%d", n - 1);
+#else
+	/* On NetBSD and OpenBSD, it's /dev/rcdNX, where X is the letter for the raw partition */
+	snprintf(device_name, device_name_length, "/dev/rcd%d%c", n - 1, 'a' + getrawpartition());
 #endif
 	return mb_disc_unix_exists(device_name);
 }

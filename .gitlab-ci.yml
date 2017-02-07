@@ -21,7 +21,7 @@ package win:
       - COPYING
       - README
       - ChangeLog
-    expire_in: 1d
+    expire_in: 30d
   tags:
     - winxp
 
@@ -40,6 +40,6 @@ package osx:
       - COPYING
       - README
       - ChangeLog
-    expire_in: 1d
+    expire_in: 30d
   tags:
     - osx

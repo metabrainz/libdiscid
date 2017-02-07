@@ -74,15 +74,15 @@ ELSE()
 ENDIF()
 
 # choose platform dependent source files
-IF(libdiscid_OS EQUAL "win32")
+IF(libdiscid_OS STREQUAL "win32")
     SET(libdiscid_OSDEP_SRCS src/toc.c src/disc_win32.c)
     SET(libdiscid_RCS ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
-ELSEIF(libdiscid_OS EQUAL "generic")
+ELSEIF(libdiscid_OS STREQUAL "generic")
     SET(libdiscid_OSDEP_SRCS src/disc_${libdiscid_OS}.c)
 ELSE()
     # unix platforms are the standard/default case
     SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_${libdiscid_OS}.c)
-    IF(libdiscid_OS EQUAL "darwin") # Extra libraries needed
+    IF(libdiscid_OS STREQUAL "darwin") # Extra libraries needed
         FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
         SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
     ENDIF()

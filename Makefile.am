@@ -77,9 +77,10 @@ libdiscid_la_SOURCES = src/base64.c src/sha1.c src/disc.c
 libdiscid_la_LDFLAGS = -version-number @libdiscid_VERSION_LT@ -no-undefined
 libdiscid_la_LIBADD =
 
-#if OS_BEOS
-#libdiscid_la_LIBADD += -lbe -lroot
-#endif
+if OS_HAIKU
+libdiscid_la_LIBADD += -lbe -lroot
+libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_haiku.c
+endif
 if OS_DARWIN
 libdiscid_la_LDFLAGS += -framework CoreFoundation -framework IOKit
 libdiscid_la_SOURCES += src/toc.c src/unix.c src/disc_darwin.c

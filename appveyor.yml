@@ -30,8 +30,11 @@ build_script:
 
     cmake --build _build64 --config Release
 
-artifacts:
-- path: _build32\Release\
-  name: libdiscid-x86
-- path: _build64\Release\
-  name: libdiscid-x86-64
+
+    7z a libdiscid-%APPVEYOR_BUILD_VERSION%-win32.zip %APPVEYOR_BUILD_FOLDER%\_build32\Release\*.*
+
+    appveyor PushArtifact libdiscid-%APPVEYOR_BUILD_VERSION%-win32.zip
+
+    7z a libdiscid-%APPVEYOR_BUILD_VERSION%-win64.zip %APPVEYOR_BUILD_FOLDER%\_build64\Release\*.*
+
+    appveyor PushArtifact libdiscid-%APPVEYOR_BUILD_VERSION%-win64.zip

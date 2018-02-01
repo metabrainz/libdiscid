@@ -1,11 +1,9 @@
 version: 0.6.2.{build}
+branches:
+  only:
+  - master
+skip_non_tags: true
 platform: x64
-init:
-- cmd: "ECHO %MSYS% \nSET PATH=%MSYS%;%MSYS%\\bin;%PATH%"
-
-environment:
-  '%MSYS%': C:\msys64
-
 build_script:
 - cmd: >-
     mkdir _build32

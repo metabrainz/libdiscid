@@ -169,17 +169,20 @@ ADD_CUSTOM_TARGET(memcheck
 
 SET(libdiscid_DISTDIR "${PROJECT_NAME}-${PROJECT_VERSION}")
 
-ADD_CUSTOM_TARGET(dist
-   COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
-   COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
-   COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
-   COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
-   COMMAND rm -rf "${libdiscid_DISTDIR}"
-)
-ADD_DEPENDENCIES(dist check)
+IF(NOT CMAKE_GENERATOR MATCHES "^Visual Studio")
+    ADD_CUSTOM_TARGET(dist
+       COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
+       COMMAND cd "${libdiscid_DISTDIR}" && ./autogen.sh
+       COMMAND cd "${libdiscid_DISTDIR}" && ./configure && make distcheck
+       COMMAND cp "${libdiscid_DISTDIR}/${libdiscid_DISTDIR}.tar.gz" .
+       COMMAND rm -rf "${libdiscid_DISTDIR}"
+    )
+    ADD_DEPENDENCIES(dist check)
+ENDIF()
 
 # create binary in MinGW/MSYS
-IF(libdiscid_OS MATCHES "win32")
+IF(libdiscid_OS MATCHES "win32"
+    AND NOT CMAKE_GENERATOR MATCHES "^Visual Studio")
     ADD_CUSTOM_TARGET(distwin32
 	COMMAND mkdir "${libdiscid_DISTDIR}-win32"
 	COMMAND tar -xf "${libdiscid_DISTDIR}.tar.gz"
@@ -190,6 +193,38 @@ IF(libdiscid_OS MATCHES "win32")
 	COMMAND rm -rf "${libdiscid_DISTDIR}-win32"
     )
     ADD_DEPENDENCIES(distwin32 dist)
+ENDIF()
+
+IF(libdiscid_OS MATCHES "win32"
+    AND CMAKE_GENERATOR MATCHES "^Visual Studio")
+    SET(win32_build "${libdiscid_DISTDIR}\\_build_win32")
+    SET(win64_build "${libdiscid_DISTDIR}\\_build_win64")
+    SET(vs_build_config "Release")
+    ADD_CUSTOM_TARGET(distwin
+        COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}"
+        COMMAND SET VisualStudioVersion=11.0
+        COMMAND mkdir "${win32_build}"
+        COMMAND cd "${win32_build}"
+        COMMAND cmake -G "Visual Studio 11" ..
+        COMMAND msbuild /p:Configuration=${vs_build_config} libdiscid.vcxproj
+        COMMAND cd ..\\..
+        COMMAND mkdir "${win64_build}"
+        COMMAND cd "${win64_build}"
+        COMMAND cmake -G "Visual Studio 11 Win64" ..
+        COMMAND msbuild /p:Configuration=${vs_build_config} libdiscid.vcxproj
+        COMMAND cd ..\\..
+        COMMAND mkdir "${libdiscid_DISTDIR}-win\\win32"
+        COMMAND copy "${win32_build}\\${vs_build_config}\\discid.dll" "${libdiscid_DISTDIR}-win\\win32"
+        COMMAND mkdir "${libdiscid_DISTDIR}-win\\win64"
+        COMMAND copy "${win64_build}\\${vs_build_config}\\discid.dll" "${libdiscid_DISTDIR}-win\\win64"
+        COMMAND mkdir "${libdiscid_DISTDIR}-win\\src"
+        COMMAND git clone "${CMAKE_CURRENT_SOURCE_DIR}" "${libdiscid_DISTDIR}-win\\src"
+        COMMAND rd /s /q "${libdiscid_DISTDIR}-win\\src\\.git"
+        COMMAND del "${libdiscid_DISTDIR}-win\\src\\.gitignore"
+        COMMAND zip -r "${libdiscid_DISTDIR}-win.zip" "${libdiscid_DISTDIR}-win/"
+        COMMAND rd /s /q "${libdiscid_DISTDIR}"
+        COMMAND rd /s /q "${libdiscid_DISTDIR}-win"
+    )
 ENDIF()
 
 # create universal binary on Mac OS X
@@ -229,7 +264,6 @@ IF(libdiscid_OS MATCHES "darwin")
     )
     ADD_DEPENDENCIES(distmac dist)
 ENDIF()
-
 
 # Tests needed for sha1.h
 INCLUDE(TestBigEndian)

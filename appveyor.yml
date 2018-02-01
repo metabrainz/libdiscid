@@ -1,0 +1,37 @@
+version: 0.6.2.{build}
+platform: x64
+init:
+- cmd: "ECHO %MSYS% \nSET PATH=%MSYS%;%MSYS%\\bin;%PATH%"
+
+environment:
+  '%MSYS%': C:\msys64
+
+build_script:
+- cmd: >-
+    mkdir _build32
+
+    cd _build32
+
+    cmake -G "Visual Studio 14 2015" ..
+
+    cd ..
+
+
+    mkdir _build64
+
+    cd _build64
+
+    cmake -G "Visual Studio 14 2015 Win64" ..
+
+    cd ..
+
+
+    cmake --build _build32 --config Release
+
+    cmake --build _build64 --config Release
+
+artifacts:
+- path: _build32\Release\
+  name: libdiscid-x86
+- path: _build64\Release\
+  name: libdiscid-x86-64

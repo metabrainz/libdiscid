@@ -36,3 +36,10 @@ build_script:
     7z a libdiscid-%APPVEYOR_BUILD_VERSION%-win64.zip %APPVEYOR_BUILD_FOLDER%\_build64\Release\*.*
 
     appveyor PushArtifact libdiscid-%APPVEYOR_BUILD_VERSION%-win64.zip
+
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: 4BWsqvx9FGZTvCTj9M/otpXAE/3C3fhAV3LWCtjbEQrmVdmjhAlf2G3PMhBc7GB703rRyCsYnO9EB2Y79IVGxMh+g4zi2nLHeJdyGqokKnM=
+  artifact: libdiscid-%APPVEYOR_BUILD_VERSION%-win*.zip
+  draft: true

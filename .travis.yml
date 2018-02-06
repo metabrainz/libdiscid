@@ -1,0 +1,24 @@
+os: osx
+sudo: required
+osx_image: xcode6.4
+language: generic
+install:
+- brew update
+- brew upgrade libtool automake autoconf
+- ./autogen.sh
+- autoreconf -i
+- ./configure
+- mkdir build
+- cd build
+- cmake ..
+- cd ..
+- cmake --build build --config Release
+- cd build
+- ls -l
+deploy:
+  provider: releases
+  api_key:
+    secure: JgtlHc3OkQ+VzfpV7QGSIo/uJQdXSYgssi/f6rfwTYEy3nkLNRys7EQAYa8VExeK+QytiTuW6/2/hIUgFbjYywpkIBv+JiVrDStBOB8jI8QPcWx1fYWKnZOSITbvLXbKWNk4zMe8ccNIeP0+wRkZwio6FqrADbgg1On6n7setzU=
+  file_glob: true
+  skip_cleanup: true
+  file: build/libdiscid.0.dylib

@@ -84,7 +84,7 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 
 	for (i = toc->first_track_num; i <= toc->last_track_num; ++i) {
 		assert(te[i - toc->first_track_num].track == i);
-#if defined(__FreeBSD__) /* LBA address is in network byte order */
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) /* LBA address is in network byte order */
 		toc->tracks[i].address = ntohl(te[i - toc->first_track_num].addr.lba);
 #else
 		toc->tracks[i].address = te[i - toc->first_track_num].addr.lba;
@@ -93,7 +93,7 @@ int mb_disc_unix_read_toc_header(int fd, mb_disc_toc *toc) {
 	}
 	/* leadout - track number 170 (0xAA) */
 	assert(te[i - toc->first_track_num].track == 0xAA);
-#if defined(__FreeBSD__) /* LBA address is in network byte order */
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) /* LBA address is in network byte order */
 	toc->tracks[0].address = ntohl(te[i - toc->first_track_num].addr.lba);
 #else
 	toc->tracks[0].address = te[i - toc->first_track_num].addr.lba;

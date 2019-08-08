@@ -64,6 +64,8 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
     SET(libdiscid_OSDEP_LIBS util) # for getrawpartition
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
     SET(libdiscid_OS "solaris")
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Haiku")
+    SET(libdiscid_OS "haiku")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
     SET(libdiscid_OS "win32")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")

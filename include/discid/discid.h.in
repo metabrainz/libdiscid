@@ -121,6 +121,26 @@
  */
 typedef void *DiscId;
 
+/**
+ * PLATFORM-DEPENDENT FEATURES
+ *
+ * The platform dependent features are currently:
+ *   - "read"	read TOC from disc
+ *   - "mcn"	read MCN from disc
+ *   - "isrc"	read ISRC from disc
+ *
+ * A table in the
+ * <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
+ * specifies which features are available on which platform in what version.
+ *
+ * In the code you can use discid_get_feature_list() or discid_has_feature()
+ * below to get the features for your platform in this version.
+ */
+enum discid_feature {
+	DISCID_FEATURE_READ = 1 << 0,
+	DISCID_FEATURE_MCN  = 1 << 1,
+	DISCID_FEATURE_ISRC = 1 << 2
+};
 
 /**
  * Return a handle for a new DiscId object.
@@ -201,7 +221,7 @@ LIBDISCID_API int discid_read(DiscId *d, const char *device);
  * @return true if successful, or false on error.
  */
 LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device,
-				     unsigned int features);
+		enum discid_feature features);
 
 #define DISCID_HAVE_SPARSE_READ
 
@@ -416,28 +436,6 @@ LIBDISCID_API char* discid_get_mcn(DiscId *d);
  */
 LIBDISCID_API char* discid_get_track_isrc(DiscId *d, int track_num);
 
-
-/**
- * PLATFORM-DEPENDENT FEATURES
- *
- * The platform dependent features are currently:
- *   - "read"	read TOC from disc
- *   - "mcn"	read MCN from disc
- *   - "isrc"	read ISRC from disc
- *
- * A table in the
- * <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
- * specifies which features are available on which platform in what version.
- *
- * In the code you can use discid_get_feature_list() or discid_has_feature()
- * below to get the features for your platform in this version.
- */
-
-enum discid_feature {
-	DISCID_FEATURE_READ = 1 << 0,
-	DISCID_FEATURE_MCN  = 1 << 1,
-	DISCID_FEATURE_ISRC = 1 << 2,
-};
 /**
  * Check if a certain feature is implemented on the current platform.
  *

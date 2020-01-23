@@ -4,6 +4,8 @@ libdiscid ChangeLog:
 libdiscid-unreleased:
 
  - LIB-66: fix for Debian kFreeBSD
+ - Haiku platform support (TOC only)
+ - Use discid_feature enum in discid_read_sparse
 
 libdiscid-0.6.2:
 
@@ -18,7 +20,7 @@ libdiscid-0.6.1:
 
 libdiscid-0.6.0:
 
- - LIB-41: add discid_get_troc_string() for fuzzy toc lookup
+ - LIB-41: add discid_get_toc_string() for fuzzy toc lookup
  - LIB-54: add libmusicbrainz example with fuzzy toc lookup
  - LIB-43: windows: the default drive is the first cd drive letter
  - LIB-45: Linux/BSD/Solaris: try several possible default device names
@@ -105,12 +107,12 @@ libdiscid-0.2.0:
   - Replace custom MSVC makefile with CMake build system (Lukas).
   - Added support for FreeBSD (Patrick Hurrelmann).
   - Addded the discid_get_webservice_url() function (Rob).
-   
+
 
 libdiscid-0.1.1:
 
   - Use generic 'cdaudio' device name on windows (Lukas).
-   
+
 
 libdiscid-0.1.0:
 

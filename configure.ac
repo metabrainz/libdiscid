@@ -45,7 +45,7 @@ AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
 
 
 case "${host_cpu}-${host_os}" in
-  #*-beos*)    os=beos;;
+  *-haiku*)    os=haiku;;
   *-mingw*)   os=win32;;
   *-cygwin*)  os=win32;;
   *-freebsd*) os=freebsd ;;
@@ -63,7 +63,7 @@ case "${host_cpu}-${host_os}" in
 esac
 
 AC_MSG_NOTICE([Using disc read implementation for: $os])
-#AM_CONDITIONAL([OS_BEOS], [test x$os = xbeos])
+AM_CONDITIONAL([OS_HAIKU], [test x$os = xhaiku])
 AM_CONDITIONAL([OS_DARWIN], [test x$os = xdarwin])
 AM_CONDITIONAL([OS_FREEBSD], [test x$os = xfreebsd])
 AM_CONDITIONAL([OS_GENERIC], [test x$os = xgeneric])

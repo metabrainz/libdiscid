@@ -43,6 +43,7 @@ The following people have contributed to libdiscid:
     - Implemented MCN reading on Linux
     - Implemented read_sparse()
     - Better Windows default drive detection
+    - Haiku TOC reading improvements
     - Various fixes and refactoring
 
    Sebastian Ramacher <sramacher at debian dot org>
@@ -59,3 +60,6 @@ The following people have contributed to libdiscid:
    Tim Van Holder <tim.vanholder at gmail dot com>
     - ISRC and MCN support for BSD
     - fixes for get_device on Linux
+
+   Xiang Fan
+    - Implemented Haiku support

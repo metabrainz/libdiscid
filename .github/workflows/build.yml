@@ -1,0 +1,133 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and test
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make
+        make check
+
+  package-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        generator:
+        - Visual Studio 16 2019
+        architecture:
+        - Win32
+        - x64
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup cmake
+      run: |
+        mkdir build
+        cd build
+        cmake -G $env:GENERATOR -A $env:ARCH ..
+      env:
+        GENERATOR: ${{ matrix.generator }}
+        ARCH: ${{ matrix.architecture }}
+    - name: Build
+      run: cmake --build build --config Release
+    - name: Package
+      run: |
+        cd build
+        mkdir artifacts
+        cp .\Release\* artifacts
+        cp -R .\include artifacts
+        cp ..\COPYING artifacts
+        cp ..\README artifacts
+        cp ..\ChangeLog artifacts
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: libdiscid-windows-${{ matrix.architecture }}
+        path: build/artifacts/
+    - name: Test
+      run: |
+        cd build
+        cmake --build . --config Release --target test_core test_put test_read test_read_full
+        .\Release\test_core.exe
+        .\Release\test_put.exe
+        # .\Release\test_read.exe
+        # .\Release\test_read_full.exe
+
+  package-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make
+    - name: Package
+      run: |
+        cd build
+        mkdir artifacts
+        cp -Lv libdiscid.0.dylib artifacts/
+        cp -Rv include artifacts/
+        cp -v ../COPYING ../README ../ChangeLog artifacts
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: libdiscid-macos-x86_64
+        path: build/artifacts
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+    - package-macos
+    - package-windows
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set version
+      run: |
+        TAG=${GITHUB_REF##*/}
+        echo "::set-env name=TAG::$TAG"
+        echo "::set-env name=VERSION::$(echo $TAG | sed 's/^v//')"
+    - uses: actions/download-artifact@v1
+      with:
+        name: libdiscid-windows-Win32
+        path: artifacts/libdiscid-windows-${{ env.VERSION }}-win32/
+    - uses: actions/download-artifact@v1
+      with:
+        name: libdiscid-windows-x64
+        path: artifacts/libdiscid-windows-${{ env.VERSION }}-win64/
+    - uses: actions/download-artifact@v1
+      with:
+        name: libdiscid-macos-x86_64
+        path: artifacts/libdiscid-macos-${{ env.VERSION }}-x86_64/
+    - name: Make source tarball
+      run: |
+        mkdir artifacts/release/
+        git archive --format=tar.gz --prefix=libdiscid-$TAG/ $TAG > artifacts/release/libdiscid-$VERSION.tar.gz
+    - name: Make zips
+      run: |
+        cd artifacts/
+        dirs=$(find . -name 'libdiscid-*' -type d)
+        for dir in $dirs
+        do
+          name=$(basename $dir)
+          zip release/$name.zip $dir/*
+        done
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/release/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

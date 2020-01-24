@@ -86,3 +86,48 @@ jobs:
       with:
         name: libdiscid-macos-x86_64
         path: build/artifacts
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+    - package-macos
+    - package-windows
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set version
+      run: |
+        TAG=${GITHUB_REF##*/}
+        echo "::set-env name=TAG::$TAG"
+        echo "::set-env name=VERSION::$(echo $TAG | sed 's/^v//')"
+    - uses: actions/download-artifact@v1
+      with:
+        name: libdiscid-windows-Win32
+        path: artifacts/libdiscid-windows-${{ env.VERSION }}-win32/
+    - uses: actions/download-artifact@v1
+      with:
+        name: libdiscid-windows-x64
+        path: artifacts/libdiscid-windows-${{ env.VERSION }}-win64/
+    - uses: actions/download-artifact@v1
+      with:
+        name: libdiscid-macos-x86_64
+        path: artifacts/libdiscid-macos-${{ env.VERSION }}-x86_64/
+    - name: Make source tarball
+      run: |
+        mkdir artifacts/release/
+        git archive --format=tar.gz --prefix=libdiscid-$TAG/ $TAG > artifacts/release/libdiscid-$VERSION.tar.gz
+    - name: Make zips
+      run: |
+        cd artifacts/
+        dirs=$(find . -name 'libdiscid-*' -type d)
+        for dir in $dirs
+        do
+          name=$(basename $dir)
+          zip release/$name.zip $dir/*
+        done
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/release/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

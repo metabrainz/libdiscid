@@ -1,5 +1,3 @@
 .gitattributes export-ignore
 .github/ export-ignore
 .gitignore export-ignore
-.gitlab-ci.yml export-ignore
-appveyor.yml export-ignore

@@ -6,6 +6,7 @@ libdiscid-unreleased:
  - LIB-66: fix for Debian kFreeBSD
  - Haiku platform support (TOC only)
  - Use discid_feature enum in discid_read_sparse
+ - Fixed building with CMake on macOS
 
 libdiscid-0.6.2:
 

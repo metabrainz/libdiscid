@@ -86,7 +86,8 @@ ELSE()
     SET(libdiscid_OSDEP_SRCS src/toc.c src/unix.c src/disc_${libdiscid_OS}.c)
     IF(libdiscid_OS STREQUAL "darwin") # Extra libraries needed
         FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
-        SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} IOKit)
+        FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+        SET(libdiscid_OSDEP_LIBS ${COREFOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
     ENDIF()
 ENDIF()
 

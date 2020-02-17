@@ -66,6 +66,8 @@ jobs:
 
   package-macos:
     runs-on: macos-latest
+    env:
+      MACOSX_DEPLOYMENT_TARGET: 10.10
     steps:
     - uses: actions/checkout@v1
     - name: Build

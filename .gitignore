@@ -41,6 +41,7 @@ libdiscid.sln
 libdiscid.sdf
 libdiscid.opensdf
 Debug/
+.vscode/
 
 # Build results
 libdiscid.so*
@@ -55,3 +56,4 @@ disc_metadata
 *.o
 *.la
 .dirstamp
+_build/

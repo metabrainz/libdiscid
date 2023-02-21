@@ -134,19 +134,19 @@ jobs:
       run: |
         TAG=${GITHUB_REF##*/}
         echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v3
       with:
         name: libdiscid-windows-Win32
         path: artifacts/libdiscid-windows-${{ env.VERSION }}-win32/
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v3
       with:
         name: libdiscid-windows-x64
         path: artifacts/libdiscid-windows-${{ env.VERSION }}-win64/
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v3
       with:
         name: libdiscid-macos-x86_64
         path: artifacts/libdiscid-macos-${{ env.VERSION }}-x86_64/
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v3
       with:
         name: libdiscid-source
         path: artifacts/release/

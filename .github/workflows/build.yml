@@ -106,7 +106,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DCMAKE_BUILD_TYPE=Release -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64" ..
         make
     - name: Package
       run: |
@@ -118,7 +118,7 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: libdiscid-macos-x86_64
+        name: libdiscid-macos-universal2
         path: build/artifacts
 
   release:
@@ -144,8 +144,8 @@ jobs:
         path: artifacts/libdiscid-windows-${{ env.VERSION }}-win64/
     - uses: actions/download-artifact@v3
       with:
-        name: libdiscid-macos-x86_64
-        path: artifacts/libdiscid-macos-${{ env.VERSION }}-x86_64/
+        name: libdiscid-macos-universal2
+        path: artifacts/libdiscid-macos-${{ env.VERSION }}-universal2/
     - uses: actions/download-artifact@v3
       with:
         name: libdiscid-source

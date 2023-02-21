@@ -21,7 +21,7 @@ jobs:
         make check
 
   package-windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     strategy:
       matrix:
         generator:
@@ -65,7 +65,7 @@ jobs:
         # .\Release\test_read_full.exe
 
   package-macos:
-    runs-on: macos-latest
+    runs-on: macos-11
     env:
       MACOSX_DEPLOYMENT_TARGET: 10.10
     steps:

@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Build and test
       run: |
         mkdir build
@@ -23,17 +23,34 @@ jobs:
   package-source:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
+      with:
+        path: libdiscid
+        fetch-depth: 0
+    - name: Set version
+      run: |
+        cd libdiscid
+        TAG=$(git describe)
+        echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
+    - name: Autotools
+      run: |
+        cd libdiscid
+        ./autogen.sh
     - name: Make source tarball
       run: |
-        TAG=$(git describe)
         mkdir artifacts/
-        git archive --format=tar.gz --prefix=libdiscid-$TAG/ $TAG > artifacts/libdiscid-$TAG.tar.gz
+        rm -rf libdiscid/.git
+        rm -rf libdiscid/.github
+        rm -rf libdiscid/.gitattributes
+        rm -rf libdiscid/.gitignore
+        rm -rf libdiscid/autom4te.cache
+        mv libdiscid libdiscid-$VERSION
+        tar czf artifacts/libdiscid-$VERSION.tar.gz libdiscid-$VERSION/
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: libdiscid-source
-        path: artifacts/
+        path: artifacts/libdiscid-${{ env.VERSION }}.tar.gz
 
   package-windows:
     runs-on: windows-2019
@@ -45,7 +62,7 @@ jobs:
         - Win32
         - x64
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Setup cmake
       run: |
         mkdir build
@@ -66,7 +83,7 @@ jobs:
         cp ..\README artifacts
         cp ..\ChangeLog artifacts
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: libdiscid-windows-${{ matrix.architecture }}
         path: build/artifacts/
@@ -84,7 +101,7 @@ jobs:
     env:
       MACOSX_DEPLOYMENT_TARGET: 10.10
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Build
       run: |
         mkdir build
@@ -99,7 +116,7 @@ jobs:
         cp -Rv include artifacts/
         cp -v ../COPYING ../README ../ChangeLog artifacts
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: libdiscid-macos-x86_64
         path: build/artifacts
@@ -112,12 +129,11 @@ jobs:
     - package-macos
     - package-windows
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Set version
       run: |
         TAG=${GITHUB_REF##*/}
-        echo "::set-env name=TAG::$TAG"
-        echo "::set-env name=VERSION::$(echo $TAG | sed 's/^v//')"
+        echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
     - uses: actions/download-artifact@v1
       with:
         name: libdiscid-windows-Win32

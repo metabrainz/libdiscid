@@ -11,7 +11,7 @@ define(MINOR, 6)
 define(PATCH, 2)
 # currently the sole purpose of the project is the library,
 # so we use the library version also as project version
-AC_INIT(libdiscid, MAJOR.MINOR.PATCH)
+AC_INIT([libdiscid],[MAJOR.MINOR.PATCH])
 
 AC_CONFIG_SRCDIR([src/disc.c])
 AC_CONFIG_HEADERS([config.h])
@@ -79,7 +79,7 @@ LT_LANG([Windows Resource])
 
 dnl Checks for programs.
 AC_PROG_CC
-AM_PROG_LIBTOOL
+LT_INIT
 AC_PROG_INSTALL
 
 dnl Test endianness and size of a long; required for the SHA1 implementation.
@@ -106,6 +106,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CHECK_HEADER([musicbrainz5/mb5_c.h], [have_mb5=yes])
 AM_CONDITIONAL([HAVE_MUSICBRAINZ5], [test x${have_mb5} = xyes])
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
   Makefile libdiscid.pc versioninfo.rc Doxyfile include/discid/discid.h
 ])
+AC_OUTPUT

@@ -64,11 +64,11 @@
  * \section intro Introduction
  *
  * Libdiscid is a C library for calculating DiscIDs
- * (<a href="http://musicbrainz.org/doc/Disc ID">MusicBrainz</a>
+ * (<a href="https://musicbrainz.org/doc/Disc ID">MusicBrainz</a>
  * and <a href="http://freedb.org">freedb</a>)
  * for Audio CDs.
  * Additionally the library can extract the MCN/UPC/EAN and the
- * <a href="http://musicbrainz.org/doc/ISRC">ISRCs</a> from disc.
+ * <a href="https://musicbrainz.org/doc/ISRC">ISRCs</a> from disc.
  *
  * The idea is to have an easy to use library without any dependencies
  * that can be used from scripting languages.
@@ -130,7 +130,7 @@ typedef void *DiscId;
  *   - "isrc"	read ISRC from disc
  *
  * A table in the
- * <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
+ * <a href="https://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
  * specifies which features are available on which platform in what version.
  *
  * In the code you can use discid_get_feature_list() or discid_has_feature()
@@ -247,7 +247,7 @@ LIBDISCID_API int discid_read_sparse(DiscId *d, const char *device,
  * after a put is the same as the length of your last audio track.
  * Depending on your tools you might need to substract 11400 (2:32 min.).
  * See also:
- * <a href="http://musicbrainz.org/doc/Disc_ID_Calculation">Disc ID Calculation</a>
+ * <a href="https://musicbrainz.org/doc/Disc_ID_Calculation">Disc ID Calculation</a>
  *
  *
  * @param d a DiscID object created by discid_new()
@@ -331,7 +331,7 @@ LIBDISCID_API char *discid_get_submission_url(DiscId *d);
  * Return an URL for retrieving CD information from MusicBrainz' web service
  *
  * The URL provides the CD information in XML.
- * See http://musicbrainz.org/development/mmd for details.
+ * See https://musicbrainz.org/development/mmd for details.
  *
  * The returned string is only valid as long as the DiscId object exists.
  *

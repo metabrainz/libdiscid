@@ -57,3 +57,6 @@ disc_metadata
 *.la
 .dirstamp
 _build/
+
+# General ignored files
+*~

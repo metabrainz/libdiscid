@@ -38,7 +38,7 @@ jobs:
           mkdir _build
           cd _build
           cmake ..
-          doxygen
+          make docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

@@ -5,17 +5,17 @@
    Copyright (C) 2013 Johannes Dewender
    Copyright (C) 2006-2010 Lukas Lalinsky
    Copyright (C) 2006 Matthias Friedrich
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -87,11 +87,11 @@
  *     fprintf(stderr, "Error: %s\n", discid_get_error_msg(disc));
  *     return 1;
  * }
- * 
+ *
  * printf("DiscID        : %s\n", discid_get_id(disc));
  * printf("Submit via    : %s\n", discid_get_submission_url(disc));
  *
- * discid_free(disc); 
+ * discid_free(disc);
  *
  * \endcode
  *
@@ -105,12 +105,12 @@
  *
  * \section Contact
  *
- *  - <a href="http://lists.musicbrainz.org/mailman/listinfo/musicbrainz-devel">MusicBrainz Development Mailing List</a>
- *  - <a href="http://tickets.musicbrainz.org/browse/LIB">MusicBrainz Bug Tracker</a>
- *  - <a href="http://musicbrainz.org/doc/libdiscid">MusicBrainz Documentation</a>
+ *  - <a href="https://tickets.musicbrainz.org/browse/LIB">MusicBrainz Bug Tracker</a>
+ *  - <a href="https://musicbrainz.org/doc/libdiscid">libdiscid Documentation</a>
  *  - <a href="https://github.com/metabrainz/libdiscid">Github Repository</a>
+ *  - IRC: <a href="https://musicbrainz.org/doc/Communication/IRC">#metabrainz on Libera.Chat</a>
  *
- */ 
+ */
 
 
 /**
@@ -330,7 +330,7 @@ LIBDISCID_API char *discid_get_submission_url(DiscId *d);
 /**
  * Return an URL for retrieving CD information from MusicBrainz' web service
  *
- * The URL provides the CD information in XML. 
+ * The URL provides the CD information in XML.
  * See http://musicbrainz.org/development/mmd for details.
  *
  * The returned string is only valid as long as the DiscId object exists.

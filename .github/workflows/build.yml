@@ -24,33 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        path: libdiscid
-        fetch-depth: 0
-    - name: Set version
-      run: |
-        cd libdiscid
-        TAG=$(git describe)
-        echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
-    - name: Autotools
-      run: |
-        cd libdiscid
-        ./autogen.sh
     - name: Make source tarball
       run: |
-        mkdir artifacts/
-        rm -rf libdiscid/.git
-        rm -rf libdiscid/.github
-        rm -rf libdiscid/.gitattributes
-        rm -rf libdiscid/.gitignore
-        rm -rf libdiscid/autom4te.cache
-        mv libdiscid libdiscid-$VERSION
-        tar czf artifacts/libdiscid-$VERSION.tar.gz libdiscid-$VERSION/
+        ./autogen.sh
+        ./configure && make distcheck
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
         name: libdiscid-source
-        path: artifacts/libdiscid-${{ env.VERSION }}.tar.gz
+        path: libdiscid-*.tar.gz
 
   package-windows:
     runs-on: windows-2019

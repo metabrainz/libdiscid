@@ -108,17 +108,24 @@ jobs:
         cd build
         cmake -DCMAKE_BUILD_TYPE=Release -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64" ..
         make
+        lipo libdiscid.0.dylib -verify_arch arm64 x86_64
     - name: Package
       run: |
         cd build
-        mkdir artifacts
-        cp -Lv libdiscid.0.dylib artifacts/
+        mkdir -p artifacts/universal2
+        cp -Lv libdiscid.0.dylib artifacts/universal2/
+        for arch in arm64 x86_64; do
+          mkdir -p "artifacts/${arch}"
+          lipo artifacts/universal2/libdiscid.0.dylib \
+            -thin $arch \
+            -output artifacts/${arch}/libdiscid.0.dylib
+        done
         cp -Rv include artifacts/
         cp -v ../COPYING ../README ../ChangeLog artifacts
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: libdiscid-macos-universal2
+        name: libdiscid-macos
         path: build/artifacts
 
   release:
@@ -144,8 +151,8 @@ jobs:
         path: artifacts/libdiscid-windows-${{ env.VERSION }}-win64/
     - uses: actions/download-artifact@v3
       with:
-        name: libdiscid-macos-universal2
-        path: artifacts/libdiscid-macos-${{ env.VERSION }}-universal2/
+        name: libdiscid-macos
+        path: artifacts/libdiscid-macos-${{ env.VERSION }}/
     - uses: actions/download-artifact@v3
       with:
         name: libdiscid-source

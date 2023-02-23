@@ -101,7 +101,7 @@
  * version number.  To build a small sample program one would use:
  *
  * @par
- * <tt>gcc libdiscid-test.c \`pkg-config libdiscid --cflags --libs\` -o libdiscid-test</tt>
+ * <tt>gcc libdiscid-test.c \`pkg-config libdiscid -\-cflags -\-libs\` -o libdiscid-test</tt>
  *
  * \section Contact
  *

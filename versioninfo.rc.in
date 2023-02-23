@@ -20,7 +20,7 @@ BEGIN
             VALUE "FileDescription",	"MusicBrainz disc ID library\0"
             VALUE "FileVersion",	VER_FILEVERSION_STR
             VALUE "InternalName",	"discid\0"
-            VALUE "LegalCopyright",	"2006-2013 MetaBrainz Foundation\0"
+            VALUE "LegalCopyright",	"2006-2023 MetaBrainz Foundation\0"
             VALUE "OriginalFilename",	"discid.dll\0"
             VALUE "ProductName",	"libdiscid\0"
             VALUE "ProductVersion",	VER_PRODUCTVERSION_STR

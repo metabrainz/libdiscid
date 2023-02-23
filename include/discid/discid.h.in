@@ -108,7 +108,7 @@
  *  - <a href="https://tickets.musicbrainz.org/browse/LIB">MusicBrainz Bug Tracker</a>
  *  - <a href="https://musicbrainz.org/doc/libdiscid">libdiscid Documentation</a>
  *  - <a href="https://github.com/metabrainz/libdiscid">Github Repository</a>
- *  - IRC: <a href="https://musicbrainz.org/doc/Communication/IRC">#metabrainz on Libera.Chat</a>
+ *  - IRC: <a href="https://musicbrainz.org/doc/Communication/IRC">\#metabrainz on Libera.Chat</a>
  *
  */
 
@@ -482,3 +482,20 @@ LIBDISCID_API char *discid_get_version_string(void);
 #endif
 
 #endif /* MUSICBRAINZ_DISC_ID_H */
+
+/** \example discid.c
+ * This example code uses libdiscid to read the TOC only from a CD and output
+ * the disc IDs and TOC details.
+ *
+ * The CD device to use can be specified as the first command line parameter.
+ * If none is given the platform's default device will be used.
+ */
+
+/** \example discisrc.c
+ * This example code uses libdiscid to read the TOC, MCN and ISRCs from a CD.
+ * If supported by the platform and provided by the CD the MCN for the disc and
+ * ISRCs for each track will be printed.
+ *
+ * The CD device to use can be specified as the first command line parameter.
+ * If none is given the platform's default device will be used.
+ */

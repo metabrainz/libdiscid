@@ -147,10 +147,9 @@ jobs:
       run: |
         cd artifacts/
         dirs=$(find . -name 'libdiscid-*' -type d)
-        for dir in $dirs
-        do
+        for dir in $dirs; do
           name=$(basename $dir)
-          zip release/$name.zip $dir/*
+          zip -r release/$name.zip $dir/*
         done
     - name: Release
       uses: softprops/action-gh-release@v1

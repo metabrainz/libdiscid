@@ -36,47 +36,54 @@ jobs:
 
   package-windows:
     runs-on: windows-2019
-    strategy:
-      matrix:
-        generator:
-        - Visual Studio 16 2019
-        architecture:
-        - Win32
-        - x64
+    env:
+      GENERATOR: Visual Studio 16 2019
     steps:
     - uses: actions/checkout@v3
-    - name: Setup cmake
+    - name: Prepare package
       run: |
-        mkdir build
-        cd build
-        cmake -G $env:GENERATOR -A $env:ARCH ..
-      env:
-        GENERATOR: ${{ matrix.generator }}
-        ARCH: ${{ matrix.architecture }}
-    - name: Build
-      run: cmake --build build --config Release
-    - name: Package
-      run: |
-        cd build
         mkdir artifacts
-        cp .\Release\* artifacts
-        cp -R .\include artifacts
-        cp ..\COPYING artifacts
-        cp ..\README artifacts
-        cp ..\ChangeLog artifacts
+        cp .\COPYING artifacts
+        cp .\README artifacts
+        cp .\ChangeLog artifacts
+    - name: Build x64
+      run: |
+        mkdir _build_$env:ARCH
+        cd _build_$env:ARCH
+        cmake -G $env:GENERATOR -A $env:ARCH ..
+        cmake --build . --config Release
+        mkdir ..\artifacts\$env:ARCH
+        cp .\Release\* ..\artifacts\$env:ARCH
+        cp -R .\include ..\artifacts
+      env:
+        ARCH: x64
+    - name: Build Win32
+      run: |
+        mkdir _build_$env:ARCH
+        cd _build_$env:ARCH
+        cmake -G $env:GENERATOR -A $env:ARCH ..
+        cmake --build . --config Release
+        mkdir ..\artifacts\$env:ARCH
+        cp .\Release\* ..\artifacts\$env:ARCH
+      env:
+        ARCH: Win32
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: libdiscid-windows-${{ matrix.architecture }}
-        path: build/artifacts/
-    - name: Test
+        name: libdiscid-windows
+        path: artifacts/
+    - name: Test x64
       run: |
-        cd build
+        cd _build_x64
         cmake --build . --config Release --target test_core test_put test_read test_read_full
         .\Release\test_core.exe
         .\Release\test_put.exe
-        # .\Release\test_read.exe
-        # .\Release\test_read_full.exe
+    - name: Test Win32
+      run: |
+        cd _build_Win32
+        cmake --build . --config Release --target test_core test_put test_read test_read_full
+        .\Release\test_core.exe
+        .\Release\test_put.exe
 
   package-macos:
     runs-on: macos-11
@@ -114,6 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
+    - test
     - package-source
     - package-macos
     - package-windows
@@ -125,12 +133,8 @@ jobs:
         echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
     - uses: actions/download-artifact@v3
       with:
-        name: libdiscid-windows-Win32
-        path: artifacts/libdiscid-windows-${{ env.VERSION }}-win32/
-    - uses: actions/download-artifact@v3
-      with:
-        name: libdiscid-windows-x64
-        path: artifacts/libdiscid-windows-${{ env.VERSION }}-win64/
+        name: libdiscid-windows
+        path: artifacts/libdiscid-windows-${{ env.VERSION }}/
     - uses: actions/download-artifact@v3
       with:
         name: libdiscid-macos

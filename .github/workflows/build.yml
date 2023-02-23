@@ -151,6 +151,10 @@ jobs:
           name=$(basename $dir)
           zip -r release/$name.zip $dir/*
         done
+    - name: Generate checksums
+      run: |
+        cd artifacts/release/
+        sha256sum * > SHA256SUMS
     - name: Release
       uses: softprops/action-gh-release@v1
       with:

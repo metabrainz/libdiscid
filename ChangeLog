@@ -7,6 +7,9 @@ libdiscid-unreleased:
  - Haiku platform support (TOC only)
  - Use discid_feature enum in discid_read_sparse
  - Fixed building with CMake on macOS
+ - LIB-67: Source tarball with updated autotools configuration
+ - CMake: Use GNUInstallDirs to determine install location
+ - CMake 2.8.12 is now the minimum required version
 
 libdiscid-0.6.2:
 

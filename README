@@ -31,3 +31,8 @@ More information can be found at the package's official homepage:
 API documentation for the latest version is available at:
 
     https://metabrainz.github.io/libdiscid/
+
+
+libdiscid is free software licensed under the GNU Lesser General Public
+License 2.1 or later. See COPYING for details. The source code is available on
+https://github.com/metabrainz/libdiscid/ or from the official homepage.

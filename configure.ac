@@ -8,7 +8,7 @@ dnl Process this file with autoconf to produce a configure script.
 # PATCH is increase for all other releases
 define(MAJOR, 0)
 define(MINOR, 6)
-define(PATCH, 2)
+define(PATCH, 3)
 # currently the sole purpose of the project is the library,
 # so we use the library version also as project version
 AC_INIT([libdiscid],[MAJOR.MINOR.PATCH])

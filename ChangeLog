@@ -1,7 +1,7 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased:
+libdiscid-0.6.3:
 
  - LIB-66: fix for Debian kFreeBSD
  - Haiku platform support (TOC only)

@@ -1,6 +1,11 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-0.6.4:
+
+- LIB-69: Revert "Use discid_feature enum in discid_read_sparse". Fixes
+  compiler errors with C++.
+
 libdiscid-0.6.3:
 
  - LIB-66: fix for Debian kFreeBSD

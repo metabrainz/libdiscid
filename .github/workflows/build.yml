@@ -115,7 +115,7 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/git
           ~/.cargo/registry
-        key: ${{ runner.os }}-cargo }}
+        key: ${{ runner.os }}-cargo-rcodesign
     - name: Build
       run: |
         mkdir build

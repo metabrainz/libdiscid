@@ -141,7 +141,9 @@ jobs:
       run: |
         pip3 install awscli
         aws s3 cp "$CODESIGN_MACOS_P12_URL" ./appledev.p12
-        cargo install apple-codesign
+        if ! [ -x "$(command -v rcodesign)" ]; then
+          cargo install apple-codesign
+        fi
       env:
         AWS_DEFAULT_REGION: eu-central-1
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

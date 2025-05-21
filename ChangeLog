@@ -1,7 +1,7 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased:
+libdiscid-0.6.5:
 
 - CMake: Restore includedir and libdir
 - Code sign Windows and macOS binaries

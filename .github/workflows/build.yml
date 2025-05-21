@@ -69,7 +69,7 @@ jobs:
       env:
         ARCH: Win32
     - name: Code signing binaries
-      uses: azure/trusted-signing-action@v0.5.0
+      uses: azure/trusted-signing-action@v0.5
       if: env.CODESIGN == 'true'
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -109,7 +109,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Cache apple-codesign
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin

@@ -1,6 +1,11 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-unreleased:
+
+- CMake: Restore includedir and libdir
+- Code sign Windows and macOS binaries
+
 libdiscid-0.6.4:
 
 - LIB-69: Revert "Use discid_feature enum in discid_read_sparse". Fixes

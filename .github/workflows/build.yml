@@ -139,7 +139,9 @@ jobs:
     - name: Prepare code signing certificate
       if: env.CODESIGN == 'true'
       run: |
-        pip3 install awscli
+        if ! [ -x "$(command -v aws)" ]; then
+          pip3 install awscli
+        fi
         aws s3 cp "$CODESIGN_MACOS_P12_URL" ./appledev.p12
         if ! [ -x "$(command -v rcodesign)" ]; then
           cargo install apple-codesign

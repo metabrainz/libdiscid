@@ -168,6 +168,7 @@ jobs:
         name: libdiscid-macos
         path: build/artifacts
     - name: Code signing cleanup
+      if: env.CODESIGN == 'true'
       run: rm ./appledev.p12
 
   release:

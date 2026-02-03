@@ -109,7 +109,7 @@ jobs:
         .\Release\test_put.exe
 
   package-macos:
-    runs-on: macos-13
+    runs-on: macos-15
     env:
       MACOSX_DEPLOYMENT_TARGET: "10.10"
       CODESIGN: ${{ !!secrets.CODESIGN_MACOS_P12_URL }}

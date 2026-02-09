@@ -13,6 +13,12 @@ define(PATCH, 5)
 # so we use the library version also as project version
 AC_INIT([libdiscid],[MAJOR.MINOR.PATCH])
 
+AC_ARG_ENABLE([use_https],
+    AS_HELP_STRING([--enable-use-https], [Enable creating HTTPS URLs]),
+    [use_https=$enableval],
+    [use_https=no]
+)
+
 AC_CONFIG_SRCDIR([src/disc.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([build-aux])	# where to put config.guess etc.
@@ -42,7 +48,9 @@ dnl Set the host_cpu, host_vendor, and host_os variables.
 AC_CANONICAL_HOST
 
 AC_DEFINE(libdiscid_EXPORTS, [], "the header is used to create the library")
-
+if test "x$use_https" = "xyes"; then
+    AC_DEFINE([DISCID_USE_HTTPS], [1], [Define to 1 if use_https is enabled])
+fi
 
 case "${host_cpu}-${host_os}" in
   *-haiku*)    os=haiku;;

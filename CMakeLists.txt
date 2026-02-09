@@ -13,6 +13,9 @@ SET(libdiscid_MAJOR 0)
 SET(libdiscid_MINOR 6)
 SET(libdiscid_PATCH 5)
 
+# Build options
+OPTION(ENABLE_USE_HTTPS "Enable creating HTTPS URLs" OFF)
+
 
 SET(libdiscid_VERSION ${libdiscid_MAJOR}.${libdiscid_MINOR}.${libdiscid_PATCH})
 SET(libdiscid_SOVERSION ${libdiscid_MAJOR})
@@ -107,6 +110,9 @@ SET_TARGET_PROPERTIES(libdiscid PROPERTIES
 )
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include
 	${CMAKE_CURRENT_BINARY_DIR}/include ${MUSICBRAINZ5_INCLUDE_DIRS})
+IF(ENABLE_USE_HTTPS)
+    TARGET_COMPILE_DEFINITIONS(libdiscid PUBLIC DISCID_USE_HTTPS)
+ENDIF()
 
 ADD_EXECUTABLE(discid examples/discid.c)
 TARGET_LINK_LIBRARIES(discid libdiscid)

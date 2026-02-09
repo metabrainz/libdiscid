@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include <discid/discid.h>
+#include <discid/discid_private.h>
 #include "test.h"
 
 
@@ -100,14 +101,14 @@ int main(int argc, char *argv[]) {
 
 	/* MusicBrainz web submit URL */
 	announce("discid_get_submission_url");
-	expected = "https://musicbrainz.org/cdtoc/attach?id=xUp1F2NkfP8s8jaeFn_Av3jNEI4-&tracks=22&toc=1+22+303602+150+9700+25887+39297+53795+63735+77517+94877+107270+123552+135522+148422+161197+174790+192022+205545+218010+228700+239590+255470+266932+288750";
+	expected = MB_URL_PROTOCOL "://musicbrainz.org/cdtoc/attach?id=xUp1F2NkfP8s8jaeFn_Av3jNEI4-&tracks=22&toc=1+22+303602+150+9700+25887+39297+53795+63735+77517+94877+107270+123552+135522+148422+161197+174790+192022+205545+218010+228700+239590+255470+266932+288750";
 	evaluate(equal_str(discid_get_submission_url(d), expected));
 
 	announce("discid_get_error_msg");
 	evaluate(strlen(discid_get_error_msg(d)) == 0);
 
 	discid_free(d);
-	
+
 	return !test_result();
 }
 

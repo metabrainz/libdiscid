@@ -27,7 +27,17 @@
 #ifndef MUSICBRAINZ_DISC_ID_PRIVATE_H
 #define MUSICBRAINZ_DISC_ID_PRIVATE_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "discid/discid.h"
+
+#ifdef DISCID_USE_HTTPS
+#define MB_URL_PROTOCOL "https"
+#else
+#define MB_URL_PROTOCOL "http"
+#endif
 
 /* Length of toc string, "xxx+xxx" + 100 tracks 7 bytes each ("+xxxxxx")
  * The highest possible offset is 90 minutes * 60 seconds/minute * 75 frames/second = 405000.
@@ -52,10 +62,10 @@
 #define MB_MAX_URL_LENGTH		(MB_URL_PREFIX_LENGTH + MB_DISC_ID_LENGTH + MB_TOC_STRING_LENGTH)
 
 /* The URL that can be used for submitting DiscIDs (no parameters yet) */
-#define MB_SUBMISSION_URL		"https://musicbrainz.org/cdtoc/attach"
+#define MB_SUBMISSION_URL		MB_URL_PROTOCOL"://musicbrainz.org/cdtoc/attach"
 
 /* The URL that can be used for retrieving XML for a CD */
-#define MB_WEBSERVICE_URL		"https://musicbrainz.org/ws/1/release"
+#define MB_WEBSERVICE_URL		MB_URL_PROTOCOL"://musicbrainz.org/ws/1/release"
 
 /* Maximum length of a Media Catalogue Number string */
 #define MCN_STR_LENGTH		13
@@ -117,7 +127,7 @@ LIBDISCID_INTERNAL int mb_disc_read_unportable(mb_disc_private *disc, const char
 
 
 /*
- * This should return the name of the default/preferred CDROM/DVD device 
+ * This should return the name of the default/preferred CDROM/DVD device
  * on this operating system. It has to be in a format usable for the second
  * parameter of mb_disc_read_unportable().
  */

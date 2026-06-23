@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Build and test
       run: |
         mkdir build
@@ -23,13 +23,13 @@ jobs:
   package-source:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Make source tarball
       run: |
         ./autogen.sh
         ./configure && make distcheck
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: libdiscid-source
         path: libdiscid-*.tar.gz
@@ -42,7 +42,7 @@ jobs:
       GENERATOR: Visual Studio 16 2019
       CODESIGN: ${{ !!secrets.AZURE_CERT_PROFILE_NAME }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Prepare package
       run: |
         mkdir artifacts
@@ -71,7 +71,7 @@ jobs:
       env:
         ARCH: Win32
     - name: Azure login
-      uses: azure/login@v2
+      uses: azure/login@v3.0.0
       if: env.CODESIGN == 'true'
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -91,7 +91,7 @@ jobs:
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: libdiscid-windows
         path: artifacts/
@@ -114,7 +114,7 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: "10.10"
       CODESIGN: ${{ !!secrets.CODESIGN_MACOS_P12_URL }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Cache apple-codesign
       uses: actions/cache@v5
       with:
@@ -170,7 +170,7 @@ jobs:
       env:
         CODESIGN_MACOS_P12_PASSWORD: ${{ secrets.CODESIGN_MACOS_P12_PASSWORD }}
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: libdiscid-macos
         path: build/artifacts
@@ -187,7 +187,7 @@ jobs:
     - package-macos
     - package-windows
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set version
       run: |
         TAG=${GITHUB_REF##*/}
@@ -217,7 +217,7 @@ jobs:
         cd artifacts/release/
         sha256sum * > SHA256SUMS
     - name: Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         files: artifacts/release/*
       env:

@@ -35,11 +35,11 @@ jobs:
         path: libdiscid-*.tar.gz
 
   package-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     permissions:
       id-token: write
     env:
-      GENERATOR: Visual Studio 16 2019
+      GENERATOR: Visual Studio 17 2022
       CODESIGN: ${{ !!secrets.AZURE_CERT_PROFILE_NAME }}
     steps:
     - uses: actions/checkout@v7

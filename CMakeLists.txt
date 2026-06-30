@@ -41,13 +41,15 @@ SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_FULL_INCLUDEDIR} CACHE PATH "Installatio
 SET(PACKAGE ${PROJECT_NAME})
 SET(VERSION ${PROJECT_VERSION})
 SET(PACKAGE_STRING "${PACKAGE} ${VERSION}")
-SET(includedir ${INCLUDE_INSTALL_DIR})
-SET(libdir ${LIB_INSTALL_DIR})
+SET(prefix ${CMAKE_INSTALL_PREFIX})
+SET(exec_prefix \$\{prefix\})
+SET(includedir \$\{prefix\}/${CMAKE_INSTALL_INCLUDEDIR})
+SET(libdir \$\{exec_prefix\}/${CMAKE_INSTALL_LIBDIR})
 
-CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc)
-CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc)
-CONFIGURE_FILE(Doxyfile.in Doxyfile)
-CONFIGURE_FILE(include/discid/discid.h.in include/discid/discid.h)
+CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc @ONLY)
+CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc @ONLY)
+CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
+CONFIGURE_FILE(include/discid/discid.h.in include/discid/discid.h @ONLY)
 
 # normalizing operating systems
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux")

@@ -47,7 +47,7 @@ SET(includedir \$\{prefix\}/${CMAKE_INSTALL_INCLUDEDIR})
 SET(libdir \$\{exec_prefix\}/${CMAKE_INSTALL_LIBDIR})
 
 CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc @ONLY)
-CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc @ONLY)
+CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc @ONLY NEWLINE_STYLE CRLF)
 CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 CONFIGURE_FILE(include/discid/discid.h.in include/discid/discid.h @ONLY)
 

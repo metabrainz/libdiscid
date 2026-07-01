@@ -39,21 +39,24 @@
 #include "discid/discid_private.h"
 #include "unix.h"
 
+#include <Availability.h>
+
+// For compatibility with macOS < 12.0
+#if !defined(__MAC_12_0) || (__MAC_OS_X_VERSION_MIN_REQUIRED < __MAC_12_0)
+#define kIOMainPortDefault kIOMasterPortDefault
+#endif
+
 #define MB_DEFAULT_DEVICE "1"	/* first disc drive (empty or not) */
 #define TOC_BUFFER_LEN 2048
 
 
 static int find_cd_block_devices(io_iterator_t *device_iterator)
 {
-	mach_port_t master_port;
 	CFMutableDictionaryRef matching_dictionary;
-
-	if (IOMasterPort(MACH_PORT_NULL, &master_port) != KERN_SUCCESS)
-		return 0;
 
 	matching_dictionary = IOServiceMatching(kIOCDBlockStorageDeviceClass);
 
-	if (IOServiceGetMatchingServices(master_port, matching_dictionary,
+	if (IOServiceGetMatchingServices(kIOMainPortDefault, matching_dictionary,
 					 device_iterator) != KERN_SUCCESS)
 		return 0;
 	else

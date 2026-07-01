@@ -11,6 +11,8 @@ libdiscid-unreleased
   update your software to not rely on the exact URL structure being returned.
 - CMake: Fix pkg-config .pc file not being relocatable
 - Autotools: Fix "make docs" not including examples
+- Mac: Fix compiler warning about deprecated use of IOMasterPort
+- Fix compiler warnings about use of strncpy
 - Consistently use CRLF for newlines in versioninfo.rc
 
 libdiscid-0.6.5:

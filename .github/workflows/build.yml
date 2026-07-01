@@ -12,13 +12,28 @@ jobs:
         os: [macos-latest, ubuntu-latest]
     steps:
     - uses: actions/checkout@v7
-    - name: Build and test
+    - name: Build and test (cmake)
       run: |
-        mkdir build
-        cd build
+        mkdir _build_cmake
+        cd _build_cmake
         cmake ..
         make
         make check
+    - name: Build and test (autotools)
+      if: runner.os == 'linux'
+      run: |
+        ./autogen.sh
+        mkdir _build_autotools
+        cd _build_autotools
+        ../configure
+        make
+        make check
+    - name: Verify identical build output of build systems
+      if: runner.os == 'linux'
+      run: |
+        diff _build_cmake/include/discid/discid.h _build_autotools/include/discid/discid.h
+        diff _build_cmake/libdiscid.pc _build_autotools/libdiscid.pc
+        diff _build_cmake/versioninfo.rc _build_autotools/versioninfo.rc
 
   package-source:
     runs-on: ubuntu-latest

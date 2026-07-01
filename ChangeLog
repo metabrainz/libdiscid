@@ -1,9 +1,21 @@
 libdiscid ChangeLog:
 --------------------
 
+libdiscid-unreleased
+
+- Add DISCID_USE_HTTPS build flag: If set, the functions discid_get_submission_url
+  and discid_get_webservice_url will generate URLs using the HTTPS protocol instead
+  of HTTP. This might break existing applications that rely on the exact URL
+  structure being returned, hence this flag is disabled by default.
+  NOTE: DISCID_USE_HTTPS will become the default in a future release. Please
+  update your software to not rely on the exact URL structure being returned.
+- CMake: Fix pkg-config .pc file not being relocatable
+- Autotools: Fix "make docs" not including examples
+- Consistently use CRLF for newlines in versioninfo.rc
+
 libdiscid-0.6.5:
 
-- CMake: Restore includedir and libdir
+- CMake: Fix broken pkg-config by restoring includedir and libdir
 - Code sign Windows and macOS binaries
 
 libdiscid-0.6.4:
@@ -133,4 +145,3 @@ libdiscid-0.1.1:
 libdiscid-0.1.0:
 
   - Initial public release.
-

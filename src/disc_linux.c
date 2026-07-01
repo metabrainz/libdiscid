@@ -164,9 +164,8 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 	if(ioctl(fd, CDROM_GET_MCN, &mcn) == -1) {
 		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
 	} else {
-		strncpy( disc->mcn,
-				(const char *)mcn.medium_catalog_number,
-				MCN_STR_LENGTH );
+		memcpy(disc->mcn, mcn.medium_catalog_number, MCN_STR_LENGTH);
+		disc->mcn[MCN_STR_LENGTH] = '\0';
 	}
 }
 
@@ -235,8 +234,8 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 		for (i = 0; i < ISRC_STR_LENGTH; i++) {
 			buffer[i] = data[9 + i];
 		}
-		buffer[ISRC_STR_LENGTH] = 0;
-		strncpy(disc->isrc[track_num], buffer, ISRC_STR_LENGTH);
+		buffer[ISRC_STR_LENGTH] = '\0';
+		memcpy(disc->isrc[track_num], buffer, ISRC_STR_LENGTH+1);
 	}
 	/* data[21:23] = zero, AFRAME, reserved */
 }

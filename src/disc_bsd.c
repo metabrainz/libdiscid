@@ -122,12 +122,12 @@ void mb_disc_unix_read_mcn(int fd, mb_disc_private *disc) {
 	if ( ioctl(fd, CDIOCREADSUBCHANNEL, &rsc) < 0 )
 		perror ("Warning: Unable to read the disc's media catalog number");
 	else {
-		if (sci.what.media_catalog.mc_valid)
-			strncpy( disc->mcn,
-				 (const char *) sci.what.media_catalog.mc_number,
-				 MCN_STR_LENGTH );
-		else
-			memset( disc->mcn, 0, MCN_STR_LENGTH );
+		if (sci.what.media_catalog.mc_valid) {
+			memcpy(disc->mcn, sci.what.media_catalog.mc_number, MCN_STR_LENGTH);
+			disc->mcn[MCN_STR_LENGTH] = '\0';
+		} else {
+			memset(disc->mcn, 0, MCN_STR_LENGTH+1);
+		}
 	}
 }
 
@@ -146,12 +146,14 @@ void mb_disc_unix_read_isrc(int fd, mb_disc_private *disc, int track_num) {
 	if ( ioctl(fd, CDIOCREADSUBCHANNEL, &rsc) < 0 )
 		perror ("Warning: Unable to read track info (ISRC)");
 	else {
-		if (sci.what.track_info.ti_valid)
-			strncpy( disc->isrc[track_num],
-				 (const char *) sci.what.track_info.ti_number,
-				 ISRC_STR_LENGTH );
-		else
-			memset( disc->isrc[track_num], 0, ISRC_STR_LENGTH );
+		if (sci.what.track_info.ti_valid) {
+			memcpy(disc->isrc[track_num],
+			       sci.what.track_info.ti_number,
+			       ISRC_STR_LENGTH);
+			disc->isrc[track_num][ISRC_STR_LENGTH] = '\0';
+		} else {
+			memset(disc->isrc[track_num], 0, ISRC_STR_LENGTH+1);
+		}
 	}
 }
 

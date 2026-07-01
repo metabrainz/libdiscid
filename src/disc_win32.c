@@ -101,8 +101,8 @@ static void read_disc_mcn(HANDLE hDevice, mb_disc_private *disc) {
 	if (bResult == FALSE) {
 		fprintf(stderr, "Warning: Unable to read the disc's media catalog number.\n");
 	} else {
-		strncpy(disc->mcn, (char *) data.MediaCatalog.MediaCatalog,
-			MCN_STR_LENGTH);
+		memcpy(disc->mcn, data.MediaCatalog.MediaCatalog, MCN_STR_LENGTH);
+		disc->mcn[MCN_STR_LENGTH] = '\0';
 	}
 }
 
@@ -121,8 +121,8 @@ static void read_disc_isrc(HANDLE hDevice, mb_disc_private *disc, int track) {
 	if (bResult == FALSE) {
 		fprintf(stderr, "Warning: Unable to read the international standard recording code (ISRC) for track %i\n", track);
 	} else {
-		strncpy(disc->isrc[track], (char *) data.TrackIsrc.TrackIsrc,
-			ISRC_STR_LENGTH);
+		memcpy(disc->isrc[track], data.TrackIsrc.TrackIsrc, ISRC_STR_LENGTH);
+		disc->isrc[track][ISRC_STR_LENGTH] = '\0';
 	}
 }
 

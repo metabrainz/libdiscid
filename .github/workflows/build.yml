@@ -20,6 +20,7 @@ jobs:
         make
         make check
     - name: Build and test (autotools)
+      if: runner.os == 'linux'
       run: |
         ./autogen.sh
         mkdir _build_autotools
@@ -28,6 +29,7 @@ jobs:
         make
         make check
     - name: Verify identical build output of build systems
+      if: runner.os == 'linux'
       run: |
         diff _build_cmake/include/discid/discid.h _build_autotools/include/discid/discid.h
         diff _build_cmake/libdiscid.pc _build_autotools/libdiscid.pc

@@ -51,11 +51,15 @@ jobs:
 
   package-windows:
     runs-on: windows-2022
+    strategy:
+      matrix:
+        arch: [x64, Win32]
     permissions:
       id-token: write
     env:
       GENERATOR: Visual Studio 17 2022
       CODESIGN: ${{ !!secrets.AZURE_CERT_PROFILE_NAME }}
+      ARCH: ${{ matrix.arch }}
     steps:
     - uses: actions/checkout@v7
     - name: Prepare package
@@ -64,27 +68,15 @@ jobs:
         cp .\COPYING artifacts
         cp .\README artifacts
         cp .\ChangeLog artifacts
-    - name: Build x64
+    - name: Build ${{ matrix.arch }}
       run: |
-        mkdir _build_$env:ARCH
-        cd _build_$env:ARCH
+        mkdir _build
+        cd _build
         cmake -G $env:GENERATOR -A $env:ARCH ..
         cmake --build . --config Release
         mkdir ..\artifacts\$env:ARCH
         cp .\Release\* ..\artifacts\$env:ARCH
         cp -R .\include ..\artifacts
-      env:
-        ARCH: x64
-    - name: Build Win32
-      run: |
-        mkdir _build_$env:ARCH
-        cd _build_$env:ARCH
-        cmake -G $env:GENERATOR -A $env:ARCH ..
-        cmake --build . --config Release
-        mkdir ..\artifacts\$env:ARCH
-        cp .\Release\* ..\artifacts\$env:ARCH
-      env:
-        ARCH: Win32
     - name: Azure login
       uses: azure/login@v3.0.0
       if: env.CODESIGN == 'true'
@@ -108,17 +100,11 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v7
       with:
-        name: libdiscid-windows
+        name: libdiscid-windows-${{ matrix.arch }}
         path: artifacts/
-    - name: Test x64
+    - name: Test ${{ matrix.arch }}
       run: |
-        cd _build_x64
-        cmake --build . --config Release --target test_core test_put test_read test_read_full
-        .\Release\test_core.exe
-        .\Release\test_put.exe
-    - name: Test Win32
-      run: |
-        cd _build_Win32
+        cd _build
         cmake --build . --config Release --target test_core test_put test_read test_read_full
         .\Release\test_core.exe
         .\Release\test_put.exe
@@ -209,7 +195,11 @@ jobs:
         echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
     - uses: actions/download-artifact@v7
       with:
-        name: libdiscid-windows
+        name: libdiscid-windows-x64
+        path: artifacts/libdiscid-${{ env.VERSION }}-win/
+    - uses: actions/download-artifact@v7
+      with:
+        name: libdiscid-windows-Win32
         path: artifacts/libdiscid-${{ env.VERSION }}-win/
     - uses: actions/download-artifact@v7
       with:

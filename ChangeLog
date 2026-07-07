@@ -14,6 +14,7 @@ libdiscid-unreleased
 - Mac: Fix compiler warning about deprecated use of IOMasterPort
 - Fix compiler warnings about use of strncpy
 - Consistently use CRLF for newlines in versioninfo.rc
+- Provide Windows ARM64 binary builds
 
 libdiscid-0.6.5:
 

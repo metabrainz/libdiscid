@@ -185,7 +185,6 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     needs:
     - test
     - package-source
@@ -193,9 +192,12 @@ jobs:
     - package-windows
     steps:
     - uses: actions/checkout@v7
+      with:
+        fetch-depth: 300
+        fetch-tags: true
     - name: Set version
       run: |
-        TAG=${GITHUB_REF##*/}
+        TAG=$(git describe)
         echo "VERSION=$(echo $TAG | sed 's/^v//')" >> $GITHUB_ENV
     - uses: actions/download-artifact@v7
       with:
@@ -229,8 +231,14 @@ jobs:
       run: |
         cd artifacts/release/
         sha256sum * > SHA256SUMS
+    - name: Release artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-packages
+        path: artifacts/release
     - name: Release
       uses: softprops/action-gh-release@v3
+      if: startsWith(github.ref, 'refs/tags/v')
       with:
         files: artifacts/release/*
       env:

@@ -50,10 +50,14 @@ jobs:
         path: libdiscid-*.tar.gz
 
   package-windows:
-    runs-on: windows-2022
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [windows-2022]
         arch: [x64, Win32]
+        include:
+        - os: windows-11-arm
+          arch: arm64
     permissions:
       id-token: write
     env:
@@ -200,6 +204,10 @@ jobs:
     - uses: actions/download-artifact@v7
       with:
         name: libdiscid-windows-Win32
+        path: artifacts/libdiscid-${{ env.VERSION }}-win/
+    - uses: actions/download-artifact@v7
+      with:
+        name: libdiscid-windows-arm64
         path: artifacts/libdiscid-${{ env.VERSION }}-win/
     - uses: actions/download-artifact@v7
       with:

@@ -42,7 +42,7 @@ DISCID_USE_HTTPS: If set, the functions discid_get_submission_url and
 
 To enable this feature when using CMake, change the cmake command from above to:
 
-    cmake -DENABLE_USE_HTTPS=ON …
+    cmake -DENABLE_USE_HTTPS=ON ..
 
 To enable this feature when using Autotools, change the configure command from above to:
 

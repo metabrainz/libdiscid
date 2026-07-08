@@ -1,7 +1,7 @@
 libdiscid ChangeLog:
 --------------------
 
-libdiscid-unreleased
+libdiscid-0.7.0:
 
 - Add DISCID_USE_HTTPS build flag: If set, the functions discid_get_submission_url
   and discid_get_webservice_url will generate URLs using the HTTPS protocol instead

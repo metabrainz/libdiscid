@@ -55,13 +55,15 @@ jobs:
       matrix:
         os: [windows-2022]
         arch: [x64, Win32]
+        cmake-generator: [Visual Studio 17 2022]
         include:
         - os: windows-11-arm
           arch: arm64
+          cmake-generator: Visual Studio 18 2026
     permissions:
       id-token: write
     env:
-      GENERATOR: Visual Studio 17 2022
+      GENERATOR: ${{ matrix.cmake-generator }}
       CODESIGN: ${{ !!secrets.AZURE_CERT_PROFILE_NAME }}
       ARCH: ${{ matrix.arch }}
     steps:

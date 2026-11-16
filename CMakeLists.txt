@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12...3.28.3)
+cmake_minimum_required(VERSION 3.20)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 PROJECT(libdiscid C)
@@ -44,8 +44,8 @@ SET(PACKAGE_STRING "${PACKAGE} ${VERSION}")
 SET(srcdir ${CMAKE_SOURCE_DIR})
 SET(prefix ${CMAKE_INSTALL_PREFIX})
 SET(exec_prefix \$\{prefix\})
-SET(includedir \$\{prefix\}/${CMAKE_INSTALL_INCLUDEDIR})
-SET(libdir \$\{exec_prefix\}/${CMAKE_INSTALL_LIBDIR})
+CMAKE_PATH(APPEND includedir "\${prefix}" "${CMAKE_INSTALL_INCLUDEDIR}")
+CMAKE_PATH(APPEND libdir "\${exec_prefix}" "${CMAKE_INSTALL_LIBDIR}")
 
 CONFIGURE_FILE(libdiscid.pc.in libdiscid.pc @ONLY)
 CONFIGURE_FILE(versioninfo.rc.in versioninfo.rc @ONLY NEWLINE_STYLE CRLF)

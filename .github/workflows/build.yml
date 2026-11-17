@@ -84,7 +84,7 @@ jobs:
         cp .\Release\* ..\artifacts\$env:ARCH
         cp -R .\include ..\artifacts
     - name: Azure login
-      uses: azure/login@v3.0.0
+      uses: azure/login@v3.1.0
       if: env.CODESIGN == 'true'
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -123,7 +123,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Cache apple-codesign
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: |
           ~/.cargo/bin
